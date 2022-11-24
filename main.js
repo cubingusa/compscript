@@ -9,6 +9,7 @@ const express = require('express')
 
 var app = express()
 
+app.set('view engine', 'pug')
 app.use(cookieSession({
   keys: [process.env.COOKIE_SECRET],
   maxAge: 5 * 24 * 60 * 60 * 1000 // 5 days
@@ -16,8 +17,10 @@ app.use(cookieSession({
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(auth.redirectIfNotLoggedIn)
 app.use('/auth', auth.router)
-app.get('/', function(req, res) {
-  res.send('Hello world!')
+app.get('/', async function(req, res) {
+  var startTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  var competitions = await auth.getWcaApi('/api/v0/competitions?managed_by_me=true&start=' + startTime, req, res);
+  res.render('index', {'competitions': competitions})
 })
 
 app.listen(process.env.PORT, function() {

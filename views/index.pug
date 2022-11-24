@@ -1,0 +1,8 @@
+html
+  head
+    title Nats Helper
+  body
+    h1 Nats Helper
+    each competition in competitions
+      p
+        a(href='/'+competition.id)= competition.name
