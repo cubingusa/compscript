@@ -2,6 +2,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const auth = require('./auth')
+const competition = require('./competition')
 
 const bodyParser = require('body-parser')
 const cookieSession = require('cookie-session')
@@ -22,6 +23,7 @@ app.get('/', async function(req, res) {
   var competitions = await auth.getWcaApi('/api/v0/competitions?managed_by_me=true&start=' + startTime, req, res);
   res.render('index', {'competitions': competitions})
 })
+app.use(competition.router)
 
 app.listen(process.env.PORT, function() {
   console.log('Server running at http://localhost:%d', process.env.PORT);
