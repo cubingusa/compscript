@@ -31,7 +31,7 @@ async function getWcaApi(resourceUrl, req, res) {
   var tokenSet = await client.refresh(req.session.refreshToken)
   req.session.refreshToken = tokenSet.refresh_token
   var out = await client.requestResource(`${process.env.WCA_HOST}/${resourceUrl}`, tokenSet.access_token)
-  return JSON.parse(response.body.toString());
+  return JSON.parse(out.body.toString());
 }
 
 router.get('/login', function(req, res) {
@@ -69,16 +69,27 @@ router.get('/logout', function(req, res) {
   res.redirect('/')
 })
 
-function redirectIfNotLoggedIn(req, res, next) {
-  if (!req.session.refreshToken && req.path != '/auth/oauth_response') {
-    const uri = client.authorizationUrl({
-      scope: 'public manage_competitions'
-    })
-    req.session.redirect = req.originalUrl;
-    res.redirect(uri);
+async function redirectIfNotLoggedIn(req, res, next) {
+  console.log(req.path);
+  if (req.path == '/auth/oauth_response') {
+    next()
     return
   }
-  next()
+  if (req.session.refreshToken) {
+    try {
+      var me = await getWcaApi('/api/v0/me', req, res)
+      next()
+      return
+    } catch (e) {
+      console.log('error, redirecting')
+      // Refresh token doesn't work, go to login flow.
+    }
+  }
+  const uri = client.authorizationUrl({
+    scope: 'public manage_competitions'
+  })
+  req.session.redirect = req.originalUrl;
+  res.redirect(uri);
 }
 
 module.exports = {
