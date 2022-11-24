@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "cookie-session": "^2.0.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "openid-client": "^5.0.2"
+  },
+  "name": "natshelper",
+  "description": "Helper app for CubingUSA Nats scheduling.",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timreyn/natshelper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/timreyn/natshelper/issues"
+  },
+  "homepage": "https://github.com/timreyn/natshelper#readme"
+}

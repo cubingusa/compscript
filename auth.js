@@ -1,0 +1,88 @@
+const assert = require('assert')
+const express = require('express')
+const { Issuer, custom } = require('openid-client')
+
+custom.setHttpOptionsDefaults({
+  timeout: 10000,
+});
+
+var router = express.Router()
+
+const wca = new Issuer({
+  issuer: 'worldcubeassociation',
+  authorization_endpoint: `${process.env.WCA_HOST}/oauth/authorize`,
+  token_endpoint: `${process.env.WCA_HOST}/oauth/token`,
+  userinfo_endpoint: `${process.env.WCA_HOST}/api/v0/me`
+})
+
+const redirect_uri = `${process.env.SCHEME}://${process.env.HOST}:${process.env.PORT}/auth/oauth_response`
+
+const client = new wca.Client({
+  client_id: process.env.API_KEY,
+  client_secret: process.env.API_SECRET,
+  response_type: 'code',
+  redirect_uri: redirect_uri
+})
+
+async function getWcaApi(resourceUrl, req, res) {
+  if (!req.session.refreshToken) {
+    return Promise.resolve(null)
+  }
+  var tokenSet = await client.refresh(req.session.refreshToken)
+  req.session.refreshToken = tokenSet.refresh_token
+  var out = await client.requestResource(`${process.env.WCA_HOST}/${resourceUrl}`, tokenSet.access_token)
+  return JSON.parse(response.body.toString());
+}
+
+router.get('/login', function(req, res) {
+  const uri = client.authorizationUrl({
+    scope: 'public manage_competitions'
+  })
+  if (req.get('Referer')) {
+    req.session.redirect = req.get('Referer')
+  }
+
+  res.redirect(uri)
+})
+
+router.get('/oauth_response', async function(req, res) {
+  const params = client.callbackParams(req)
+  try {
+    var tokenSet = await client.oauthCallback(redirect_uri, params);
+    req.session.refreshToken = tokenSet.refresh_token;
+    var url = req.session.redirect
+    if (url) {
+      req.session.redirect = null;
+      res.redirect(url)
+    } else {
+      res.redirect('/')
+    }
+  } catch (e) {
+    req.session.refreshToken = null;
+    res.redirect('/')
+  }
+})
+
+router.get('/logout', function(req, res) {
+  res.clearCookie('userId')
+  req.session.refreshToken = null;
+  res.redirect('/')
+})
+
+function redirectIfNotLoggedIn(req, res, next) {
+  if (!req.session.refreshToken && req.path != '/auth/oauth_response') {
+    const uri = client.authorizationUrl({
+      scope: 'public manage_competitions'
+    })
+    req.session.redirect = req.originalUrl;
+    res.redirect(uri);
+    return
+  }
+  next()
+}
+
+module.exports = {
+  router: router,
+  getWcaApi: getWcaApi,
+  redirectIfNotLoggedIn: redirectIfNotLoggedIn,
+}
