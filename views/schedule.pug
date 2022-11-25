@@ -1,5 +1,25 @@
 html
   head
     title Nats Helper
+    style
+      include schedule.css
   body
-    h1= competition.name + ' Schedule'
+    h1= comp.competition.name + ' Schedule'
+    each day in comp.sortedSchedule
+      h3= day.day.toLocaleString(fn.DateTime.DATE_HUGE)
+      table
+        tr
+          th Event
+          th Start
+          th End
+          th Competitors
+          th Groups
+          each roomId in Object.keys(comp.rooms)
+            th= comp.rooms[roomId].name
+        each activityList in day.activities
+          tr
+            - var activityCode = fn.parseActivityCode(activityList[0].activityCode)
+            if activityCode.isActivity()
+              td= activityCode.toString()
+            else 
+              td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()

@@ -7,6 +7,7 @@ const competition = require('./competition')
 const bodyParser = require('body-parser')
 const cookieSession = require('cookie-session')
 const express = require('express')
+const favicon = require('serve-favicon')
 
 var app = express()
 
@@ -16,6 +17,7 @@ app.use(cookieSession({
   maxAge: 5 * 24 * 60 * 60 * 1000 // 5 days
 }))
 app.use(bodyParser.json({ limit: '50mb' }))
+app.use(favicon(__dirname + '/static/favicon.ico'))
 app.use(auth.redirectIfNotLoggedIn)
 app.use('/auth', auth.router)
 app.get('/', async function(req, res) {
