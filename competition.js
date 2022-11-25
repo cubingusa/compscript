@@ -46,7 +46,6 @@ compData = function(competition) {
   })
   activities.forEach((dayActivities) => {
     var dayActivityList = Array.from(dayActivities.activities.entries())
-    console.log(dayActivityList.map((acts) => Math.min(acts[1].map((act) => act.startTime))))
     dayActivityList.sort((actsA, actsB) => {
       var aStart = DateTime.min(...actsA[1].map((act) => act.startTime))
       var bStart = DateTime.min(...actsB[1].map((act) => act.startTime))
