@@ -3,6 +3,7 @@ html
     title Nats Helper
     style
       include schedule.css
+    link(rel='stylesheet', href='/cubing-icons.css')
   body
     h1= comp.competition.name + ' Schedule'
     each day in comp.sortedSchedule
@@ -20,6 +21,8 @@ html
           tr
             - var activityCode = fn.parseActivityCode(activityList[0].activityCode)
             if activityCode.isActivity()
-              td= activityCode.toString()
+              td
+                span(class='cubing-icon event-' + activityCode.eventId)
+                = activityCode.toStringShort()
             else 
               td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()

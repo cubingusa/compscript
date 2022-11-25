@@ -33,6 +33,15 @@ class ActivityCode {
     }
     return out.join(' ')
   }
+
+  toStringShort() {
+    if (this.attemptNumber) {
+      return 'A' + this.attemptNumber
+    } else {
+      return 'R' + this.roundNumber
+    }
+  }
+
   isActivity() {
     return true
   }

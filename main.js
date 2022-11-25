@@ -18,6 +18,7 @@ app.use(cookieSession({
 }))
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(favicon(__dirname + '/static/favicon.ico'))
+app.use(express.static('static'))
 app.use(auth.redirectIfNotLoggedIn)
 app.use('/auth', auth.router)
 app.get('/', async function(req, res) {
