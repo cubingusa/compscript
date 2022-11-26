@@ -9,19 +9,19 @@ class ActivityCode {
   }
 
   round(roundNumber) {
-    return ActivityCode(this.eventId, roundNumber, this.groupName, this.attemptNumber)
+    return new ActivityCode(this.eventId, roundNumber, this.groupName, this.attemptNumber)
   }
 
   group(groupName) {
-    return ActivityCode(this.eventId, this.roundNumber, groupName, this.attemptNumber)
+    return new ActivityCode(this.eventId, this.roundNumber, groupName, this.attemptNumber)
   }
 
   attempt(attemptNumber) {
-    return ActivityCode(this.eventId, this.roundNumber, this.groupName, attemptNumber)
+    return new ActivityCode(this.eventId, this.roundNumber, this.groupName, attemptNumber)
   }
 
   toString() {
-    out = [events.idToName[this.eventId]]
+    var out = [events.idToName[this.eventId]]
     if (this.roundNumber) {
       out.push('Round ' + this.roundNumber)
     }
@@ -43,7 +43,7 @@ class ActivityCode {
   }
 
   id() {
-    out = [this.eventId]
+    var out = [this.eventId]
     if (this.roundNumber) {
       out.push('r' + this.roundNumber)
     }
@@ -104,5 +104,6 @@ function parse(code) {
 }
 
 module.exports = {
-  parse: parse
+  parse: parse,
+  ActivityCode: ActivityCode
 }
