@@ -33,8 +33,10 @@ html
                 td
                   input(type='number' name=activityCode.id() + '.groups' value=activityList.numGroups style="width: 4em")
                 each roomId in Object.keys(comp.rooms)
+                  - var activity = activityList.activities.get(+roomId)
+                  - var activityExtension = activity ? fn.getExtension(activity, 'Activity') : null
                   td
                     input(type='checkbox' name=activityCode.id() + '.' + roomId + '-active', checked=activityList.activities.has(+roomId))
-                    input(name=activityCode.id() + '.' + roomId + '-adjustment', style="width: 4em")
+                    input(name=activityCode.id() + '.' + roomId + '-adjustment', style="width: 4em", value=activityExtension ? activityExtension.adjustment : '')
               else 
                 td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()
