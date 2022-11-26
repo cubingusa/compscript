@@ -8,21 +8,26 @@ html
     h1= comp.competition.name + ' Schedule'
     each day in comp.sortedSchedule
       h3= day.day.toLocaleString(fn.DateTime.DATE_HUGE)
-      table
-        tr
-          th Event
-          th Start
-          th End
-          th Competitors
-          th Groups
-          each roomId in Object.keys(comp.rooms)
-            th= comp.rooms[roomId].name
-        each activityList in day.activities
+      form(action='/' + comp.competition.id + '/schedule')
+        table
           tr
-            - var activityCode = fn.parseActivityCode(activityList[0].activityCode)
-            if activityCode.isActivity()
-              td
-                span(class='cubing-icon event-' + activityCode.eventId)
-                = activityCode.toStringShort()
-            else 
-              td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()
+            th Event
+            th Start
+            th End
+            th Competitors
+            th Groups
+            each roomId in Object.keys(comp.rooms)
+              th= comp.rooms[roomId].name
+          each activityList in day.activities
+            tr
+              - var activityCode = fn.parseActivityCode(activityList.activities[0].activityCode)
+              if activityCode.isActivity()
+                td
+                  span(class='cubing-icon event-' + activityCode.eventId)
+                  = activityCode.toStringShort()
+                td
+                  input(type='time' name=activityCode + '-start' value=activityList.startTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+                td
+                  input(type='time' name=activityCode + '-end' value=activityList.endTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+              else 
+                td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()

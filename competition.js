@@ -23,7 +23,7 @@ compData = function(competition) {
     out.persons[person.wcaUserId] = person
   })
 
-  var activities = []  // Array of {code -> [activities]}, one per day
+  var activities = []  // Array of {code -> {activities: [activities]}}, one per day
 
   var startDate = DateTime.fromISO(competition.schedule.startDate)
   for (var i = 0; i < competition.schedule.numberOfDays; i++) {
@@ -38,17 +38,21 @@ compData = function(competition) {
         activity.endTime = DateTime.fromISO(activity.endTime).setZone(venue.timezone)
         var day = Math.floor(activity.startTime.diff(startDate, 'days').as('days'))
         if (!activities[day].activities.has(activity.activityCode)) {
-          activities[day].activities.set(activity.activityCode, [])
+          activities[day].activities.set(activity.activityCode, {activities: []})
         }
-        activities[day].activities.get(activity.activityCode).push(activity)
+        activities[day].activities.get(activity.activityCode).activities.push(activity)
       })
     })
   })
   activities.forEach((dayActivities) => {
     var dayActivityList = Array.from(dayActivities.activities.entries())
+    dayActivityList.forEach((acts) => {
+      acts[1].startTime = DateTime.min(...acts[1].activities.map((act) => act.startTime))
+      acts[1].endTime = DateTime.max(...acts[1].activities.map((act) => act.endTime))
+    })
     dayActivityList.sort((actsA, actsB) => {
-      var aStart = DateTime.min(...actsA[1].map((act) => act.startTime))
-      var bStart = DateTime.min(...actsB[1].map((act) => act.startTime))
+      var aStart = actsA[1].startTime
+      var bStart = actsB[1].startTime
       if (aStart < bStart) {
         return -1
       }
