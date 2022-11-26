@@ -22,7 +22,7 @@ html
             tr
               - var activityCode = activityList.activityCode
               if activityCode.isActivity()
-                - var formBase = day.day.day + '.' + activityCode.id() + '.'
+                - var formBase = day.day.toFormat('yyyyMMdd') + '.' + activityCode.id() + '.'
                 td
                   span(class='cubing-icon event-' + activityCode.eventId)
                   = activityCode.toStringShort()
