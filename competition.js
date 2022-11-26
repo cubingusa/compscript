@@ -38,17 +38,20 @@ compData = function(competition) {
         activity.endTime = DateTime.fromISO(activity.endTime).setZone(venue.timezone)
         var day = Math.floor(activity.startTime.diff(startDate, 'days').as('days'))
         if (!activities[day].activities.has(activity.activityCode)) {
-          activities[day].activities.set(activity.activityCode, {activities: []})
+          activities[day].activities.set(activity.activityCode, {activities: new Map()})
         }
-        activities[day].activities.get(activity.activityCode).activities.push(activity)
+        activities[day].activities.get(activity.activityCode).activities.set(room.id, activity)
       })
     })
   })
   activities.forEach((dayActivities) => {
     var dayActivityList = Array.from(dayActivities.activities.entries())
     dayActivityList.forEach((acts) => {
-      acts[1].startTime = DateTime.min(...acts[1].activities.map((act) => act.startTime))
-      acts[1].endTime = DateTime.max(...acts[1].activities.map((act) => act.endTime))
+      var thisActivities = Array.from(acts[1].activities.entries()).map((e) => e[1])
+      acts[1].activityCode = activityCode.parse(thisActivities[0].activityCode)
+      acts[1].startTime = DateTime.min(...thisActivities.map((act) => act.startTime))
+      acts[1].endTime = DateTime.max(...thisActivities.map((act) => act.endTime))
+      acts[1].numGroups = Math.max(...thisActivities.map((act) => act.childActivities.length))
     })
     dayActivityList.sort((actsA, actsB) => {
       var aStart = actsA[1].startTime

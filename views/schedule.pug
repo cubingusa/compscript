@@ -20,14 +20,21 @@ html
               th= comp.rooms[roomId].name
           each activityList in day.activities
             tr
-              - var activityCode = fn.parseActivityCode(activityList.activities[0].activityCode)
+              - var activityCode = activityList.activityCode
               if activityCode.isActivity()
                 td
                   span(class='cubing-icon event-' + activityCode.eventId)
                   = activityCode.toStringShort()
                 td
-                  input(type='time' name=activityCode + '-start' value=activityList.startTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+                  input(type='time' name=activityCode.id() + '.start' value=activityList.startTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
                 td
-                  input(type='time' name=activityCode + '-end' value=activityList.endTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+                  input(type='time' name=activityCode.id() + '.end' value=activityList.endTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+                td 0
+                td
+                  input(type='number' name=activityCode.id() + '.groups' value=activityList.numGroups style="width: 4em")
+                each roomId in Object.keys(comp.rooms)
+                  td
+                    input(type='checkbox' name=activityCode.id() + '.' + roomId + '-active', checked=activityList.activities.has(+roomId))
+                    input(name=activityCode.id() + '.' + roomId + '-adjustment', style="width: 4em")
               else 
                 td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()

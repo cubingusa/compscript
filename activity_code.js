@@ -42,6 +42,20 @@ class ActivityCode {
     }
   }
 
+  id() {
+    out = [this.eventId]
+    if (this.roundNumber) {
+      out.push('r' + this.roundNumber)
+    }
+    if (this.groupName) {
+      out.push('g' + this.groupName)
+    }
+    if (this.attemptNumber) {
+      out.push('a' + this.attemptNumber)
+    }
+    return out.join('-')
+  }
+
   isActivity() {
     return true
   }
