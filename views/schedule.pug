@@ -6,7 +6,7 @@ html
     link(rel='stylesheet', href='/cubing-icons.css')
   body
     h1= comp.competition.name + ' Schedule'
-    form(action='/' + comp.competition.id + '/schedule')
+    form(action='/' + comp.competition.id + '/schedule' method='POST')
       each day in comp.sortedSchedule
         h3= day.day.toLocaleString(fn.DateTime.DATE_HUGE)
         table
@@ -22,23 +22,24 @@ html
             tr
               - var activityCode = activityList.activityCode
               if activityCode.isActivity()
+                - var formBase = day.day.day + '.' + activityCode.id() + '.'
                 td
                   span(class='cubing-icon event-' + activityCode.eventId)
                   = activityCode.toStringShort()
                 td
-                  input(type='time' name=activityCode.id() + '.start' value=activityList.startTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+                  input(type='time' name=formBase + 'start' value=activityList.startTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
                 td
-                  input(type='time' name=activityCode.id() + '.end' value=activityList.endTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
+                  input(type='time' name=formBase + 'end' value=activityList.endTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
                 td
                   = comp.peoplePerRound[activityCode.attempt(null).id()]
                 td
-                  input(type='number' name=activityCode.id() + '.groups' value=activityList.numGroups style="width: 4em")
+                  input(type='number' name=formBase + 'groups' value=activityList.numGroups style="width: 4em")
                 each roomId in Object.keys(comp.rooms)
                   - var activity = activityList.activities.get(+roomId)
                   - var activityExtension = activity ? fn.getExtension(activity, 'Activity') : null
                   td
-                    input(type='checkbox' name=activityCode.id() + '.' + roomId + '-active', checked=activityList.activities.has(+roomId))
-                    input(name=activityCode.id() + '.' + roomId + '-adjustment', style="width: 4em", value=activityExtension ? activityExtension.adjustment : '')
+                    input(type='checkbox' name=formBase + roomId + '.active', checked=activityList.activities.has(+roomId))
+                    input(name=formBase + roomId + '.adjustment', style="width: 4em", value=activityExtension ? activityExtension.adjustment : '')
               else 
                 td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()
       br
