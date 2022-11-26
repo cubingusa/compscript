@@ -8,18 +8,36 @@ const pugFunctions = require('./pug_functions')
 var router = express.Router()
 
 compData = function(competition) {
-  out = {
+  var out = {
     competition: competition,
     sortedSchedule: [],
     rooms: {},  // ID -> room
     events: {},  // ID -> event
     persons: {},  // ID -> person
+    peoplePerRound: {},  // activity code (e.g. 333-r1) -> num people
   }
 
   competition.events.forEach((evt) => {
     out.events[evt.id] = evt
+    for (var i = 0; i < evt.rounds.length - 1; i++) {
+      var round = evt.rounds[i]
+      if (round.advancementCondition && round.advancementCondition.type == 'ranking') {
+        out.peoplePerRound[new activityCode.ActivityCode(evt.id, i + 2, null, null).id()] =
+            round.advancementCondition.level
+      }
+    }
   })
   competition.persons.forEach((person) => {
+    // TODO: limit to accepted registrations.
+    if (person.registration) {
+      person.registration.eventIds.forEach((eventId) => {
+        var code = new activityCode.ActivityCode(eventId, 1, null, null).id()
+        if (!out.peoplePerRound[code]) {
+          out.peoplePerRound[code] = 0
+        }
+        out.peoplePerRound[code]++
+      })
+    }
     out.persons[person.wcaUserId] = person
   })
 

@@ -6,9 +6,9 @@ html
     link(rel='stylesheet', href='/cubing-icons.css')
   body
     h1= comp.competition.name + ' Schedule'
-    each day in comp.sortedSchedule
-      h3= day.day.toLocaleString(fn.DateTime.DATE_HUGE)
-      form(action='/' + comp.competition.id + '/schedule')
+    form(action='/' + comp.competition.id + '/schedule')
+      each day in comp.sortedSchedule
+        h3= day.day.toLocaleString(fn.DateTime.DATE_HUGE)
         table
           tr
             th Event
@@ -29,7 +29,8 @@ html
                   input(type='time' name=activityCode.id() + '.start' value=activityList.startTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
                 td
                   input(type='time' name=activityCode.id() + '.end' value=activityList.endTime.toLocaleString(fn.DateTime.TIME_24_SIMPLE))
-                td 0
+                td
+                  = comp.peoplePerRound[activityCode.attempt(null).id()]
                 td
                   input(type='number' name=activityCode.id() + '.groups' value=activityList.numGroups style="width: 4em")
                 each roomId in Object.keys(comp.rooms)
@@ -40,3 +41,5 @@ html
                     input(name=activityCode.id() + '.' + roomId + '-adjustment', style="width: 4em", value=activityExtension ? activityExtension.adjustment : '')
               else 
                 td(colspan=(Object.keys(comp.rooms).length + 5), class='nonevent')= activityCode.toString()
+      br
+      input(type='submit')
