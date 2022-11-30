@@ -3,6 +3,7 @@ const { DateTime } = require('luxon')
 
 const auth = require('./auth')
 const activityCode = require('./activity_code')
+const extension = require('./extension')
 const pugFunctions = require('./pug_functions')
 
 var router = express.Router()
@@ -109,6 +110,109 @@ router.get('/:competitionId', (req, res) => {
 
 router.get('/:competitionId/schedule', (req, res) => {
   res.render('schedule', {comp: compData(req.competition), fn: pugFunctions})
+})
+
+router.post('/:competitionId/schedule', async (req, res) => {
+  var maxActivityId = 0
+  req.competition.schedule.venues.forEach((venue) => {
+    venue.rooms.forEach((room) => {
+      room.activities.forEach((activity) => {
+        maxActivityId = Math.max(maxActivityId, activity.id)
+        activity.childActivities.forEach((childActivity) => {
+          maxActivityId = Math.max(maxActivityId, childActivity.id)
+          // Theoretically this could have more child activities, but in practice it won't.
+        })
+      })
+    })
+  })
+  Object.entries(req.body).forEach(([key, value]) => {
+    if (!key.endsWith('start')) {
+      return
+    }
+    const keySplit = key.split('.')
+    const date = keySplit[0]
+    const activityCodeStr = keySplit[1]
+    const activityCodeObj = activityCode.parse(activityCodeStr)
+    const prefix = date + '.' + activityCodeStr + '.'
+    const start = req.body[prefix + 'start']
+    const end = req.body[prefix + 'end']
+    const numGroups = +req.body[prefix + 'groups']
+    req.competition.schedule.venues.forEach((venue) => {
+      const activityStart = DateTime.fromFormat(date + ' ' + start, 'yyyyMMdd HH:mm', { zone: venue.zone})
+      const activityEnd = DateTime.fromFormat(date + ' ' + end, 'yyyyMMdd HH:mm', { zone: venue.zone})
+      venue.rooms.forEach((room) => {
+        var roomActivity = null
+        var roomActivityIdx = -1
+        for (var idx = 0; idx < room.activities.length; idx++) {
+          var activity = room.activities[idx]
+          if (activity.activityCode !== activityCodeStr) {
+            continue
+          }
+          if (DateTime.fromISO(activity.startTime).setZone(venue.timeZone).toFormat('yyyyMMdd') != date) {
+            continue
+          }
+          roomActivity = activity
+          roomActivityIdx = idx
+        }
+        const isActive = prefix + room.id + '.active' in req.body
+        const adjustment = req.body[prefix + room.id + '.adjustment']
+        if (roomActivity === null && isActive) {
+          roomActivity = {
+            id: ++maxActivityId,
+            name: activityCodeObj.toString(),
+            activityCode: activityCodeStr,
+            childActivities: [],
+            scrambleSetId: null,
+            extensions: []
+          }
+          room.activities.push(roomActivity)
+        } else if (roomActivity !== null && !isActive) {
+          room.activities.splice(roomActivityIdx, 1)
+        }
+        if (!isActive) {
+          return
+        }
+        extension.getExtension(roomActivity, 'Activity').adjustment = adjustment
+        if (numGroups === 0) {
+          roomActivity.startTime = activityStart.toISO()
+          roomActivity.endTime = activityEnd.toISO()
+          roomActivity.childActivities = []
+          return
+        }
+        roomActivity.childActivities.splice(numGroups)
+        while (roomActivity.childActivities.length < numGroups) {
+          roomActivity.childActivities.push({
+            id: ++maxActivityId,
+            childActivities: [],
+            scrambleSetId: null,
+            extensions: []
+          })
+        }
+        const groupLength = activityEnd.diff(activityStart, 'seconds') / numGroups
+        for (var idx = 0; idx < roomActivity.childActivities.length; idx++) {
+          var childActivity = roomActivity.childActivities[idx]
+          var groupActivityCode = activityCodeObj.group(
+              room.name.split(' ')[0] + (numGroups > 1 ? ' ' + (idx+1) : ''))
+          childActivity.name = groupActivityCode.groupName
+          childActivity.activityCode = groupActivityCode.id()
+          childActivity.startTime = activityStart + groupLength * idx
+          childActivity.endTime = activityStart + groupLength * (idx + 1)
+        }
+        [...adjustment.matchAll(/[+-]\d+/g)].forEach((adj) => {
+          var delta = +adj.substring(1)
+          if (adj.charAt(0) == '+') {
+            roomActivity.childActivities.splice(0, delta)
+          } else if (adj.charAt(0) == '-') {
+            roomActivity.childActivities.splice(-1 * delta)
+          }
+        })
+        roomActivity.start = roomActivity.childActivities.at(0).start
+        roomActivity.end = roomActivity.childActivities.at(-1).end
+      })
+    })
+  })
+  console.log(await auth.patchWcif(req.competition, ['schedule'], req, res))
+  res.redirect(req.path)
 })
 
 module.exports = {

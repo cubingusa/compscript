@@ -33,6 +33,23 @@ async function getWcaApi(resourceUrl, req, res) {
   return JSON.parse(out.body.toString());
 }
 
+async function patchWcif(obj, keys, req, res) {
+  var tokenSet = await client.refresh(req.session.refreshToken)
+  req.session.refreshToken = tokenSet.refresh_token
+  var toPatch = {}
+  keys.forEach((key) => {
+    toPatch[key] = obj[key]
+  })
+  var out =
+    await client.requestResource(
+        `${process.env.WCA_HOST}/api/v0/competitions/${obj.id}/wcif`,
+        tokenSet.access_token,
+        {method: 'PATCH',
+         body: JSON.stringify(toPatch),
+         headers: {'Content-Type': 'application/json'}})
+  return JSON.parse(out.body.toString());
+}
+
 router.get('/login', function(req, res) {
   const uri = client.authorizationUrl({
     scope: 'public manage_competitions'
@@ -69,7 +86,7 @@ router.get('/logout', function(req, res) {
 })
 
 async function redirectIfNotLoggedIn(req, res, next) {
-  console.log(req.path);
+  console.log(req.method + ' ' + req.path);
   if (req.path == '/auth/oauth_response') {
     next()
     return
@@ -95,4 +112,5 @@ module.exports = {
   router: router,
   getWcaApi: getWcaApi,
   redirectIfNotLoggedIn: redirectIfNotLoggedIn,
+  patchWcif: patchWcif,
 }
