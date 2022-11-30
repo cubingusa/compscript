@@ -7,6 +7,7 @@ html
   body
     h1= comp.competition.name + ' Schedule'
     form(action='/' + comp.competition.id + '/schedule' method='POST')
+      input(type='submit')
       each day in comp.sortedSchedule
         h3= day.day.toLocaleString(fn.DateTime.DATE_HUGE)
         table
