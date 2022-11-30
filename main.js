@@ -16,7 +16,7 @@ app.use(cookieSession({
   keys: [process.env.COOKIE_SECRET],
   maxAge: 5 * 24 * 60 * 60 * 1000 // 5 days
 }))
-app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(favicon(__dirname + '/static/favicon.ico'))
 app.use(express.static('static'))
 app.use(auth.redirectIfNotLoggedIn)
