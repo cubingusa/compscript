@@ -8,7 +8,8 @@ const pugFunctions = require('./pug_functions')
 
 var router = express.Router()
 
-compData = function(competition) {
+compData = function(req) {
+  var competition = req.competition
   var out = {
     competition: competition,
     sortedSchedule: [],
@@ -16,6 +17,16 @@ compData = function(competition) {
     events: {},  // ID -> event
     persons: {},  // ID -> person
     peoplePerRound: {},  // activity code (e.g. 333-r1) -> num people
+    error: null,
+    statusMessage: null,
+  }
+  if (req.session.error) {
+    out.error = req.session.error
+    req.session.error = null
+  }
+  if (req.session.statusMessage) {
+    out.statusMessage = req.session.statusMessage
+    req.session.statusMessage = null
   }
 
   competition.events.forEach((evt) => {
@@ -105,11 +116,11 @@ router.use('/:competitionId', async (req, res, next) => {
 })
 
 router.get('/:competitionId', (req, res) => {
-  res.render('competition', {comp: compData(req.competition), fn: pugFunctions})
+  res.render('competition', {comp: compData(req), fn: pugFunctions})
 })
 
 router.get('/:competitionId/schedule', (req, res) => {
-  res.render('schedule', {comp: compData(req.competition), fn: pugFunctions})
+  res.render('schedule', {comp: compData(req), fn: pugFunctions})
 })
 
 router.post('/:competitionId/schedule', async (req, res) => {
@@ -188,15 +199,15 @@ router.post('/:competitionId/schedule', async (req, res) => {
             extensions: []
           })
         }
-        const groupLength = activityEnd.diff(activityStart, 'seconds') / numGroups
+        const groupLength = activityEnd.diff(activityStart, 'seconds').as('seconds') / numGroups
         for (var idx = 0; idx < roomActivity.childActivities.length; idx++) {
           var childActivity = roomActivity.childActivities[idx]
           var groupActivityCode = activityCodeObj.group(
               room.name.split(' ')[0] + (numGroups > 1 ? ' ' + (idx+1) : ''))
           childActivity.name = groupActivityCode.groupName
           childActivity.activityCode = groupActivityCode.id()
-          childActivity.startTime = activityStart + groupLength * idx
-          childActivity.endTime = activityStart + groupLength * (idx + 1)
+          childActivity.startTime = (activityStart.plus({seconds: groupLength * idx})).toISO()
+          childActivity.endTime = (activityStart.plus({seconds: groupLength * (idx + 1)})).toISO()
         }
         [...adjustment.matchAll(/[+-]\d+/g)].forEach((adj) => {
           var delta = +adj.substring(1)
@@ -206,12 +217,17 @@ router.post('/:competitionId/schedule', async (req, res) => {
             roomActivity.childActivities.splice(-1 * delta)
           }
         })
-        roomActivity.start = roomActivity.childActivities.at(0).start
-        roomActivity.end = roomActivity.childActivities.at(-1).end
+        roomActivity.startTime = roomActivity.childActivities.at(0).startTime
+        roomActivity.endTime = roomActivity.childActivities.at(-1).endTime
       })
     })
   })
-  console.log(await auth.patchWcif(req.competition, ['schedule'], req, res))
+  var response = await auth.patchWcif(req.competition, ['schedule'], req, res)
+  if (response.error) {
+    req.session.error = response.error
+  } else {
+    req.session.statusMessage = response.status
+  }
   res.redirect(req.path)
 })
 

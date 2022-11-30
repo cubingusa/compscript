@@ -6,6 +6,7 @@ html
     link(rel='stylesheet', href='/cubing-icons.css')
   body
     h1= comp.competition.name + ' Schedule'
+    include error.pug
     form(action='/' + comp.competition.id + '/schedule' method='POST')
       input(type='submit')
       each day in comp.sortedSchedule

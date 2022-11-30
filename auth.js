@@ -104,6 +104,7 @@ async function redirectIfNotLoggedIn(req, res, next) {
   const uri = client.authorizationUrl({
     scope: 'public manage_competitions'
   })
+  req.session.statusMessage = 'Refreshed oauth token'
   req.session.redirect = req.originalUrl;
   res.redirect(uri);
 }
