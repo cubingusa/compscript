@@ -210,10 +210,10 @@ router.post('/:competitionId/schedule', async (req, res) => {
           childActivity.endTime = (activityStart.plus({seconds: groupLength * (idx + 1)})).toISO()
         }
         [...adjustment.matchAll(/[+-]\d+/g)].forEach((adj) => {
-          var delta = +adj.substring(1)
-          if (adj.charAt(0) == '+') {
+          var delta = +adj[0].substring(1)
+          if (adj[0].charAt(0) == '+') {
             roomActivity.childActivities.splice(0, delta)
-          } else if (adj.charAt(0) == '-') {
+          } else if (adj[0].charAt(0) == '-') {
             roomActivity.childActivities.splice(-1 * delta)
           }
         })
