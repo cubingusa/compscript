@@ -7,11 +7,9 @@ const WcaIdIn = {
       repeated: true,
     },
   ],
-  outputType: 'PersonFilter',
-  implementation: (wcaIds) => {
-    return function(person) {
-      return wcaIds.includes(person.wcaId)
-    }
+  outputType: 'Boolean(Person)',
+  implementation: (wcaIds, person, ctx) => {
+    return wcaIds.includes(person.wcaId)
   },
 }
 

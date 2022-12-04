@@ -241,11 +241,12 @@ router.get('/:competitionId/people', async (req, res) => {
   }
   params.filteredPeople = params.comp.competition.persons
   if (req.query.filter) {
-    var filter = await parser.parse(req.query.filter, req, res)
+    var filter = await parser.parse(req.query.filter, req, res, 'Boolean(Person)')
     if (filter.errors) {
       params.errors = filter.errors
     } else {
-      params.filteredPeople = params.comp.competition.persons.filter((person) => filter(person))
+      params.filteredPeople =
+          params.comp.competition.persons.filter((person) => filter.value({ Person: person}))
     }
   }
 

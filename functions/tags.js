@@ -8,12 +8,10 @@ const HasTag = {
       type: 'String',
     },
   ],
-  outputType: 'PersonFilter',
-  implementation: (tag) => {
-    return function(person) {
-      const tags = extension.getExtension(person, 'Person').tags || []
-      return tags.includes(tag)
-    }
+  outputType: 'Boolean(Person)',
+  implementation: (tag, person) => {
+    const tags = extension.getExtension(person, 'Person').tags || []
+    return tags.includes(tag)
   },
 }
 

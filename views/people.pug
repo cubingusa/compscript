@@ -11,7 +11,7 @@ html
       input(type='submit')
     ul
       each error in errors
-        li= error
+        li= JSON.stringify(error)
     ul
       each person in filteredPeople
         li
