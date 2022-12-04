@@ -1,0 +1,18 @@
+html
+  head
+    title Nats Helper
+    link(rel='stylesheet', href='/cubing-icons.css')
+  body
+    h1= comp.competition.name + ' People'
+    include error.pug
+    form(method='GET')
+      input(type='text' name='filter' size=100 value=filter)
+      br
+      input(type='submit')
+    ul
+      each error in errors
+        li= error
+    ul
+      each person in filteredPeople
+        li
+          a(href='https://wca.link/' + person.wcaId, target='_blank')= person.name

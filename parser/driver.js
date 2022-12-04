@@ -1,15 +1,16 @@
 const tags = require('./tags')
+const persons = require('./persons')
 const activityCode = require('./../activity_code')
 
-const allFunctions = tags.functions
+const allFunctions = [].concat(tags.functions, persons.functions)
 
 function functionNode(functionName, args) {
-  var matchingFunctions = allFunctions.filter((fn) => fn.name == functionName) {
+  var matchingFunctions = allFunctions.filter((fn) => fn.name == functionName)
   var errors = args.filter((arg) => !!arg.error).map((arg) => arg.errors).flat()
   if (!matchingFunctions) {
     errors.push({ errorType: 'UNKNOWN_FUNCTION', functionName: functionName})
   }
-  if (errors) {
+  if (errors.length > 0) {
     return {errors: errors}
   }
   var failedMatches = []
@@ -21,7 +22,7 @@ function functionNode(functionName, args) {
     fn.args.forEach((arg) => {
       // Look for named args.
       var matches = []
-      for (int argIdx = 0; argIdx < availableArgs.length; argIdx++) {
+      for (var argIdx = 0; argIdx < availableArgs.length; argIdx++) {
         if (availableArgs[argIdx].name == arg.name) {
           matches.push(availableArgs[argIdx])
           availableArgs.splice(argIdx, 1)
@@ -29,8 +30,8 @@ function functionNode(functionName, args) {
         }
       }
       // Otherwise, pick the first arg, or all remaining unnamed args if it's repeated.
-      for (int argIdx = 0; argIdx < availableArgs.length; argIdx++) {
-        if (!!availableArgs[argIdx].name && (arg.repeated || !matches)) {
+      for (var argIdx = 0; argIdx < availableArgs.length; argIdx++) {
+        if (!availableArgs[argIdx].name && (arg.repeated || !matches)) {
           matches.push(availableArgs[argIdx])
           availableArgs.splice(argIdx, 1)
           argIdx--
@@ -64,17 +65,20 @@ function functionNode(functionName, args) {
                     argumentType: arg.type})
     })
 
-    if (errors) {
+    if (errors.length > 0) {
       failedMatches.push({fn: fn, errors: errors})
     } else {
       successfulMatches.push({fn: fn, args: matchedArgs})
     }
-  }
+  })
   if (successfulMatches.length > 1) {
-    return {errors: [{ errorType: 'AMBIGUOUS_CALL', functionName: functionName}]}
+    return {errors: [{ errorType: 'AMBIGUOUS_CALL',
+                       functionName: functionName}]}
   }
   if (successfulMatches.length == 0) {
-    return {errors: [{ errorType: 'NO_MATCHING_FUNCTION', functionName: functionName, failedMatches: failedMatches}]}
+    return {errors: [{ errorType: 'NO_MATCHING_FUNCTION',
+                       functionName: functionName,
+                       failedMatches: failedMatches}]}
   }
   var fn = successfulMatches[0].fn
   var args = successfulMatches[0].args
@@ -84,7 +88,7 @@ function functionNode(functionName, args) {
       var argsToUse = []
       for (var i = 0; i < fn.args.length; i++) {
         if (fn.args[i].repeated) {
-          argsToUse.push(args[i].map((arg) => {
+          argsToUse.push(args[i].matches.map((arg) => {
             if (fn.args[i].lazy) {
               return arg
             } else {
@@ -101,7 +105,7 @@ function functionNode(functionName, args) {
       }
       return fn.implementation(...argsToUse)
     }
-  })
+  }
 }
 
 function activityNode(activityId) {

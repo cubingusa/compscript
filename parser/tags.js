@@ -1,7 +1,7 @@
 const extension = require('./../extension')
 
 const HasTag = {
-  name: 'HasTag'
+  name: 'HasTag',
   args: [
     {
       name: 'tag',

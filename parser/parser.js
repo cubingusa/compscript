@@ -6,14 +6,16 @@ const driver = require('./driver')
 async function parse(text, req, res) {
   if (!req.parser) {
     try {
-      const data = await fs.readFile('grammar.pegjs')
-      req.parser = peggy.generate(data)
+      const data = await fs.readFile('parser/grammar.pegjs')
+      req.parser = peggy.generate(data.toString())
+      const tree = req.parser.parse(text)
+      node = driver.parseNode(tree)
+      return node.value()
     } catch (err) {
+      console.log(err)
       return { errors: [err.toString()] }
     }
   }
-  const tree = req.parser.parse(text)
-  return node = driver.parseNode(tree)
 }
 
 module.exports = {

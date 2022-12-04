@@ -5,6 +5,7 @@ const auth = require('./auth')
 const activityCode = require('./activity_code')
 const extension = require('./extension')
 const pugFunctions = require('./pug_functions')
+const parser = require('./parser/parser')
 
 var router = express.Router()
 
@@ -229,6 +230,26 @@ router.post('/:competitionId/schedule', async (req, res) => {
     req.session.statusMessage = response.status
   }
   res.redirect(req.path)
+})
+
+router.get('/:competitionId/people', async (req, res) => {
+  var params = {
+    comp: compData(req),
+    fn: pugFunctions,
+    filter: req.query.filter,
+    errors: []
+  }
+  params.filteredPeople = params.comp.competition.persons
+  if (req.query.filter) {
+    var filter = await parser.parse(req.query.filter, req, res)
+    if (filter.errors) {
+      params.errors = filter.errors
+    } else {
+      params.filteredPeople = params.comp.competition.persons.filter((person) => filter(person))
+    }
+  }
+
+  res.render('people', params)
 })
 
 module.exports = {
