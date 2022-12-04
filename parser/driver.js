@@ -159,7 +159,7 @@ function parseNode(node, allFunctions, expectedType=undefined) {
       case 'STRING':
         return literalNode('String', node.value)
       case 'ACTIVITY':
-        return activityNode(node.value)
+        return activityNode(node.activityId)
     }
   })()
   if (out.errors) {
