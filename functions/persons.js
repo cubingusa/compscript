@@ -1,18 +1,12 @@
-const WcaIdIn = {
-  name: 'WcaIdIn',
-  args: [
-    {
-      name: 'wcaIds',
-      type: 'String',
-      repeated: true,
-    },
-  ],
-  outputType: 'Boolean(Person)',
-  implementation: (wcaIds, person, ctx) => {
-    return wcaIds.includes(person.wcaId)
+const WcaId = {
+  name: 'WcaId',
+  args: [],
+  outputType: 'String(Person)',
+  implementation: (person) => {
+    return person.wcaId
   },
 }
 
 module.exports = {
-  functions: [WcaIdIn],
+  functions: [WcaId],
 }

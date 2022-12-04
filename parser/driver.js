@@ -31,6 +31,7 @@ function functionNode(functionName, allFunctions, args) {
     var matchedArgs = []
     var errors = []
     var extraParams = []
+    var generics = {}
     fn.args.forEach((arg) => {
       // Look for named args.
       var matches = []
@@ -56,6 +57,16 @@ function functionNode(functionName, allFunctions, args) {
         }
         var matchParsed = parseType(match.type)
         var argParsed = parseType(arg.type)
+        for (const generic of Object.keys(generics)) {
+          argParsed.type = argParsed.type.replaceAll('$' + generic, generics[generic])
+        }
+        if (arg.type.startsWith('$')) {
+          var generic = argParsed.type.slice(1)
+          if (fn.genericParams.includes(generic)) {
+            argParsed.type = matchParsed.type
+            generics[generic] = matchParsed.type
+          }
+        }
 
         if (matchParsed.type == argParsed.type) {
           matchParsed.params.forEach((param) => {
@@ -94,7 +105,11 @@ function functionNode(functionName, allFunctions, args) {
     if (errors.length > 0) {
       failedMatches.push({fn: fn, errors: errors})
     } else {
-      successfulMatches.push({fn: fn, args: matchedArgs, extraParams: extraParams})
+      var outputType = fn.outputType
+      for (const generic of Object.keys(generics)) {
+        outputType = outputType.replaceAll('$' + generic, generics[generic])
+      }
+      successfulMatches.push({fn: fn, args: matchedArgs, extraParams: extraParams, outputType: outputType})
     }
   })
   if (successfulMatches.length > 1) {
@@ -108,7 +123,7 @@ function functionNode(functionName, allFunctions, args) {
   }
   var fn = successfulMatches[0].fn
   var args = successfulMatches[0].args
-  var outputType = parseType(fn.outputType)
+  var outputType = parseType(successfulMatches[0].outputType)
   successfulMatches[0].extraParams.forEach((param) => {
     if (!outputType.params.includes(param)) {
       outputType.params.push(param)

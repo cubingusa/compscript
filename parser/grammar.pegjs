@@ -3,10 +3,11 @@ Expression
   / NumberLiteral
   / ActivityLiteral
   / StringLiteral
-  / rawVar:Variable { return { type: 'VARIABLE', name: rawVar } }
+  / Array
   
 ArgList
   = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
+  / "" { return [] }
 
 _ = [ \t]*
 
@@ -21,3 +22,6 @@ ActivityLiteral
 
 StringLiteral
   = '"' rawString:$[^"]* '"' { return { type: 'STRING', value: rawString } }
+
+Array
+  = "[" vals:ArgList "]" { return { type: 'FUNCTION', name: 'MakeArray', args: vals } }
