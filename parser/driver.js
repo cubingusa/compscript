@@ -1,4 +1,5 @@
 const activityCode = require('./../activity_code')
+const attemptResult = require('./../attempt_result')
 
 function parseType(type) {
   var parsed = type.match(/([a-zA-Z][a-zA-Z0-9]*)\((.*)\)/)
@@ -175,6 +176,8 @@ function parseNode(node, allFunctions, expectedType=undefined) {
         return literalNode('String', node.value)
       case 'ACTIVITY':
         return activityNode(node.activityId)
+      case 'ATTEMPT_RESULT':
+        return literalNode('AttemptResult', attemptResult.parseString(node.value))
     }
   })()
   if (out.errors) {

@@ -1,5 +1,6 @@
 Expression
   = fn:Variable "(" args:ArgList ")" { return { type: 'FUNCTION', name: fn, args: args } }
+  / AttemptResultLiteral
   / NumberLiteral
   / ActivityLiteral
   / StringLiteral
@@ -22,6 +23,11 @@ ActivityLiteral
 
 StringLiteral
   = '"' rawString:$[^"]* '"' { return { type: 'STRING', value: rawString } }
+
+AttemptResultLiteral
+  = value:$([0-9][0-9\.:]*[mps]) { return { type: 'ATTEMPT_RESULT', value: value } }
+  / "DNF" { return { type: 'ATTEMPT_RESULT', value: 'DNF' } }
+  / "DNS" { return { type: 'ATTEMPT_RESULT', value: 'DNS' } }
 
 Array
   = "[" vals:ArgList "]" { return { type: 'FUNCTION', name: 'MakeArray', args: vals } }
