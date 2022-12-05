@@ -4,6 +4,7 @@ Expression
   / NumberLiteral
   / ActivityLiteral
   / StringLiteral
+  / BinaryOperation
   / Array
   
 ArgList
@@ -28,6 +29,15 @@ AttemptResultLiteral
   = value:$([0-9][0-9\.:]*[mps]) { return { type: 'ATTEMPT_RESULT', value: value } }
   / "DNF" { return { type: 'ATTEMPT_RESULT', value: 'DNF' } }
   / "DNS" { return { type: 'ATTEMPT_RESULT', value: 'DNS' } }
+
+BinaryOperation
+  = "(" left:Expression _ "||" _ right:Expression ")" { return { type: 'FUNCTION', name: 'Or', args: [left, right] } }
+  / "(" left:Expression _ "&&" _ right:Expression ")" { return { type: 'FUNCTION', name: 'And', args: [left, right] } }
+  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThan', args: [left, right] } }
+  / "(" left:Expression _ "<" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThan', args: [right, left] } }
+  / "(" left:Expression _ ">=" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThanOrEqualTo', args: [left, right] } }
+  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThanOrEqualTo', args: [right, left] } }
+  / "(" left:Expression _ "==" _ right:Expression ")" { return { type: 'FUNCTION', name: 'EqualTo', args: [left, right] } }
 
 Array
   = "[" vals:ArgList "]" { return { type: 'FUNCTION', name: 'MakeArray', args: vals } }

@@ -1,3 +1,4 @@
+const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
 
 const CompetingIn = {
@@ -15,6 +16,16 @@ const CompetingIn = {
       return false
     }
     return person.registration && person.registration.eventIds.includes(activity.eventId)
+  },
+}
+
+const RegisteredEvents = {
+  name: 'RegisteredEvents',
+  args: [],
+  outputType: 'Array<Activity>(Person)',
+  implementation: (person) => {
+    if (!person.registration) return []
+    return person.registration.eventIds.map((eventId) => activityCode.parse(eventId))
   },
 }
 
@@ -62,5 +73,5 @@ const BetterThan = {
 
 
 module.exports = {
-  functions: [CompetingIn, PersonalBest, BetterThan],
+  functions: [CompetingIn, RegisteredEvents, PersonalBest, BetterThan],
 }

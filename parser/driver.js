@@ -2,7 +2,7 @@ const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
 
 function parseType(type) {
-  var parsed = type.match(/([a-zA-Z][a-zA-Z0-9]*)\((.*)\)/)
+  var parsed = type.match(/([a-zA-Z][a-zA-Z0-9<>]*)\((.*)\)/)
   return {
     type: parsed ? parsed[1] : type,
     params: parsed ? parsed[2].split(',').map((x) => x.trim()) : [],
@@ -18,7 +18,7 @@ function literalNode(type, value) {
 
 function functionNode(functionName, allFunctions, args) {
   var matchingFunctions = allFunctions.filter((fn) => fn.name == functionName)
-  var errors = args.filter((arg) => !!arg.error).map((arg) => arg.errors).flat()
+  var errors = args.filter((arg) => !!arg.errors).map((arg) => arg.errors).flat()
   if (!matchingFunctions) {
     errors.push({ errorType: 'UNKNOWN_FUNCTION', functionName: functionName})
   }
@@ -61,11 +61,25 @@ function functionNode(functionName, allFunctions, args) {
         for (const generic of Object.keys(generics)) {
           argParsed.type = argParsed.type.replaceAll('$' + generic, generics[generic])
         }
-        if (arg.type.startsWith('$')) {
-          var generic = argParsed.type.slice(1)
+        while (argParsed.type.indexOf('$') >= 0) {
+          var idx = argParsed.type.indexOf('$')
+          if (argParsed.type.substring(0, idx) !== matchParsed.type.substring(0, idx)) {
+            errors.push({ errorType: 'ARGUMENT_WRONG_TYPE',
+                          argumentName: arg.name,
+                          expectedType: arg.type,
+                          actualType: match.type })
+            return
+          }
+          var generic = argParsed.type.substring(idx + 1).match(/^[a-zA-Z]*/)[0]
+          var genericValue = matchParsed.type.substring(idx).match(/^[a-zA-Z]*/)[0]
           if (fn.genericParams.includes(generic)) {
-            argParsed.type = matchParsed.type
-            generics[generic] = matchParsed.type
+            argParsed.type = argParsed.type.replaceAll('$' + generic, genericValue)
+            generics[generic] = genericValue
+          } else {
+            errors.push({ errorType: 'INVALID_GENERIC',
+                          argumentType: arg.type,
+                          invalidGeneric: generic })
+            return
           }
         }
 

@@ -33,6 +33,19 @@ const In = {
   },
 }
 
+const Length = {
+  name: 'Length',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'array',
+      type: 'Array<$T>',
+    },
+  ],
+  outputType: 'Number',
+  implementation: (array) => array.length,
+}
+
 module.exports = {
-  functions: [MakeArray, In],
+  functions: [MakeArray, In, Length],
 }
