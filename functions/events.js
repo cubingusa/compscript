@@ -46,7 +46,7 @@ const PersonalBest = {
     const eventId = evt.eventId
     var matching = person.personalBests.filter((best) => best.eventId == eventId && best.type == type)
     if (matching.length == 0) {
-      return new attemptResult.AttemptResult(-1, eventId)
+      return new attemptResult.AttemptResult(0, eventId)
     } else {
       return new attemptResult.AttemptResult(matching[0].best, eventId)
     }

@@ -48,11 +48,14 @@ class AttemptResult {
     if (this.value == -2) {
       return 'DNS'
     }
+    if (this.value == 0) {
+      return ''
+    }
     if (this.eventId == '333fm') {
       if (this.value < 1000) {
         return this.value.toString()
       } else {
-        return (this.value / 100).toString()
+        return (this.value / 100).toFixed(2)
       }
     }
     if (this.eventId == '333mbf') {
@@ -75,6 +78,9 @@ class AttemptResult {
   valueOf() {
     if (this.value == -1) {
       return Number.MAX_SAFE_INTEGER
+    }
+    if (this.value == 0) {
+      return Number.MAX_SAFE_INTEGER - 1
     }
     return this.value
   }
