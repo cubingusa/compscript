@@ -1,5 +1,8 @@
 function getExtension(obj, type) {
   type = 'org.cubingusa.natshelper.' + type
+  if (!obj.extensions) {
+    obj.extensions = []
+  }
   var matching = obj.extensions.filter((ext) => ext.id == type)
   if (matching.length > 0) {
     return matching[0].data

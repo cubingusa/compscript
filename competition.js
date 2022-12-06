@@ -18,6 +18,7 @@ compData = function(req) {
     events: {},  // ID -> event
     persons: {},  // ID -> person
     peoplePerRound: {},  // activity code (e.g. 333-r1) -> num people
+    savedViews: extension.getExtension(competition, 'Competition').savedViews,
     error: null,
     statusMessage: null,
   }
@@ -237,14 +238,37 @@ router.get('/:competitionId/viewer', async (req, res) => {
     comp: compData(req),
     fn: pugFunctions,
     filter: req.query.filter,
+    params: '',
     errors: [],
     tableData: {header: [], rows: []},
+    viewId: req.query.viewId || '',
+    viewTitle: req.query.viewTitle || '',
   }
   if (req.query.filter) {
-    var tableSpec = await parser.parse(req.query.filter, req, res)
-    if (tableSpec.errors) {
-      params.errors = tableSpec.errors
-    } else {
+    var filter = req.query.filter
+    var paramKeys = [...filter.matchAll(/@([a-zA-Z-_]*)/g)].map((match) => match[1])
+    var paramValues = (req.query.params || '').split(',').filter((x) => !!x).map((x) => x.split(':'))
+    paramValues.forEach((kv) => {
+      filter = filter.replaceAll('@' + kv[0], kv[1])
+    })
+    if (filter.indexOf('@') >= 0) {
+      params.errors.push({ errorType: 'UNFILLED_PARAM' })
+    }
+    var paramObj = Object.fromEntries(paramValues)
+    paramKeys.forEach((key) => {
+      if (!(key in paramObj)) {
+        paramObj[key] = ''
+      }
+    })
+    params.params = Object.entries(paramObj).map((x) => x.join(':')).join(',')
+    var tableSpec = null
+    if (!params.errors.length) {
+      tableSpec = await parser.parse(filter, req, res)
+      if (tableSpec.errors) {
+        params.errors = tableSpec.errors
+      }
+    }
+    if (!params.errors.length) {
       if (tableSpec.type == 'Table(Person)') {
         var tableDetails =
             params.comp.competition.persons
@@ -262,6 +286,34 @@ router.get('/:competitionId/viewer', async (req, res) => {
     }
   }
   res.render('table', params)
+})
+
+router.post('/:competitionId/view', async (req, res) => {
+  var ext = extension.getExtension(req.competition, 'Competition')
+  if (!ext.savedViews) {
+    ext.savedViews = {}
+  }
+  ext.savedViews[req.body.id] = {
+    id: req.body.id,
+    title: req.body.title,
+    filter: req.body.filter,
+  }
+  var out = await auth.patchWcif(req.competition, ['extensions'], req, res)
+  res.json({ result: out })
+  res.status(200)
+})
+
+router.get('/:competitionId/viewer/:viewId', async (req, res) => {
+  var ext = extension.getExtension(req.competition, 'Competition')
+  if (ext.savedViews && ext.savedViews[req.params.viewId]) {
+    var view = ext.savedViews[req.params.viewId]
+    var targetUrl = new URL(`${req.protocol}://${req.get('host')}/${req.params.competitionId}/viewer`)
+    targetUrl.searchParams.append('filter', view.filter)
+    targetUrl.searchParams.append('viewId', view.id)
+    targetUrl.searchParams.append('viewTitle', view.title)
+    res.redirect(targetUrl)
+  }
+  res.status(401)
 })
 
 module.exports = {
