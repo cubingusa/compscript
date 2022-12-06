@@ -232,25 +232,36 @@ router.post('/:competitionId/schedule', async (req, res) => {
   res.redirect(req.path)
 })
 
-router.get('/:competitionId/people', async (req, res) => {
+router.get('/:competitionId/viewer', async (req, res) => {
   var params = {
     comp: compData(req),
     fn: pugFunctions,
     filter: req.query.filter,
-    errors: []
+    errors: [],
+    tableData: {header: [], rows: []},
   }
-  params.filteredPeople = params.comp.competition.persons
   if (req.query.filter) {
-    var filter = await parser.parse(req.query.filter, req, res, 'Boolean(Person)')
-    if (filter.errors) {
-      params.errors = filter.errors
+    var tableSpec = await parser.parse(req.query.filter, req, res)
+    if (tableSpec.errors) {
+      params.errors = tableSpec.errors
     } else {
-      params.filteredPeople =
-          params.comp.competition.persons.filter((person) => filter.value({ Person: person}))
+      if (tableSpec.type == 'Table(Person)') {
+        var tableDetails =
+            params.comp.competition.persons
+                .map((person) => tableSpec.value({ Person: person }))
+                .filter((row) => row !== null)
+                .sort((rowA, rowB) => rowA.sortKey < rowB.sortKey ? -1 : 1)
+                .map((row) => row.columns)
+        if (tableDetails.length > 0) {
+          params.tableData.header = tableDetails[0].map((col) => col.title)
+          params.tableData.rows = tableDetails
+        }
+      } else {
+        params.errors.push({ errorType: 'WRONG_OUTPUT_TYPE', expected: 'Table', actual: tableSpec.type })
+      }
     }
   }
-
-  res.render('people', params)
+  res.render('table', params)
 })
 
 module.exports = {

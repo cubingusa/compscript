@@ -97,7 +97,7 @@ function functionNode(functionName, allFunctions, args) {
         }
       })
       // Use the default value if there's no value.
-      if (!arg.repeated && arg.defaultValue !== undefined && !matches) {
+      if (!arg.repeated && arg.defaultValue !== undefined && !matches.length) {
         matches.push(literalNode(arg.type, arg.defaultValue))
       }
       // Check that we have exactly one if it's not repeated.

@@ -71,6 +71,13 @@ class AttemptResult {
     }
     return formatTime(this.value)
   }
+
+  valueOf() {
+    if (this.value == -1) {
+      return Number.MAX_SAFE_INTEGER
+    }
+    return this.value
+  }
 }
 
 function parseString(str) {

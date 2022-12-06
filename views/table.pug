@@ -1,0 +1,28 @@
+html
+  head
+    title Nats Helper
+    style
+      include table.css
+    link(rel='stylesheet', href='/cubing-icons.css')
+  body
+    h1= comp.competition.name + ' Data Viewer'
+    include error.pug
+    form(method='GET')
+      input(type='text' name='filter' size=100 value=filter)
+      input(type='submit')
+    ul
+      each error in errors
+        li= JSON.stringify(error)
+    if tableData.rows.length > 0
+      table
+        tr
+          each header in tableData.header
+            th= header
+        each row in tableData.rows
+          tr
+            each cell in row
+              td
+                if cell.link
+                  a(href=cell.link)= cell.value.toString()
+                else
+                  =cell.value.toString()

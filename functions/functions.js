@@ -6,6 +6,7 @@ module.exports = {
           require('./events').functions,
           require('./math').functions,
           require('./persons').functions,
+          require('./table').functions,
           require('./tags').functions,
       )
 }
