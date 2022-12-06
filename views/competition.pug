@@ -4,4 +4,7 @@ html
   body
     h1= comp.competition.name
     p
-      a(href='/'+comp.competition.id+'/schedule') Schedule Builder
+      div
+        a(href='/'+comp.competition.id+'/schedule') Schedule Builder
+      div
+        a(href='/'+comp.competition.id+'/viewer') Data Viewer
