@@ -32,7 +32,7 @@ const GreaterThanOrEqualTo = {
 
 const EqualTo = {
   name: 'EqualTo',
-  genericParams: 'T',
+  genericParams: ['T'],
   args: [
     {
       name: 'val1',
