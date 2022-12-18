@@ -1,0 +1,36 @@
+html
+  head
+    title Nats Helper
+    style
+      include script.css
+    link(rel='stylesheet', href='/cubing-icons.css')
+  body
+    h1
+      a(href='/' + comp.competition.id)= comp.competition.name
+      = " Data Viewer"
+    include error.pug
+    div(id='competitionId' data-competitionId=comp.competition.id style='display:none')
+    form(method='POST')
+      textarea(name='script' cols=100 rows=5)= script
+      br
+      input(type='submit')
+    br
+    each output in outputs
+      div
+        if output.type == 'Error'
+          = JSON.stringify(output.data)
+        if output.type == 'Table'
+          table
+            tr
+              each header in output.data.headers
+                th= header
+            each row in output.data.rows
+              tr
+                each cell in row
+                  td
+                    if cell.link
+                      a(href=cell.link)= cell.value.toString()
+                    else
+                      =cell.value.toString()
+        if output.type == 'String'
+          div= output.data

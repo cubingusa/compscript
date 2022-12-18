@@ -1,5 +1,5 @@
 Expression
-  = fn:Variable "(" args:ArgList ")" { return { type: 'FUNCTION', name: fn, args: args } }
+  = fn:Variable "(" args:ArgList ")" { return { type: 'Function', name: fn, args: args } }
   / AttemptResultLiteral
   / NumberLiteral
   / ActivityLiteral
@@ -17,27 +17,27 @@ Variable
   = v:$([a-zA-Z][a-zA-Z0-9]*) { return v }
   
 NumberLiteral
-  = rawNumber:$[0-9]+ { return { type: 'NUMBER', value: +rawNumber } }
+  = rawNumber:$[0-9]+ { return { type: 'Number', value: +rawNumber } }
   
 ActivityLiteral
-  = "_" eventId:$[a-zA-Z0-9]* { return { type: 'ACTIVITY', activityId: eventId } }
+  = "_" eventId:$[a-zA-Z0-9]* { return { type: 'Activity', activityId: eventId } }
 
 StringLiteral
-  = '"' rawString:$[^"]* '"' { return { type: 'STRING', value: rawString } }
+  = '"' rawString:$[^"]* '"' { return { type: 'String', value: rawString } }
 
 AttemptResultLiteral
-  = value:$([0-9][0-9\.:]*[mps]) { return { type: 'ATTEMPT_RESULT', value: value } }
-  / "DNF" { return { type: 'ATTEMPT_RESULT', value: 'DNF' } }
-  / "DNS" { return { type: 'ATTEMPT_RESULT', value: 'DNS' } }
+  = value:$([0-9][0-9\.:]*[mps]) { return { type: 'AttemptResult', value: value } }
+  / "DNF" { return { type: 'AttemptResult', value: 'DNF' } }
+  / "DNS" { return { type: 'AttemptResult', value: 'DNS' } }
 
 BinaryOperation
-  = "(" left:Expression _ "||" _ right:Expression ")" { return { type: 'FUNCTION', name: 'Or', args: [left, right] } }
-  / "(" left:Expression _ "&&" _ right:Expression ")" { return { type: 'FUNCTION', name: 'And', args: [left, right] } }
-  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThan', args: [left, right] } }
-  / "(" left:Expression _ "<" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThan', args: [right, left] } }
-  / "(" left:Expression _ ">=" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThanOrEqualTo', args: [left, right] } }
-  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'FUNCTION', name: 'GreaterThanOrEqualTo', args: [right, left] } }
-  / "(" left:Expression _ "==" _ right:Expression ")" { return { type: 'FUNCTION', name: 'EqualTo', args: [left, right] } }
+  = "(" left:Expression _ "||" _ right:Expression ")" { return { type: 'Function', name: 'Or', args: [left, right] } }
+  / "(" left:Expression _ "&&" _ right:Expression ")" { return { type: 'Function', name: 'And', args: [left, right] } }
+  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThan', args: [left, right] } }
+  / "(" left:Expression _ "<" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThan', args: [right, left] } }
+  / "(" left:Expression _ ">=" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [left, right] } }
+  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [right, left] } }
+  / "(" left:Expression _ "==" _ right:Expression ")" { return { type: 'Function', name: 'EqualTo', args: [left, right] } }
 
 Array
-  = "[" vals:ArgList "]" { return { type: 'FUNCTION', name: 'MakeArray', args: vals } }
+  = "[" vals:ArgList "]" { return { type: 'Function', name: 'MakeArray', args: vals } }

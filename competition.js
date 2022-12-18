@@ -5,6 +5,7 @@ const auth = require('./auth')
 const activityCode = require('./activity_code')
 const extension = require('./extension')
 const pugFunctions = require('./pug_functions')
+const driver = require('./parser/driver')
 const parser = require('./parser/parser')
 
 var router = express.Router()
@@ -233,87 +234,46 @@ router.post('/:competitionId/schedule', async (req, res) => {
   res.redirect(req.path)
 })
 
-router.get('/:competitionId/viewer', async (req, res) => {
+router.get('/:competitionId/script', async (req, res) => {
+  res.render('script', {
+    comp: compData(req),
+    fn: pugFunctions,
+    script: req.query.script,
+    outputs: [],
+  })
+})
+
+router.post('/:competitionId/script', async (req, res) => {
   var params = {
     comp: compData(req),
     fn: pugFunctions,
-    filter: req.query.filter,
-    params: '',
-    errors: [],
-    tableData: {header: [], rows: []},
-    viewId: req.query.viewId || '',
-    viewTitle: req.query.viewTitle || '',
+    script: req.body.script,
+    outputs: [],
   }
-  if (req.query.filter) {
-    var filter = req.query.filter
-    var paramKeys = [...filter.matchAll(/@([a-zA-Z-_]*)/g)].map((match) => match[1])
-    var paramValues = (req.query.params || '').split(',').filter((x) => !!x).map((x) => x.split(':'))
-    paramValues.forEach((kv) => {
-      filter = filter.replaceAll('@' + kv[0], kv[1])
-    })
-    if (filter.indexOf('@') >= 0) {
-      params.errors.push({ errorType: 'UNFILLED_PARAM' })
-    }
-    var paramObj = Object.fromEntries(paramValues)
-    paramKeys.forEach((key) => {
-      if (!(key in paramObj)) {
-        paramObj[key] = ''
-      }
-    })
-    params.params = Object.entries(paramObj).map((x) => x.join(':')).join(',')
-    var tableSpec = null
-    if (!params.errors.length) {
-      tableSpec = await parser.parse(filter, req, res)
-      if (tableSpec.errors) {
-        params.errors = tableSpec.errors
-      }
-    }
-    if (!params.errors.length) {
-      if (tableSpec.type == 'Table(Person)') {
-        var tableDetails =
-            params.comp.competition.persons
-                .map((person) => tableSpec.value({ Person: person }))
-                .filter((row) => row !== null)
-                .sort((rowA, rowB) => rowA.sortKey < rowB.sortKey ? -1 : 1)
-                .map((row) => row.columns)
-        if (tableDetails.length > 0) {
-          params.tableData.header = tableDetails[0].map((col) => col.title)
-          params.tableData.rows = tableDetails
-        }
+  if (req.body.script) {
+    var scriptParsed = await parser.parse(req.body.script, req, res, false)
+    if (scriptParsed.errors) {
+      scriptParsed.errors.forEach((error) => {
+        params.outputs.push({type: 'Error', data: error})
+      })
+    } else {
+      var outType = driver.parseType(scriptParsed.type)
+      if (outType.params.length) {
+        params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
       } else {
-        params.errors.push({ errorType: 'WRONG_OUTPUT_TYPE', expected: 'Table', actual: tableSpec.type })
+        var ctx = {
+          competition: params.comp.competition,
+          compData: params.comp,
+          command: req.body.script,
+        }
+        params.outputs.push({type: outType.type, data: scriptParsed.value({}, ctx)})
+        if (scriptParsed.mutations) {
+          await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
+        }
       }
     }
   }
-  res.render('table', params)
-})
-
-router.post('/:competitionId/view', async (req, res) => {
-  var ext = extension.getExtension(req.competition, 'Competition')
-  if (!ext.savedViews) {
-    ext.savedViews = {}
-  }
-  ext.savedViews[req.body.id] = {
-    id: req.body.id,
-    title: req.body.title,
-    filter: req.body.filter,
-  }
-  var out = await auth.patchWcif(req.competition, ['extensions'], req, res)
-  res.json({ result: out })
-  res.status(200)
-})
-
-router.get('/:competitionId/viewer/:viewId', async (req, res) => {
-  var ext = extension.getExtension(req.competition, 'Competition')
-  if (ext.savedViews && ext.savedViews[req.params.viewId]) {
-    var view = ext.savedViews[req.params.viewId]
-    var targetUrl = new URL(`${req.protocol}://${req.get('host')}/${req.params.competitionId}/viewer`)
-    targetUrl.searchParams.append('filter', view.filter)
-    targetUrl.searchParams.append('viewId', view.id)
-    targetUrl.searchParams.append('viewTitle', view.title)
-    res.redirect(targetUrl)
-  }
-  res.status(401)
+  res.render('script', params)
 })
 
 module.exports = {
