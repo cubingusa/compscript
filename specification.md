@@ -17,7 +17,7 @@ For a top-level `Activity` (i.e. an `Activity` which is not the `childActivity` 
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `adjustment` | `String` | How many groups will be omitted from this `Activity` on this `Room`, relative to other `Room`s. For example, `+2-1` indicates that the first two and last one groups will be skipped. |`
+| `adjustment` | `String` | How many groups will be omitted from this `Activity` on this `Room`, relative to other `Room`s. For example, `+2-1` indicates that the first two and last one groups will be skipped. |
 
 ### Competition
 
@@ -35,8 +35,8 @@ The format of the UDFs object is:
 
 {
   "functionName": {
-    "cmd": ""  # A NatsScript command used to define this function.
-    "impl": {} # The parsed command tree for this function.
+    "cmd": ""  // A NatsScript command used to define this function.
+    "impl": {} // The parsed command tree for this function.
   }
 }
 ```
