@@ -32,8 +32,8 @@ const Table = {
     })().filter((val) => {
       return filter.value({[generics.ArgType]: val}, ctx)
     }).sort((rowA, rowB) => {
-      sort.value({[generics.ArgType]: rowA}) <
-      sort.value({[generics.ArgType]: rowB}) ? -1 : 1
+      return sort.value({[generics.ArgType]: rowA}) <
+          sort.value({[generics.ArgType]: rowB}) ? -1 : 1
     }).map((val) => {
       return columns.value({[generics.ArgType]: val}, ctx)
     })
