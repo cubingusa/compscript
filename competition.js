@@ -5,6 +5,7 @@ const auth = require('./auth')
 const activityCode = require('./activity_code')
 const extension = require('./extension')
 const pugFunctions = require('./pug_functions')
+const functions = require('./functions/functions')
 const driver = require('./parser/driver')
 const parser = require('./parser/parser')
 
@@ -250,7 +251,13 @@ router.post('/:competitionId/script', async (req, res) => {
     outputs: [],
   }
   if (req.body.script) {
-    var scriptParsed = await parser.parse(req.body.script, req, res, false)
+    var ctx = {
+      competition: params.comp.competition,
+      compData: params.comp,
+      command: req.body.script,
+      allFunctions: functions.allFunctions,
+    }
+    var scriptParsed = await parser.parse(req.body.script, req, res, ctx, false)
     if (scriptParsed.errors) {
       scriptParsed.errors.forEach((error) => {
         params.outputs.push({type: 'Error', data: error})
@@ -260,11 +267,6 @@ router.post('/:competitionId/script', async (req, res) => {
       if (outType.params.length) {
         params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
       } else {
-        var ctx = {
-          competition: params.comp.competition,
-          compData: params.comp,
-          command: req.body.script,
-        }
         params.outputs.push({type: outType.type, data: scriptParsed.value({}, ctx)})
         if (scriptParsed.mutations) {
           await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)

@@ -117,6 +117,7 @@ function parseString(str) {
     value += 100 * +str
     return new AttemptResult(value, '333')
   }
+  return new AttemptResult(+str, '333')
 }
 
 module.exports = {

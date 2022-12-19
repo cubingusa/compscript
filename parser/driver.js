@@ -1,5 +1,6 @@
 const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
+const extension = require('./../extension')
 
 function parseType(type) {
   var parsed = type.match(/([\$a-zA-Z][a-zA-Z0-9<>]*)\((.*)\)/)
@@ -10,12 +11,26 @@ function parseType(type) {
 }
 
 function literalNode(type, value) {
+  var serialized = (() => {
+    switch (type) {
+      case 'AttemptResult':
+        return value.value.toString()
+      case 'String':
+        return value
+      return value.toString()
+    }
+  })()
   return {
     type: type,
     value: (inParams, ctx) => value,
-    serialize: () => { return { type: type, value: value } },
+    serialize: () => { return { type: type, value: serialized } },
     mutations: [],
   }
+}
+
+function udfNode(udf, ctx, args, allowParams) {
+  // TODO: allow UDFs to have args.
+  return parseNode(udf.impl, ctx, allowParams)
 }
 
 function functionNode(functionName, allFunctions, args, allowParams=true) {
@@ -160,7 +175,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
     }
   })
 
-  var mutations = [...(new Set(args.map((arg) => arg.mutations).flat()))]
+  var mutations = [...(new Set(args.filter((arg) => !!arg.mutations).map((arg) => arg.mutations).flat()))]
   if (fn.mutations) {
     fn.mutations.forEach((mut) => {
       if (!mutations.includes(mut)) {
@@ -230,12 +245,17 @@ function activityNode(activityId) {
   }
 }
 
-function parseNode(node, allFunctions, allowParams) {
+function parseNode(node, ctx, allowParams) {
   var out = (() => {
     switch (node.type) {
       case 'Function':
-        return functionNode(node.name, allFunctions,
-                            node.args.map((arg) => parseNode(arg, allFunctions, true)), allowParams)
+        var ext = extension.getExtension(ctx.competition, 'Competition')
+        if (node.name in (ext.udf || {})) {
+          return udfNode(ext.udf[node.name], ctx, node.args, allowParams)
+        }
+        return functionNode(node.name, ctx.allFunctions,
+                            node.args.map((arg) => parseNode(arg, ctx, true)),
+                            allowParams)
       case 'Number':
         return literalNode('Number', node.value)
       case 'String':
