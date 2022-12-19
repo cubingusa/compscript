@@ -1,5 +1,5 @@
 function getExtension(obj, type) {
-  type = 'org.cubingusa.natshelper.' + type
+  type = 'org.cubingusa.natshelper.v1.' + type
   if (!obj.extensions) {
     obj.extensions = []
   }
@@ -9,7 +9,7 @@ function getExtension(obj, type) {
   }
   var extension = {
     id: type,
-    specUrl: 'https://docs.google.com/document/d/1f_UUPXz4-zPrqssbD7IHALNBsqIZomQU1llxe6CuPkQ/edit',
+    specUrl: 'https://github.com/timreyn/natshelper/blob/master/specification.md',
     data: {}
   }
   obj.extensions.push(extension)

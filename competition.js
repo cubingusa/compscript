@@ -19,7 +19,6 @@ compData = function(req) {
     events: {},  // ID -> event
     persons: {},  // ID -> person
     peoplePerRound: {},  // activity code (e.g. 333-r1) -> num people
-    savedViews: extension.getExtension(competition, 'Competition').savedViews,
     error: null,
     statusMessage: null,
   }
