@@ -9,7 +9,7 @@ function getExtension(obj, type) {
   }
   var extension = {
     id: type,
-    specUrl: 'https://github.com/timreyn/natshelper/blob/master/specification.md',
+    specUrl: 'https://github.com/timreyn/natshelper/blob/main/specification.md',
     data: {}
   }
   obj.extensions.push(extension)

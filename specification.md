@@ -34,10 +34,10 @@ The format of the UDFs object is:
 ```json
 
 {
-  functionName: {
+  "functionName": {
     "cmd": ""  # A NatsScript command used to define this function.
     "impl": {} # The parsed command tree for this function.
-  },
+  }
 }
 ```
 
