@@ -7,8 +7,4 @@ html
       div
         a(href='/'+comp.competition.id+'/schedule') Schedule Builder
       div
-        a(href='/'+comp.competition.id+'/viewer') Data Viewer
-        ul
-          each view in comp.savedViews
-            li
-              a(href='/'+comp.competition.id+'/viewer/'+view.id)= view.title
+        a(href='/'+comp.competition.id+'/script') Data Viewer
