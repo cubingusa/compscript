@@ -45,4 +45,4 @@ The format of the UDFs object is:
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `tags` | `String` | A list of user-defined tags for this `Person`. |
+| `properties` | `Object` | A mapping of user-defined key-value pairs. |

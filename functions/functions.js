@@ -7,7 +7,6 @@ module.exports = {
           require('./math').functions,
           require('./persons').functions,
           require('./table').functions,
-          require('./tags').functions,
           require('./udf').functions,
       )
 }
