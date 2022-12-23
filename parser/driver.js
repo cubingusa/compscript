@@ -211,13 +211,14 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       if (fn.usesGenericTypes) {
         argsToUse.push(generics)
       }
+
       for (var i = 0; i < fn.args.length; i++) {
         var evalFn = (match) => {
           if (fn.args[i].serialized) {
             return match.serialize()
           }
           if (fn.args[i].lazy) {
-            return match
+            return (inParams) => match.value(inParams, ctx)
           }
           return match.value(inParams, ctx)
         }

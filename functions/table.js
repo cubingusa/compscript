@@ -30,12 +30,11 @@ const Table = {
           return []
       }
     })().filter((val) => {
-      return filter.value({[generics.ArgType]: val}, ctx)
+      return filter({[generics.ArgType]: val})
     }).sort((rowA, rowB) => {
-      return sort.value({[generics.ArgType]: rowA}) <
-          sort.value({[generics.ArgType]: rowB}) ? -1 : 1
+      return sort({[generics.ArgType]: rowA}) < sort({[generics.ArgType]: rowB}) ? -1 : 1
     }).map((val) => {
-      return columns.value({[generics.ArgType]: val}, ctx)
+      return columns({[generics.ArgType]: val})
     })
     return {
       headers: rows[0].map((col) => col.title),
