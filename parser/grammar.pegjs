@@ -5,6 +5,7 @@ Expression
   / ActivityLiteral
   / StringLiteral
   / BinaryOperation
+  / UdfArg
   / Array
   
 ArgList
@@ -41,3 +42,6 @@ BinaryOperation
 
 Array
   = "[" vals:ArgList "]" { return { type: 'Function', name: 'MakeArray', args: vals } }
+
+UdfArg
+  = "<" argNum:$[0-9]* "," _ argType:$[a-zA-Z]* ">" { return { type: 'UdfArg', argNum: argNum, argType: argType} }

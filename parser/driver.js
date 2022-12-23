@@ -29,8 +29,25 @@ function literalNode(type, value) {
 }
 
 function udfNode(udf, ctx, args, allowParams) {
-  // TODO: allow UDFs to have args.
-  return parseNode(udf.impl, ctx, allowParams)
+  // TODO: check the arguments.
+  var oldUdfArgs = ctx.udfArgs;
+  ctx.udfArgs = {}
+  for (const [idx, arg] of args.entries()) {
+    ctx.udfArgs[idx + 1] = arg
+    if (arg.type == 'UdfArg') {
+      ctx.udfArgs[idx + 1] = oldUdfArgs[arg.argNum]
+    }
+  }
+  var out = parseNode(udf.impl, ctx, allowParams)
+  out.serialize = () => {
+    return {
+      type: 'Function',
+      name: udf.name,
+      args: args,
+    }
+  }
+  ctx.udfArgs = oldUdfArgs
+  return out
 }
 
 function functionNode(functionName, allFunctions, args, allowParams=true) {
@@ -221,7 +238,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       return {
         type: 'Function',
         name: functionName,
-        args: args.map((arg) => arg.matches[0].serialize()),
+        args: args.map((arg) => arg.matches.map((match) => match.serialize())).flat(),
       }
     },
     mutations: mutations,
@@ -245,6 +262,21 @@ function activityNode(activityId) {
   }
 }
 
+function savedUdfArgNode(argNum, argType, ctx) {
+  return parseNode(ctx.udfArgs[argNum], ctx, true)
+}
+
+function udfArgNode(argNum, argType, ctx) {
+  return {
+    type: argType,
+    value: (inParams, ctx) => {
+      throw new Error("UDF args should only be used inside Define().")
+    },
+    serialize: () => { return { type: 'SavedUdfArg', argNum: argNum, argType: argType } },
+    mutations: [],
+  }
+}
+
 function parseNode(node, ctx, allowParams) {
   var out = (() => {
     switch (node.type) {
@@ -264,6 +296,10 @@ function parseNode(node, ctx, allowParams) {
         return activityNode(node.activityId)
       case 'AttemptResult':
         return literalNode('AttemptResult', attemptResult.parseString(node.value))
+      case 'UdfArg':
+        return udfArgNode(node.argNum, node.argType, ctx)
+      case 'SavedUdfArg':
+        return savedUdfArgNode(node.argNum, node.argType, ctx)
     }
   })()
   if (out.errors) {

@@ -24,7 +24,7 @@ const Define = function(argCount) {
       if (!ext.udf) {
         ext.udf = {}
       }
-      ext.udf[name] = {impl: implementation, cmd: ctx.command}
+      ext.udf[name] = {impl: implementation, cmd: ctx.command, name: name}
       return 'Defined function ' + name
     },
     mutations: ['extensions'],
