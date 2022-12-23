@@ -19,6 +19,13 @@ const WcaLink = {
   implementation: (person) => 'https://wca.link/' + person.wcaId
 }
 
+const Registered = {
+  name: 'Registered',
+  args: [],
+  outputType: 'Boolean(Person)',
+  implementation: (person) => person.registration && person.registration.status == 'accepted'
+}
+
 module.exports = {
-  functions: [Name, WcaId, WcaLink],
+  functions: [Name, WcaId, WcaLink, Registered],
 }

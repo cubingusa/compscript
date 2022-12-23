@@ -15,7 +15,7 @@ const CompetingIn = {
     if (activity.roundNumber || activity.groupName) {
       return false
     }
-    return person.registration && person.registration.eventIds.includes(activity.eventId)
+    return person.registration && person.registration.status == 'accepted' && person.registration.eventIds.includes(activity.eventId)
   },
 }
 
@@ -25,6 +25,7 @@ const RegisteredEvents = {
   outputType: 'Array<Activity>(Person)',
   implementation: (person) => {
     if (!person.registration) return []
+    if (person.registration.status !== 'accepted') return []
     return person.registration.eventIds.map((eventId) => activityCode.parse(eventId))
   },
 }
