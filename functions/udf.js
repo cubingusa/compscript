@@ -19,7 +19,7 @@ const Define = function(argCount) {
     ],
     outputType: 'String',
     usesContext: true,
-    implementation: (name, implementation, ctx) => {
+    implementation: (ctx, name, implementation) => {
       const ext = extension.getExtension(ctx.competition, 'Competition')
       if (!ext.udf) {
         ext.udf = {}

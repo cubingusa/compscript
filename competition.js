@@ -267,7 +267,14 @@ router.post('/:competitionId/script', async (req, res) => {
       if (outType.params.length) {
         params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
       } else {
-        params.outputs.push({type: outType.type, data: scriptParsed.value({}, ctx)})
+        var out = scriptParsed.value({}, ctx)
+        if (outType.type == 'Multi') {
+          out.forEach((val) => {
+            params.outputs.push(val)
+          })
+        } else {
+          params.outputs.push({type: outType.type, data: scriptParsed.value({}, ctx)})
+        }
         if (scriptParsed.mutations) {
           await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
         }

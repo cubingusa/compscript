@@ -21,7 +21,7 @@ const Table = {
   usesContext: true,
   usesGenericTypes: true,
   outputType: 'Table',
-  implementation: (filter, columns, sort, ctx, generics) => {
+  implementation: (ctx, generics, filter, columns, sort) => {
     var rows = (() => {
       switch (generics.ArgType) {
         case 'Person':

@@ -205,6 +205,12 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
     type: outputType.type + (outputType.params.length > 0 ? '(' + outputType.params.join(', ') + ')' : ''),
     value: function(inParams, ctx) {
       var argsToUse = []
+      if (fn.usesContext) {
+        argsToUse.push(ctx)
+      }
+      if (fn.usesGenericTypes) {
+        argsToUse.push(generics)
+      }
       for (var i = 0; i < fn.args.length; i++) {
         var evalFn = (match) => {
           if (fn.args[i].serialized) {
@@ -225,12 +231,6 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       outputType.params.forEach((param) => {
         argsToUse.push(inParams[param])
       })
-      if (fn.usesContext) {
-        argsToUse.push(ctx)
-      }
-      if (fn.usesGenericTypes) {
-        argsToUse.push(generics)
-      }
 
       return fn.implementation(...argsToUse)
     },

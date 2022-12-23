@@ -3,6 +3,7 @@ module.exports = {
       [].concat(
           require('./array').functions,
           require('./boolean').functions,
+          require('./display').functions,
           require('./events').functions,
           require('./math').functions,
           require('./persons').functions,
