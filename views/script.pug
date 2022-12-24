@@ -1,9 +1,12 @@
+include cluster.pug
 html
   head
     title Nats Helper
     style
       include script.css
     link(rel='stylesheet', href='/cubing-icons.css')
+    script
+      include script.js
   body
     h1
       a(href='/' + comp.competition.id)= comp.competition.name
@@ -36,3 +39,6 @@ html
           div= output.data
         if output.type == 'Header'
           h3= output.data
+        if output.type == 'ClusteringResult'
+          +clusters(output.data)
+          pre= JSON.stringify(output.data, null, 2)

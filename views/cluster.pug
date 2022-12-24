@@ -1,0 +1,26 @@
+mixin clusters(data)
+  h3= data.name + ' clusters'
+  if data.solved
+    div Success!
+  else
+    div Failed to cluster.
+  table(class='cluster')
+    tr
+      th Cluster
+      th People
+      each constraint in data.constraints
+        th= constraint
+    each cluster in data.clusters
+      tr
+        td= cluster.id
+        td
+          div= cluster.people.length
+          a(onclick='toggleCluster(' + cluster.id + ')' id='link-' + cluster.id) [show]
+        each constraint in data.constraints
+          td= cluster.constraints[constraint]
+      each person in cluster.people
+        tr(class='person-row cluster-' + cluster.id)
+          td= person.person.name
+          td= person.person.wcaId
+          each constraint in data.constraints
+            td= person.constraints[constraint]

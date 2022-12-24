@@ -26,6 +26,18 @@ const Registered = {
   implementation: (person) => person.registration && person.registration.status == 'accepted'
 }
 
+const WcaIdYear = {
+  name: 'WcaIdYear',
+  args: [],
+  outputType: 'Number(Person)',
+  implementation: (person) => {
+    if (!person.wcaId) {
+      return 0
+    }
+    return +person.wcaId.substring(0, 4)
+  }
+}
+
 module.exports = {
-  functions: [Name, WcaId, WcaLink, Registered],
+  functions: [Name, WcaId, WcaLink, Registered, WcaIdYear],
 }
