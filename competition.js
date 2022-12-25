@@ -235,10 +235,15 @@ router.post('/:competitionId/schedule', async (req, res) => {
 })
 
 router.get('/:competitionId/script', async (req, res) => {
+  var script = ''
+  if (req.session.script) {
+    script = req.session.script
+    delete req.session.script
+  }
   res.render('script', {
     comp: compData(req),
     fn: pugFunctions,
-    script: req.query.script,
+    script: script || req.query.script,
     outputs: [],
   })
 })

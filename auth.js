@@ -105,6 +105,9 @@ async function redirectIfNotLoggedIn(req, res, next) {
       // Refresh token doesn't work, go to login flow.
     }
   }
+  if (req.body.script) {
+    req.session.script = req.body.script
+  }
   const uri = client.authorizationUrl({
     scope: 'public manage_competitions'
   })
