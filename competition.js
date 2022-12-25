@@ -273,7 +273,7 @@ router.post('/:competitionId/script', async (req, res) => {
             params.outputs.push(val)
           })
         } else {
-          params.outputs.push({type: outType.type, data: scriptParsed.value({}, ctx)})
+          params.outputs.push({type: outType.type, data: out})
         }
         if (scriptParsed.mutations) {
           await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
