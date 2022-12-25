@@ -2,7 +2,7 @@ const express = require('express')
 const { Issuer, custom } = require('openid-client')
 
 custom.setHttpOptionsDefaults({
-  timeout: 10000,
+  timeout: 60000,
 });
 
 var router = express.Router()
@@ -47,6 +47,10 @@ async function patchWcif(obj, keys, req, res) {
         {method: 'PATCH',
          body: JSON.stringify(toPatch),
          headers: {'Content-Type': 'application/json'}})
+  if (out.status !== 200) {
+    console.log(out.body.toString());
+    return {}
+  }
   return JSON.parse(out.body.toString());
 }
 
