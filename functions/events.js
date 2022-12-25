@@ -1,6 +1,16 @@
 const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
 
+function personalBest(evt, type, person) {
+  const eventId = evt.eventId
+  var matching = person.personalBests.filter((best) => best.eventId === eventId && best.type === type)
+  if (matching.length == 0) {
+    return new attemptResult.AttemptResult(0, eventId)
+  } else {
+    return new attemptResult.AttemptResult(matching[0].best, eventId)
+  }
+}
+
 const CompetingIn = {
   name: 'CompetingIn',
   args: [
@@ -43,15 +53,7 @@ const PersonalBest = {
     },
   ],
   outputType: 'AttemptResult(Person)',
-  implementation: (evt, type, person) => {
-    const eventId = evt.eventId
-    var matching = person.personalBests.filter((best) => best.eventId === eventId && best.type === type)
-    if (matching.length == 0) {
-      return new attemptResult.AttemptResult(0, eventId)
-    } else {
-      return new attemptResult.AttemptResult(matching[0].best, eventId)
-    }
-  }
+  implementation: personalBest
 }
 
 const BetterThan = {
@@ -72,7 +74,35 @@ const BetterThan = {
   }
 }
 
+const PsychSheetPosition = {
+  name: 'PsychSheetPosition',
+  args: [
+    {
+      name: 'event',
+      type: 'Activity',
+    },
+    {
+      name: 'type',
+      type: 'String',
+    },
+  ],
+  outputType: 'Number(Person)',
+  usesContext: true,
+  implementation: (ctx, evt, type, person) => {
+    var pb = personalBest(evt, type, person)
+    return ctx.competition.persons.filter((otherPerson) => {
+      if (!otherPerson.registration || otherPerson.registration.status !== 'accepted') {
+        return false
+      }
+      if (!otherPerson.registration.eventIds.includes(evt.eventId)) {
+        return false
+      }
+      var otherPb = personalBest(evt, type, otherPerson)
+      return pb.value <= 0 || pb.value > otherPb.value
+    }).length + 1
+  }
+}
 
 module.exports = {
-  functions: [CompetingIn, RegisteredEvents, PersonalBest, BetterThan],
+  functions: [CompetingIn, RegisteredEvents, PersonalBest, BetterThan, PsychSheetPosition],
 }
