@@ -1,6 +1,7 @@
 Expression
   = fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
   / AttemptResultLiteral
+  / BooleanLiteral
   / NumberLiteral
   / ActivityLiteral
   / StringLiteral
@@ -20,8 +21,12 @@ Variable
 NumberLiteral
   = rawNumber:$[0-9\.]+ { return { type: 'Number', value: +rawNumber } }
   
+BooleanLiteral
+  = "true" { return { type: 'Boolean', value: true } }
+  / "false" { return { type: 'Boolean', value: false } }
+
 ActivityLiteral
-  = "_" eventId:$[a-zA-Z0-9]* { return { type: 'Activity', activityId: eventId } }
+  = "_" activityId:$[a-zA-Z0-9-]* { return { type: 'Activity', activityId: activityId } }
 
 StringLiteral
   = '"' rawString:$[^"]* '"' { return { type: 'String', value: rawString } }

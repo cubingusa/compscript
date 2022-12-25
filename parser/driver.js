@@ -293,6 +293,8 @@ function parseNode(node, ctx, allowParams) {
         return literalNode('Number', node.value)
       case 'String':
         return literalNode('String', node.value)
+      case 'Boolean':
+        return literalNode('Boolean', node.value)
       case 'Activity':
         return activityNode(node.activityId)
       case 'AttemptResult':
