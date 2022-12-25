@@ -46,6 +46,30 @@ const EqualTo = {
   outputType: 'Boolean',
   implementation: (val1, val2) => val1 === val2,
 }
+
+const If = {
+  name: 'If',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'condition',
+      type: 'Boolean',
+    },
+    {
+      name: 'ifTrue',
+      type: '$T',
+    },
+    {
+      name: 'ifFalse',
+      type: '$T',
+    },
+  ],
+  outputType: '$T',
+  implementation: (condition, ifTrue, ifFalse) => {
+    return condition ? ifTrue : ifFalse
+  }
+}
+
 module.exports = {
-  functions: [GreaterThan, GreaterThanOrEqualTo, EqualTo],
+  functions: [GreaterThan, GreaterThanOrEqualTo, EqualTo, If],
 }
