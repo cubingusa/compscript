@@ -128,10 +128,29 @@ const SetProperty = {
   }
 }
 
+const AddPerson = {
+  name: 'AddPerson',
+  args: [
+    {
+      name: 'wcaUserId',
+      type: 'Number',
+    },
+  ],
+  usesContext: true,
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (ctx, wcaUserId) => {
+    console.log('executing AddPerson')
+    console.trace()
+    ctx.competition.persons.push({ wcaUserId: wcaUserId })
+  }
+}
+
 
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear,
        Property('Boolean'), Property('String'), Property('Number'),
-       SetProperty],
+       SetProperty,
+       AddPerson],
 }
