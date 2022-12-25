@@ -1,5 +1,5 @@
 Expression
-  = fn:Variable "(" args:ArgList ")" { return { type: 'Function', name: fn, args: args } }
+  = fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
   / AttemptResultLiteral
   / NumberLiteral
   / ActivityLiteral
@@ -12,7 +12,7 @@ ArgList
   = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
   / "" { return [] }
 
-_ = [ \t]*
+_ = [ \t\n\r]*
 
 Variable
   = v:$([a-zA-Z][a-zA-Z0-9]*) { return v }
