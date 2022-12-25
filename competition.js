@@ -275,7 +275,7 @@ router.post('/:competitionId/script', async (req, res) => {
         } else {
           params.outputs.push({type: outType.type, data: out})
         }
-        if (scriptParsed.mutations) {
+        if (scriptParsed.mutations.length) {
           await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
         }
       }
