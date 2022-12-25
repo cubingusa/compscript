@@ -1,3 +1,5 @@
+const extension = require('./../extension')
+
 const Name = {
   name: 'Name',
   args: [],
@@ -38,6 +40,98 @@ const WcaIdYear = {
   }
 }
 
+const Property = (type) => {
+  var defaultValue = ((type) => {
+    switch (type) {
+      case 'String':
+        return ''
+      case 'Boolean':
+        return false
+      case 'Number':
+        return 0
+    }
+  })(type)
+  return {
+    name: type + 'Property',
+    args: [
+      {
+        name: 'name',
+        type: 'String',
+      },
+      {
+        name: 'defaultValue',
+        type: type,
+        defaultValue: defaultValue,
+      },
+    ],
+    outputType: type + '(Person)',
+    implementation: (name, defaultValue, person) => {
+      const ext = extension.getExtension(person, 'Person')
+      if (ext.properties && property in ext.properties) {
+        return ext.properties[name]
+      }
+      return defaultValue
+    }
+  }
+}
+
+const HasProperty = {
+  name: 'HasProperty',
+  args: [
+    {
+      name: 'property',
+      type: 'String',
+    },
+  ],
+  outputType: 'Boolean(Person)',
+  implementation: (property, person) => {
+    const ext = extension.getExtension(person, 'Person')
+    console.log(ext)
+    if (!ext.properties) {
+      return false
+    }
+    return property in ext.properties
+  }
+}
+
+const SetProperty = {
+  name: 'SetProperty',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'filter',
+      type: 'Boolean(Person)',
+      lazy: true,
+    },
+    {
+      name: 'property',
+      type: 'String',
+    },
+    {
+      name: 'value',
+      type: '$T',
+    },
+  ],
+  usesContext: true,
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (ctx, filter, property, value) => {
+    var persons = ctx.competition.persons.filter((person) => filter.value({Person: person}))
+    persons.forEach((person) => {
+      const ext = extension.getExtension(person, 'Person')
+      if (!ext.properties) {
+        ext.properties = {}
+      }
+      ext.properties[property] = value
+    })
+    return 'Set ' + property + ' for ' + persons.length.toString() + ' persons.'
+  }
+}
+
+
 module.exports = {
-  functions: [Name, WcaId, WcaLink, Registered, WcaIdYear],
+  functions:
+      [Name, WcaId, WcaLink, Registered, WcaIdYear,
+       Property('Boolean'), Property('String'), Property('Number'),
+       SetProperty],
 }
