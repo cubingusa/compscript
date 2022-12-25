@@ -67,7 +67,7 @@ const Property = (type) => {
     outputType: type + '(Person)',
     implementation: (name, defaultValue, person) => {
       const ext = extension.getExtension(person, 'Person')
-      if (ext.properties && property in ext.properties) {
+      if (ext.properties && name in ext.properties) {
         return ext.properties[name]
       }
       return defaultValue
