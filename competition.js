@@ -43,8 +43,7 @@ compData = function(req) {
     }
   })
   competition.persons.forEach((person) => {
-    // TODO: limit to accepted registrations.
-    if (person.registration) {
+    if (person.registration && person.registration.status == 'accepted') {
       person.registration.eventIds.forEach((eventId) => {
         var code = new activityCode.ActivityCode(eventId, 1, null, null).id()
         if (!out.peoplePerRound[code]) {
@@ -206,7 +205,7 @@ router.post('/:competitionId/schedule', async (req, res) => {
         for (var idx = 0; idx < roomActivity.childActivities.length; idx++) {
           var childActivity = roomActivity.childActivities[idx]
           var groupActivityCode = activityCodeObj.group(
-              room.name.split(' ')[0] + (numGroups > 1 ? ' ' + (idx+1) : ''))
+              room.name.split(' ')[0] + (numGroups > 1 ? (idx+1).toString() : ''))
           childActivity.name = groupActivityCode.groupName
           childActivity.activityCode = groupActivityCode.id()
           childActivity.startTime = (activityStart.plus({seconds: groupLength * idx})).toISO()
