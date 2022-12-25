@@ -53,7 +53,7 @@ function udfNode(udf, ctx, args, allowParams) {
 function functionNode(functionName, allFunctions, args, allowParams=true) {
   var matchingFunctions = allFunctions.filter((fn) => fn.name == functionName)
   var errors = args.filter((arg) => !!arg.errors).map((arg) => arg.errors).flat()
-  if (!matchingFunctions) {
+  if (!matchingFunctions.length) {
     errors.push({ errorType: 'UNKNOWN_FUNCTION', functionName: functionName})
   }
   if (errors.length > 0) {
