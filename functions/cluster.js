@@ -25,7 +25,7 @@ const Cluster = {
   ],
   outputType: 'ClusteringResult',
   usesContext: true,
-  //mutations: ['persons'],
+  mutations: ['persons'],
   implementation: (ctx, name, numClusters, filter, constraints) => {
     return cluster.Cluster(ctx.competition, name, numClusters, filter, constraints)
   }
