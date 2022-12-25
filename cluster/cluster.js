@@ -3,7 +3,7 @@ const extension = require('./../extension')
 
 function Cluster(competition, name, numClusters, filter, constraints) {
   var people = competition.persons.filter((person) => filter({Person: person}))
-  var clusters = [...Array(numClusters).keys()]
+  var clusters = [...Array(numClusters).keys()].map((x) => x + 1)
   var result
   for (var iter = 0; iter < 10; iter++) {
     var model = {
@@ -30,14 +30,14 @@ function Cluster(competition, name, numClusters, filter, constraints) {
     var result = solver.Solve(model)
     var solved = result.feasible && result.result == people.length
     if (solved || iter == 9) {
-      var out = {name: name, model: model, result: result, clusters: []}
+      var out = {name: name, model: model, result: result, clusters: {}}
       out.constraints = constraints.map((constraint) => constraint.name)
       clusters.forEach((cluster) => {
-        out.clusters.push({
+        out.clusters[cluster] = {
           id: cluster,
           people: [],
           constraints: {},
-        })
+        }
       })
       people.forEach((person) => {
         clusters.forEach((cluster) => {
