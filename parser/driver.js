@@ -106,7 +106,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           }
           var generic = argType.substring(idx + 1).match(/^[a-zA-Z0-9]*/)[0]
           var genericValue = match.type.substring(idx).match(/^[a-zA-Z]*/)[0]
-          if (fn.genericParams.includes(generic)) {
+          if (fn.genericParams && fn.genericParams.includes(generic)) {
             argType = argType.replaceAll('$' + generic, genericValue)
             generics[generic] = genericValue
           } else {
