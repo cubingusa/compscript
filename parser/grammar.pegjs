@@ -42,7 +42,7 @@ BinaryOperation
   / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThan', args: [left, right] } }
   / "(" left:Expression _ "<" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThan', args: [right, left] } }
   / "(" left:Expression _ ">=" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [left, right] } }
-  / "(" left:Expression _ ">" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [right, left] } }
+  / "(" left:Expression _ "<=" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [right, left] } }
   / "(" left:Expression _ "==" _ right:Expression ")" { return { type: 'Function', name: 'EqualTo', args: [left, right] } }
 
 Array
