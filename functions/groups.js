@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const assign = require('./../groups/assign')
 const scorers = require('./../groups/scorers')
 
@@ -118,7 +120,72 @@ const Stage = {
   }
 }
 
+const AssignedGroup = {
+  name: 'AssignedGroup',
+  args: [
+    {
+      name: 'event',
+      type: 'Activity',
+    },
+  ],
+  outputType: 'Activity(Person)',
+  usesContext: true,
+  implementation: (ctx, evt, person) => {
+    var matching = person.assignments.map((assignment) => {
+      if (assignment.assignmentCode != "competitor") {
+        return null
+      }
+      return lib.activityById(ctx, assignment.activityId)
+      if (activity === null) {
+        return null
+      }
+      return activityCode.parse(activity.activityCode)
+    }).filter((x) => x !== null)
+    if (matching.length) {
+      return null
+    }
+    return matching[0]
+  }
+}
+
+const GroupName = {
+  name: 'GroupName',
+  args: [
+    {
+      name: 'group',
+      type: 'Activity',
+    },
+  ],
+  outputType: 'String',
+  implementation: (group) => {
+    if (group === null) {
+      return ''
+    }
+    return group.groupName
+  }
+}
+
+const StartTime = {
+  name: 'StartTime',
+  args: [
+    {
+      name: 'group',
+      type: 'Activity',
+    },
+  ],
+  outputType: 'DateTime',
+  usesContext: true,
+  implementation: (ctx, group) => {
+    var activity = lib.activityByCode(ctx, group)
+    if (activity === null) {
+      return null
+    }
+    return DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venue[0].timezone)
+  }
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters,
-              GroupNumber, Stage],
+              GroupNumber, Stage, AssignedGroup,
+              GroupName, StartTime],
 }

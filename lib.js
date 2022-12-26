@@ -22,8 +22,45 @@ function personalBest(person, evt, type='default') {
   }
 }
 
+function activityById(competition, activityId) {
+  for (const venue in competition.schedule.venues) {
+    for (const room in venue.rooms) {
+      for (const activity in room.activities) {
+        if (activity.id == activityId) {
+          return activity
+        }
+        for (const child in activity.childActivities) {
+          if (child.id == activityId) {
+            return activity
+          }
+        }
+      }
+    }
+  }
+  return null
+}
+
+function activityByCode(competition, activityCode) {
+  for (const venue in competition.schedule.venues) {
+    for (const room in venue.rooms) {
+      for (const activity in room.activities) {
+        if (activity.activityCode == activityCode.toString()) {
+          return activity
+        }
+        for (const child in activity.childActivities) {
+          if (activity.ativityCode == activityCode.toString()) {
+            return activity
+          }
+        }
+      }
+    }
+  }
+  return null
+}
+
 module.exports = {
   getEvent: getEvent,
   getRound: getRound,
   personalBest: personalBest,
+  activityById: activityById,
 }
