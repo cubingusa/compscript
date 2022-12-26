@@ -1,0 +1,13 @@
+mixin table(data)
+  table
+    tr
+      each header in data.headers
+        th= header
+    each row in data.rows
+      tr
+        each cell in row
+          td
+            if cell.link
+              a(href=cell.link)= cell.value.toString()
+            else
+              =cell.value.toString()
