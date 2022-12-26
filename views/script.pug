@@ -1,4 +1,5 @@
 include cluster.pug
+include groups.pug
 html
   head
     title Nats Helper
@@ -21,7 +22,7 @@ html
     each output in outputs
       div
         if output.type == 'Error'
-          = JSON.stringify(output.data, null, 2)
+          pre= JSON.stringify(output.data, null, 2)
         if output.type == 'Table'
           table
             tr
@@ -41,3 +42,5 @@ html
           h3= output.data
         if output.type == 'ClusteringResult'
           +clusters(output.data)
+        if output.type == 'GroupAssignmentResult'
+          +groups(output.data)

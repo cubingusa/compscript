@@ -6,6 +6,7 @@ module.exports = {
           require('./cluster').functions,
           require('./display').functions,
           require('./events').functions,
+          require('./groups').functions,
           require('./math').functions,
           require('./persons').functions,
           require('./table').functions,

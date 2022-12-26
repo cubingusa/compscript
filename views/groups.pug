@@ -1,0 +1,21 @@
+mixin groups(data)
+  h3= data.round.toString() + " Groups"
+  each warning in data.warnings
+    pre= JSON.stringify(warning, null, 2)
+  each group in Object.keys(data.assignments)
+    h4= fn.parseActivityCode(group).groupName + " (" + data.assignments[group].length + ")"
+    table
+      tr
+        th Name
+        th WCA ID
+        th Country
+        th Personal Best
+        th Assignment Set
+      each assignment in data.assignments[group]
+        tr
+          td= assignment.person.name
+          td
+            a(href='https://wca.link/' + assignment.person.wcaId)= assignment.person.wcaId
+          td= assignment.person.countryIso2
+          td= fn.personalBest(assignment.person, data.round).toString()
+          td= assignment.set
