@@ -8,7 +8,7 @@ function getRound(competition, activity) {
   return getEvent(competition, activity).rounds.filter((rd) => rd.id == activity.id())[0]
 }
 
-function personalBest(evt, type, person) {
+function personalBest(person, evt, type='default') {
   const eventId = evt.eventId
   if (type == 'default') {
     type = ['333bf', '444bf', '555bf', '333fm'].includes(eventId) ? 'single' : 'average'

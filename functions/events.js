@@ -50,7 +50,7 @@ const PersonalBest = {
     },
   ],
   outputType: 'AttemptResult(Person)',
-  implementation: lib.personalBest
+  implementation: (evt, type, person) => lib.personalBest(person, evt, type),
 }
 
 const BetterThan = {
@@ -87,7 +87,7 @@ const PsychSheetPosition = {
   outputType: 'Number(Person)',
   usesContext: true,
   implementation: (ctx, evt, type, person) => {
-    var pb = lib.personalBest(evt, type, person)
+    var pb = lib.personalBest(person, evt, type)
     return ctx.competition.persons.filter((otherPerson) => {
       if (!otherPerson.registration || otherPerson.registration.status !== 'accepted') {
         return false
@@ -95,7 +95,7 @@ const PsychSheetPosition = {
       if (!otherPerson.registration.eventIds.includes(evt.eventId)) {
         return false
       }
-      var otherPb = lib.personalBest(evt, type, otherPerson)
+      var otherPb = lib.personalBest(otherPerson, evt, type)
       return pb.value <= 0 || pb.value > otherPb.value
     }).length + 1
   }
