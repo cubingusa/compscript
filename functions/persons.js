@@ -40,6 +40,27 @@ const WcaIdYear = {
   }
 }
 
+const Country = {
+  name: 'Country',
+  args: [],
+  outputType: 'String(Person)',
+  implementation: (person) => person.countryIso2,
+}
+
+const FirstName = {
+  name: 'FirstName',
+  args: [],
+  outputType: 'String(Person)',
+  implementation: (person) => person.name.split(' ').at(0),
+}
+
+const LastName = {
+  name: 'LastName',
+  args: [],
+  outputType: 'String(Person)',
+  implementation: (person) => person.name.split(' ').at(-1),
+}
+
 const Property = (type) => {
   var defaultValue = ((type) => {
     switch (type) {
@@ -146,10 +167,9 @@ const AddPerson = {
   }
 }
 
-
 module.exports = {
   functions:
-      [Name, WcaId, WcaLink, Registered, WcaIdYear,
+      [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'),
        SetProperty,
        AddPerson],
