@@ -15,6 +15,7 @@ const AssignGroups = {
     {
       name: 'scorers',
       type: 'Array<AssignmentScorer>',
+      defaultValue: [],
     },
   ],
   outputType: 'GroupAssignmentResult',
