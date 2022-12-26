@@ -19,7 +19,7 @@ Variable
   = v:$([a-zA-Z][a-zA-Z0-9]*) { return v }
   
 NumberLiteral
-  = rawNumber:$[0-9\.]+ { return { type: 'Number', value: +rawNumber } }
+  = rawNumber:$[\-0-9\.]+ { return { type: 'Number', value: +rawNumber } }
   
 BooleanLiteral
   = "true" { return { type: 'Boolean', value: true } }
