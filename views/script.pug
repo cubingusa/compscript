@@ -22,6 +22,9 @@ html
       label(for='dryrun') Dry Run
       br
       input(type='submit')
+    if dryrunWarning
+      p
+        i Note: this was a dry run, so no changes were made.
     br
     each output in outputs
       div

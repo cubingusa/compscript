@@ -255,6 +255,7 @@ router.post('/:competitionId/script', async (req, res) => {
     script: req.body.script,
     outputs: [],
     dryrun: req.body.dryrun,
+    dryrunWarning: false,
   }
   if (req.body.script) {
     var ctx = {
@@ -281,8 +282,12 @@ router.post('/:competitionId/script', async (req, res) => {
         } else {
           params.outputs.push({type: outType.type, data: out})
         }
-        if (scriptParsed.mutations.length && !req.body.dryrun) {
-          await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
+        if (scriptParsed.mutations.length) {
+          if (req.body.dryrun) {
+            params.dryrunWarning = true
+          } else {
+            await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
+          }
         }
       }
     }
