@@ -244,6 +244,7 @@ router.get('/:competitionId/script', async (req, res) => {
     fn: pugFunctions,
     script: script || req.query.script,
     outputs: [],
+    dryrun: true,
   })
 })
 
@@ -253,6 +254,7 @@ router.post('/:competitionId/script', async (req, res) => {
     fn: pugFunctions,
     script: req.body.script,
     outputs: [],
+    dryrun: req.body.dryrun,
   }
   if (req.body.script) {
     var ctx = {
@@ -279,7 +281,7 @@ router.post('/:competitionId/script', async (req, res) => {
         } else {
           params.outputs.push({type: outType.type, data: out})
         }
-        if (scriptParsed.mutations.length) {
+        if (scriptParsed.mutations.length && !req.body.dryrun) {
           await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
         }
       }
