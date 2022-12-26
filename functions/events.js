@@ -45,7 +45,8 @@ const PersonalBest = {
     },
     {
       name: 'type',
-      type: 'String',  // 'single' or 'average'
+      type: 'String',  // 'single', 'average', or 'default'
+      defaultValue: 'default',
     },
   ],
   outputType: 'AttemptResult(Person)',
@@ -80,6 +81,7 @@ const PsychSheetPosition = {
     {
       name: 'type',
       type: 'String',
+      defaultValue: 'default',
     },
   ],
   outputType: 'Number(Person)',

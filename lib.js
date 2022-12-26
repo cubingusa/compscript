@@ -10,6 +10,10 @@ function getRound(competition, activity) {
 
 function personalBest(evt, type, person) {
   const eventId = evt.eventId
+  if (type == 'default') {
+    type = ['333bf', '444bf', '555bf', '333fm'].includes(eventId) ? 'single' : 'average'
+  }
+
   var matching = person.personalBests.filter((best) => best.eventId === eventId && best.type === type)
   if (matching.length == 0) {
     return new attemptResult.AttemptResult(0, eventId)
