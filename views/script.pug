@@ -16,7 +16,7 @@ html
     include error.pug
     div(id='competitionId' data-competitionId=comp.competition.id style='display:none')
     form(method='POST')
-      textarea(name='script' cols=100 rows=5)= script
+      textarea(name='script' cols=100 rows=10)= script
       br
       input(type='checkbox' name='dryrun' checked=dryrun)
       label(for='dryrun') Dry Run
