@@ -1,5 +1,6 @@
 include cluster.pug
 include groups.pug
+include spreadsheet.pug
 include table.pug
 html
   head
@@ -42,3 +43,5 @@ html
           +clusters(output.data)
         if output.type == 'GroupAssignmentResult'
           +groups(output.data)
+        if output.type == 'ReadSpreadsheetResult'
+          +spreadsheet(output.data)

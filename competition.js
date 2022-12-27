@@ -276,7 +276,7 @@ router.post('/:competitionId/script', async (req, res) => {
         if (outType.params.length) {
           params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
         } else {
-          var out = scriptParsed.value({}, ctx)
+          var out = await scriptParsed.value({}, ctx)
           if (outType.type == 'Multi') {
             out.forEach((val) => {
               params.outputs.push(val)

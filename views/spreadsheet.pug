@@ -1,0 +1,8 @@
+mixin spreadsheet(data)
+  if data.warnings.length > 0
+    p
+      = data.warnings.length + ' warnings'
+      ul
+        each warning in data.warnings
+          li= warning
+  = 'Loaded ' + data.loaded + ' people'
