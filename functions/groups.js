@@ -1,7 +1,9 @@
 const { DateTime } = require('luxon')
 
+const activityCode = require('./../activity_code')
 const assign = require('./../groups/assign')
 const scorers = require('./../groups/scorers')
+const lib = require('./../lib')
 
 const AssignGroups = {
   name: 'AssignGroups',
@@ -140,13 +142,13 @@ const AssignedGroup = {
       if (assignment.assignmentCode != "competitor") {
         return null
       }
-      return lib.activityById(ctx, assignment.activityId)
+      var activity = lib.activityById(ctx.competition, assignment.activityId)
       if (activity === null) {
         return null
       }
       return activityCode.parse(activity.activityCode)
     }).filter((x) => x !== null)
-    if (matching.length) {
+    if (!matching.length) {
       return null
     }
     return matching[0]
@@ -181,11 +183,14 @@ const StartTime = {
   outputType: 'DateTime',
   usesContext: true,
   implementation: (ctx, group) => {
-    var activity = lib.activityByCode(ctx, group)
+    if (group === null) {
+      return null
+    }
+    var activity = lib.activityByCode(ctx.competition, group)
     if (activity === null) {
       return null
     }
-    return DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venue[0].timezone)
+    return DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venues[0].timezone)
   }
 }
 

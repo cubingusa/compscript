@@ -9,7 +9,12 @@ const Time = {
     },
   ],
   outputType: 'String',
-  implementation: (time) => time.toLocaleString(DateTime.TIME_SIMPLE),
+  implementation: (time) => {
+    if (time === null) {
+      return ''
+    }
+    return time.toLocaleString(DateTime.TIME_SIMPLE)
+  }
 }
 
 module.exports = {

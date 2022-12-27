@@ -23,37 +23,25 @@ function personalBest(person, evt, type='default') {
 }
 
 function activityById(competition, activityId) {
-  for (const venue in competition.schedule.venues) {
-    for (const room in venue.rooms) {
-      for (const activity in room.activities) {
-        if (activity.id == activityId) {
-          return activity
-        }
-        for (const child in activity.childActivities) {
-          if (child.id == activityId) {
-            return activity
-          }
-        }
-      }
-    }
+  var matching =
+      competition.schedule.venues.map((venue) => venue.rooms).flat()
+          .map((room) => room.activities).flat()
+          .map((activity) => [activity].concat(activity.childActivities)).flat()
+          .filter((activity) => activity.id == activityId)
+  if (matching.length) {
+    return matching[0]
   }
   return null
 }
 
 function activityByCode(competition, activityCode) {
-  for (const venue in competition.schedule.venues) {
-    for (const room in venue.rooms) {
-      for (const activity in room.activities) {
-        if (activity.activityCode == activityCode.toString()) {
-          return activity
-        }
-        for (const child in activity.childActivities) {
-          if (activity.ativityCode == activityCode.toString()) {
-            return activity
-          }
-        }
-      }
-    }
+  var matching =
+      competition.schedule.venues.map((venue) => venue.rooms).flat()
+          .map((room) => room.activities).flat()
+          .map((activity) => [activity].concat(activity.childActivities)).flat()
+          .filter((activity) => activity.activityCode == activityCode.id())
+  if (matching.length) {
+    return matching[0]
   }
   return null
 }
