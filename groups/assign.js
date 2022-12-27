@@ -3,7 +3,24 @@ const activityCode = require('./../activity_code')
 const extension = require('./../extension')
 const lib = require('./../lib')
 
-function Assign(competition, round, assignmentSets, scorers) {
+function Assign(competition, round, assignmentSets, scorers, override) {
+  var activityIds = lib.groupIdsForRoundCode(competition, round)
+  if (competition.persons.map((person) => person.assignments).flat()
+          .some((assignment) => activityIds.includes(assignment.activityId))) {
+    if (!override) {
+      return {
+        round: round,
+        warnings: ['Groups are already saved. Not overwriting unless overwrite=true is added.'],
+        assignments: {},
+      }
+    } else {
+      competition.persons.forEach((person) => {
+        person.assignments = person.assignments.filter(
+            (assignment) => !activityIds.includes(assignment.activityId))
+      })
+    }
+  }
+
   var personIds = lib.getRound(competition, round)
                      .results.map((res) => res.personId)
 
@@ -152,6 +169,15 @@ function Assign(competition, round, assignmentSets, scorers) {
     assignmentsByGroup[groupCode].sort(
         (a1, a2) => lib.personalBest(a1.person, round) < lib.personalBest(a2.person, round) ? -1 : 1)
   }
+  var codeToId = lib.activityCodeMapForRoundCode(competition, round)
+  competition.persons.forEach((person) => {
+    if (person.wcaUserId in assignmentsByPerson) {
+      person.assignments.push({
+        activityId: codeToId[assignmentsByPerson[person.wcaUserId].group.activityCode],
+        assignmentCode: "competitor",
+      })
+    }
+  })
   return {
     round: round,
     assignments: assignmentsByGroup,

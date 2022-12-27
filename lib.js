@@ -58,9 +58,25 @@ function activityByCode(competition, activityCode) {
   return null
 }
 
+function groupIdsForRoundCode(competition, roundCode) {
+  return Object.values(activityCodeMapForRoundCode(competition, roundCode))
+}
+
+function activityCodeMapForRoundCode(competition, roundCode) {
+  return Object.fromEntries(competition.schedule.venues.map((venue) => venue.rooms).flat()
+          .map((room) => room.activities).flat()
+          .filter((activity) => activity.activityCode == roundCode.id())
+          .map((activity) => activity.childActivities).flat()
+          .map((activity) => [activity.activityCode, activity.id]))
+}
+
+
 module.exports = {
   getEvent: getEvent,
   getRound: getRound,
   personalBest: personalBest,
   activityById: activityById,
+  activityByCode: activityByCode,
+  groupIdsForRoundCode: groupIdsForRoundCode,
+  activityCodeMapForRoundCode: activityCodeMapForRoundCode,
 }

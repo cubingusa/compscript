@@ -19,12 +19,17 @@ const AssignGroups = {
       type: 'Array<AssignmentScorer>',
       defaultValue: [],
     },
+    {
+      name: 'overwrite',
+      type: 'Boolean',
+      defaultValue: false,
+    },
   ],
   outputType: 'GroupAssignmentResult',
   usesContext: true,
-  // mutations: ['persons'],
-  implementation: (ctx, round, assignmentSets, scorers) => {
-    return assign.Assign(ctx.competition, round, assignmentSets, scorers)
+  mutations: ['persons'],
+  implementation: (ctx, round, assignmentSets, scorers, overwrite) => {
+    return assign.Assign(ctx.competition, round, assignmentSets, scorers, overwrite)
   }
 }
 
