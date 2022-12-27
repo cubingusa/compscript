@@ -47,6 +47,38 @@ const EqualTo = {
   implementation: (val1, val2) => val1 === val2,
 }
 
+const Add = {
+  name: 'Add',
+  args: [
+    {
+      name: 'val1',
+      type: 'Number',
+    },
+    {
+      name: 'val2',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Number',
+  implementation: (val1, val2) => val1 + val2,
+}
+
+const Subtract = {
+  name: 'Subtract',
+  args: [
+    {
+      name: 'val1',
+      type: 'Number',
+    },
+    {
+      name: 'val2',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Number',
+  implementation: (val1, val2) => val1 - val2,
+}
+
 const If = {
   name: 'If',
   genericParams: ['T'],
@@ -71,5 +103,5 @@ const If = {
 }
 
 module.exports = {
-  functions: [GreaterThan, GreaterThanOrEqualTo, EqualTo, If],
+  functions: [GreaterThan, GreaterThanOrEqualTo, EqualTo, If, Add, Subtract],
 }
