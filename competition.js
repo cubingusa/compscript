@@ -263,6 +263,7 @@ router.post('/:competitionId/script', async (req, res) => {
       compData: params.comp,
       command: req.body.script,
       allFunctions: functions.allFunctions,
+      dryrun: req.body.dryrun,
     }
     try {
       var scriptParsed = await parser.parse(req.body.script, req, res, ctx, false)

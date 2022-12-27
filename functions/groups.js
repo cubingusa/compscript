@@ -31,7 +31,7 @@ const AssignGroups = {
   usesContext: true,
   mutations: ['persons'],
   implementation: (ctx, round, assignmentSets, scorers, overwrite) => {
-    return assign.Assign(ctx.competition, round, assignmentSets, scorers, overwrite)
+    return assign.Assign(ctx.competition, round, assignmentSets, scorers, overwrite || ctx.dryrun)
   }
 }
 
