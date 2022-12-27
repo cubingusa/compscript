@@ -1,4 +1,6 @@
 mixin table(data)
+  if data.rows.length == 0
+    i No rows were returned
   table
     tr
       each header in data.headers

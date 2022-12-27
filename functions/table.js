@@ -37,7 +37,7 @@ const Table = {
       return columns({[generics.ArgType]: val})
     })
     return {
-      headers: rows[0].map((col) => col.title),
+      headers: rows.length ? rows[0].map((col) => col.title) : 0,
       rows: rows
     }
   },
