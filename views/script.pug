@@ -30,6 +30,8 @@ html
       div
         if output.type == 'Error'
           pre= JSON.stringify(output.data, null, 2)
+        if output.type == 'Exception'
+          pre= output.data
         if output.type == 'Table'
           +table(output.data)
         if output.type == 'String'

@@ -264,32 +264,37 @@ router.post('/:competitionId/script', async (req, res) => {
       command: req.body.script,
       allFunctions: functions.allFunctions,
     }
-    var scriptParsed = await parser.parse(req.body.script, req, res, ctx, false)
-    if (scriptParsed.errors) {
-      scriptParsed.errors.forEach((error) => {
-        params.outputs.push({type: 'Error', data: error})
-      })
-    } else {
-      var outType = driver.parseType(scriptParsed.type)
-      if (outType.params.length) {
-        params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
+    try {
+      var scriptParsed = await parser.parse(req.body.script, req, res, ctx, false)
+      if (scriptParsed.errors) {
+        scriptParsed.errors.forEach((error) => {
+          params.outputs.push({type: 'Error', data: error})
+        })
       } else {
-        var out = scriptParsed.value({}, ctx)
-        if (outType.type == 'Multi') {
-          out.forEach((val) => {
-            params.outputs.push(val)
-          })
+        var outType = driver.parseType(scriptParsed.type)
+        if (outType.params.length) {
+          params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
         } else {
-          params.outputs.push({type: outType.type, data: out})
-        }
-        if (scriptParsed.mutations.length) {
-          if (req.body.dryrun) {
-            params.dryrunWarning = true
+          var out = scriptParsed.value({}, ctx)
+          if (outType.type == 'Multi') {
+            out.forEach((val) => {
+              params.outputs.push(val)
+            })
           } else {
-            await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
+            params.outputs.push({type: outType.type, data: out})
+          }
+          if (scriptParsed.mutations.length) {
+            if (req.body.dryrun) {
+              params.dryrunWarning = true
+            } else {
+              await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
+            }
           }
         }
       }
+    } catch (e) {
+      params.outputs.push({type: 'Exception', data: e.stack })
+      console.log(e)
     }
   }
   res.render('script', params)

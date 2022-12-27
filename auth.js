@@ -47,9 +47,8 @@ async function patchWcif(obj, keys, req, res) {
         {method: 'PATCH',
          body: JSON.stringify(toPatch),
          headers: {'Content-Type': 'application/json'}})
-  if (out.status !== 200) {
-    console.log(out.body.toString());
-    return {}
+  if (out.statusCode !== 200) {
+    throw new Exception(out.body.toString())
   }
   return JSON.parse(out.body.toString());
 }
