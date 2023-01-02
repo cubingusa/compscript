@@ -51,7 +51,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
     }
     headers.forEach((header) => {
       if (header.headerType == 'property' && header.name in ext.properties) {
-        delete header[name]
+        delete ext.properties[header.name]
       }
     })
   })
@@ -97,7 +97,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
       if (header.headerType !== 'property') {
         return
       }
-      ext[header.name] = header.get(row)
+      ext.properties[header.name] = header.get(row)
     })
     out.loaded += 1
   })
