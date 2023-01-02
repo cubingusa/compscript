@@ -49,14 +49,19 @@ function BalanceConstraint(argType) {
         type: 'Number',
       },
       {
+        name: 'initialAllowance',
+        type: 'Number',
+        defaultValue: 0,
+      },
+      {
         name: 'applyTo',
         type: 'Array<Number>',
         defaultValue: [],
       }
     ],
     outputType: 'Constraint',
-    implementation: (name, value, decay, applyTo) => {
-      return new constraint.BalanceConstraint(name, value, decay, applyTo)
+    implementation: (name, value, decay, initialAllowance, applyTo) => {
+      return new constraint.BalanceConstraint(name, value, decay, initialAllowance, applyTo)
     }
   }
 }

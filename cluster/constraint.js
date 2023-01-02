@@ -1,8 +1,9 @@
 class BalanceConstraint {
-  constructor(name, value, decay, applyTo) {
+  constructor(name, value, decay, initialAllowance, applyTo) {
     this.name = name
     this.value = value
     this.decay = decay
+    this.initialAllowance = initialAllowance
     this.applyTo = applyTo
   }
 
@@ -13,8 +14,8 @@ class BalanceConstraint {
     var values = people.map((person) => +this.value({Person: person}))
     var totalValue = values.reduce((partialSum, a) => partialSum + a)
     var targetValue = totalValue / clustersToUse.length
-    var maxSize = Math.ceil(targetValue * (1 + this.decay * iter))
-    var minSize = Math.floor(targetValue * (1 - this.decay - iter))
+    var maxSize = Math.ceil(targetValue * (1 + this.initialAllowance + this.decay * iter))
+    var minSize = Math.floor(targetValue * (1 - this.initialAllowance - this.decay * iter))
     clustersToUse.forEach((cluster) => {
       model.constraints[this.name + '|' + cluster.toString()] = {min: minSize, max: maxSize}
       for (var i = 0; i < people.length; i++) {
