@@ -15,10 +15,12 @@ $ ENV=DEV node main.js
 
 `ENV=DEV` uses a dev WCA environment running on the same machine. If you would like to use the production WCA site, you need to:
 
-1. Make an OAuth application [here](https://www.worldcubeassociation.org/oauth/applications).
+1. Make an OAuth application [here](https://www.worldcubeassociation.org/oauth/applications). For "Scopes", use `public manage_competitions`; for "Callback Urls" use `http://localhost:3033/auth/oauth_response`.
 2. Make a copy of the `.env.DEV` file, such as `.env.PROD`. This file should not be committed; `.gitignore` should ignore it.
-3. Replace `WCA_HOST`, `API_KEY`, and `API_SECRET` with the production values. You should also consider changing the `COOKIE_SECRET` to a new value.
+3. Replace `WCA_HOST`, `API_KEY`, and `API_SECRET` with the production values. You should also consider changing the `COOKIE_SECRET` to a new value, and to change `PORT` to 3033 to distinguish from the dev version.
 4. Run with `$ ENV=PROD node main.js`, using the file suffix you used above.
+
+The production API key 
 
 ## Schedule
 
