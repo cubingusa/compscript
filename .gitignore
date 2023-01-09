@@ -1,4 +1,6 @@
 google-credentials.json
+.env.*
+!.env.DEV
 
 # Logs
 logs

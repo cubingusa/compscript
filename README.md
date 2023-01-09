@@ -10,10 +10,15 @@ Node must be installed on your machine.
 
 ```
 $ npm install
-$ node main.js
+$ ENV=DEV node main.js
 ```
 
-Currently this uses a dev WCA environment running on the same machine. https://github.com/timreyn/natshelper/issues/13 to support staging and prod.
+`ENV=DEV` uses a dev WCA environment running on the same machine. If you would like to use the production WCA site, you need to:
+
+1. Make an OAuth application [here](https://www.worldcubeassociation.org/oauth/applications).
+2. Make a copy of the `.env.DEV` file, such as `.env.PROD`. This file should not be committed; `.gitignore` should ignore it.
+3. Replace `WCA_HOST`, `API_KEY`, and `API_SECRET` with the production values. You should also consider changing the `COOKIE_SECRET` to a new value.
+4. Run with `$ ENV=PROD node main.js`, using the file suffix you used above.
 
 ## Schedule
 

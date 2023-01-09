@@ -1,5 +1,6 @@
 const dotenv = require('dotenv')
-dotenv.config()
+const env = process.env.ENV || 'DEV'
+dotenv.config({ path: '.env.' + env })
 
 const auth = require('./auth')
 const competition = require('./competition')
@@ -31,4 +32,5 @@ app.use(competition.router)
 
 app.listen(process.env.PORT, function() {
   console.log('Server running at http://localhost:%d', process.env.PORT);
+  console.log('Using WCA server running at %s', process.env.WCA_HOST);
 })
