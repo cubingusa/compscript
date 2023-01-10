@@ -14,6 +14,22 @@ const GreaterThan = {
   implementation: (val1, val2) => val1 > val2,
 }
 
+const GreaterThan_AttemptResult = {
+  name: 'GreaterThan',
+  args: [
+    {
+      name: 'val1',
+      type: 'AttemptResult',
+    },
+    {
+      name: 'val2',
+      type: 'AttemptResult',
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (val1, val2) => val1 > val2,
+}
+
 const GreaterThanOrEqualTo = {
   name: 'GreaterThanOrEqualTo',
   args: [
@@ -24,6 +40,22 @@ const GreaterThanOrEqualTo = {
     {
       name: 'val2',
       type: 'Number',
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (val1, val2) => val1 >= val2,
+}
+
+const GreaterThanOrEqualTo_AttemptResult = {
+  name: 'GreaterThanOrEqualTo',
+  args: [
+    {
+      name: 'val1',
+      type: 'AttemptResult',
+    },
+    {
+      name: 'val2',
+      type: 'AttemptResult',
     },
   ],
   outputType: 'Boolean',
@@ -103,5 +135,7 @@ const If = {
 }
 
 module.exports = {
-  functions: [GreaterThan, GreaterThanOrEqualTo, EqualTo, If, Add, Subtract],
+  functions: [GreaterThan, GreaterThan_AttemptResult,
+              GreaterThanOrEqualTo, GreaterThanOrEqualTo_AttemptResult,
+              EqualTo, If, Add, Subtract],
 }

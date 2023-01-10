@@ -53,24 +53,6 @@ const PersonalBest = {
   implementation: (evt, type, person) => lib.personalBest(person, evt, type),
 }
 
-const BetterThan = {
-  name: 'BetterThan',
-  args: [
-    {
-      name: 'time1',
-      type: 'AttemptResult',
-    },
-    {
-      name: 'time2',
-      type: 'AttemptResult',
-    },
-  ],
-  outputType: 'Boolean',
-  implementation: (time1, time2) => {
-    return time1.value > 0 && time1.value < time2.value
-  }
-}
-
 const PsychSheetPosition = {
   name: 'PsychSheetPosition',
   args: [
@@ -194,6 +176,6 @@ const AddResults = {
 }
 
 module.exports = {
-  functions: [CompetingIn, RegisteredEvents, PersonalBest, BetterThan,
+  functions: [CompetingIn, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults],
 }
