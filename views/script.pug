@@ -1,6 +1,7 @@
 include cluster.pug
 include groups.pug
 include spreadsheet.pug
+include staff.pug
 include table.pug
 html
   head
@@ -45,3 +46,5 @@ html
           +groups(output.data)
         if output.type == 'ReadSpreadsheetResult'
           +spreadsheet(output.data)
+        if output.type == 'StaffAssignmentResult'
+          +staff(output.data)

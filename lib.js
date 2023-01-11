@@ -22,12 +22,14 @@ function personalBest(person, evt, type='default') {
   }
 }
 
-function activityById(competition, activityId) {
-  var matching =
-      competition.schedule.venues.map((venue) => venue.rooms).flat()
+function allGroups(competition) {
+  return competition.schedule.venues.map((venue) => venue.rooms).flat()
           .map((room) => room.activities).flat()
           .map((activity) => [activity].concat(activity.childActivities)).flat()
-          .filter((activity) => activity.id == activityId)
+}
+
+function activityById(competition, activityId) {
+  var matching = allGroups(competition).filter((activity) => activity.id == activityId)
   if (matching.length) {
     return matching[0]
   }
@@ -35,11 +37,7 @@ function activityById(competition, activityId) {
 }
 
 function activityByCode(competition, activityCode) {
-  var matching =
-      competition.schedule.venues.map((venue) => venue.rooms).flat()
-          .map((room) => room.activities).flat()
-          .map((activity) => [activity].concat(activity.childActivities)).flat()
-          .filter((activity) => activity.activityCode == activityCode.id())
+  var matching = allGroups(competition).filter((activity) => activity.activityCode == activityCode.id())
   if (matching.length) {
     return matching[0]
   }
@@ -47,15 +45,19 @@ function activityByCode(competition, activityCode) {
 }
 
 function groupIdsForRoundCode(competition, roundCode) {
-  return Object.values(activityCodeMapForRoundCode(competition, roundCode))
+  return groupsForRoundCode(competition, roundCode).map((group) => group.id)
 }
 
 function activityCodeMapForRoundCode(competition, roundCode) {
-  return Object.fromEntries(competition.schedule.venues.map((venue) => venue.rooms).flat()
+  return groupsForRoundCode(competition, roundCode)
+          .map((activity) => [activity.activityCode, activity.id])
+}
+
+function groupsForRoundCode(competition, roundCode) {
+  return competition.schedule.venues.map((venue) => venue.rooms).flat()
           .map((room) => room.activities).flat()
           .filter((activity) => activity.activityCode == roundCode.id())
           .map((activity) => activity.childActivities).flat()
-          .map((activity) => [activity.activityCode, activity.id]))
 }
 
 
@@ -63,8 +65,10 @@ module.exports = {
   getEvent: getEvent,
   getRound: getRound,
   personalBest: personalBest,
+  allGroups: allGroups,
   activityById: activityById,
   activityByCode: activityByCode,
   groupIdsForRoundCode: groupIdsForRoundCode,
   activityCodeMapForRoundCode: activityCodeMapForRoundCode,
+  groupsForRoundCode: groupsForRoundCode,
 }

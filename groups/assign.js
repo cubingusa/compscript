@@ -85,7 +85,7 @@ function Assign(competition, round, assignmentSets, scorers, override) {
     while (queue.length) {
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.activityCode].length + preAssignedByGroup[group.activityCode] < totalToAssign / eligibleGroups.length)
-      model = {
+      var model = {
         optimize: 'score',
         opType: 'max',
         constraints: {},

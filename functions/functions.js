@@ -10,6 +10,7 @@ module.exports = {
           require('./math').functions,
           require('./persons').functions,
           require('./sheets').functions,
+          require('./staff').functions,
           require('./table').functions,
           require('./time').functions,
           require('./udf').functions,
