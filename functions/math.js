@@ -95,6 +95,22 @@ const Add = {
   implementation: (val1, val2) => val1 + val2,
 }
 
+const ConcatStrings = {
+  name: 'Add',
+  args: [
+    {
+      name: 'val1',
+      type: 'String',
+    },
+    {
+      name: 'val2',
+      type: 'String',
+    },
+  ],
+  outputType: 'String',
+  implementation: (val1, val2) => val1 + val2,
+}
+
 const Subtract = {
   name: 'Subtract',
   args: [
@@ -137,5 +153,5 @@ const If = {
 module.exports = {
   functions: [GreaterThan, GreaterThan_AttemptResult,
               GreaterThanOrEqualTo, GreaterThanOrEqualTo_AttemptResult,
-              EqualTo, If, Add, Subtract],
+              EqualTo, If, Add, ConcatStrings, Subtract],
 }
