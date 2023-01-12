@@ -13,9 +13,8 @@ const Cluster = {
       type: 'Number',
     },
     {
-      name: 'filter',
-      type: 'Boolean(Person)',
-      lazy: true,
+      name: 'persons',
+      type: 'Array<Person>',
     },
     {
       name: 'constraint',
@@ -24,10 +23,9 @@ const Cluster = {
     },
   ],
   outputType: 'ClusteringResult',
-  usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, name, numClusters, filter, constraints) => {
-    return cluster.Cluster(ctx.competition, name, numClusters, filter, constraints)
+  implementation: (name, numClusters, persons, constraints) => {
+    return cluster.Cluster(name, numClusters, persons, constraints)
   }
 }
 

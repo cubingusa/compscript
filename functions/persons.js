@@ -121,7 +121,7 @@ const SetProperty = {
   args: [
     {
       name: 'filter',
-      type: 'Boolean(Person)',
+      type: 'Array<Person>',
       lazy: true,
     },
     {
@@ -136,8 +136,7 @@ const SetProperty = {
   usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (ctx, filter, property, value) => {
-    var persons = ctx.competition.persons.filter((person) => filter.value({Person: person}))
+  implementation: (persons, property, value) => {
     persons.forEach((person) => {
       const ext = extension.getExtension(person, 'Person')
       if (!ext.properties) {
@@ -167,10 +166,26 @@ const AddPerson = {
   }
 }
 
+const Persons = {
+  name: 'Persons',
+  args: [
+    {
+      name: 'filter',
+      type: 'Boolean(Person)',
+      lazy: true,
+    },
+  ],
+  usesContext: true,
+  outputType: 'Array<Person>',
+  implementation: (ctx, filter) =>{
+    return ctx.competition.persons.filter((person) => filter({Person: person}))
+  }
+}
+
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'),
        SetProperty,
-       AddPerson],
+       AddPerson, Persons],
 }

@@ -111,9 +111,8 @@ const AddResults = {
       type: 'Activity',
     },
     {
-      name: 'personFilter',
-      type: 'Boolean(Person)',
-      lazy: true,
+      name: 'persons',
+      type: 'Array<Person>',
     },
     {
       name: 'result',
@@ -125,7 +124,7 @@ const AddResults = {
   outputType: 'String',
   usesContext: true,
   mutations: ['events'],
-  implementation: (ctx, round, personFilter, result) => {
+  implementation: (ctx, round, persons, result) => {
     var rd = lib.getRound(ctx.competition, round)
     var attempts = ((rd) => {
       switch (rd.format) {
@@ -141,37 +140,35 @@ const AddResults = {
           return 5
       }
     })(rd)
-    rd.results =
-        ctx.competition.persons.filter((person) => personFilter({'Person': person}))
-            .map((person) => {
-                var res = result({'Person': person})
-                if (res.value != 0) {
-                  return {
-                    personId: person.registrantId,
-                    attempts: [...Array(attempts)].map((x) => { return { result: res.value } }),
-                    best: res.value,
-                    average: res.value,
-                    ranking: null,
-                  }
-                } else {
-                  return {
-                    personId: person.registrantId,
-                    attempts: [...Array(attempts)].map((x) => null),
-                    ranking: null,
-                    best: 0,
-                    average: 0,
-                  }
-                }
-            }).sort((p1, p2) => {
-              if (p1.average <= 0) return -1
-              if (p2.average <= 0) return 1
-              return p1.average - p2.average
-            }).map((res, idx) => {
-              if (res.average > 0) {
-                res.ranking = idx
-              }
-              return res
-            })
+    rd.results = persons.map((person) => {
+                   var res = result({'Person': person})
+                   if (res.value != 0) {
+                     return {
+                       personId: person.registrantId,
+                       attempts: [...Array(attempts)].map((x) => { return { result: res.value } }),
+                       best: res.value,
+                       average: res.value,
+                       ranking: null,
+                     }
+                   } else {
+                     return {
+                       personId: person.registrantId,
+                       attempts: [...Array(attempts)].map((x) => null),
+                       ranking: null,
+                       best: 0,
+                       average: 0,
+                     }
+                   }
+                 }).sort((p1, p2) => {
+                   if (p1.average <= 0) return -1
+                   if (p2.average <= 0) return 1
+                   return p1.average - p2.average
+                 }).map((res, idx) => {
+                   if (res.average > 0) {
+                     res.ranking = idx
+                   }
+                   return res
+                 })
   }
 }
 

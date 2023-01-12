@@ -3,9 +3,8 @@ const Table = {
   genericParams: ['ArgType', 'SortType'],
   args: [
     {
-      name: 'filter',
-      type: 'Boolean($ArgType)',
-      lazy: true,
+      name: 'keys',
+      type: 'Array<$ArgType>',
     },
     {
       name: 'columns',
@@ -18,20 +17,10 @@ const Table = {
       lazy: true,
     },
   ],
-  usesContext: true,
-  usesGenericTypes: true,
   outputType: 'Table',
-  implementation: (ctx, generics, filter, columns, sort) => {
-    var rows = (() => {
-      switch (generics.ArgType) {
-        case 'Person':
-          return ctx.competition.persons
-        default:
-          return []
-      }
-    })().filter((val) => {
-      return filter({[generics.ArgType]: val})
-    }).sort((rowA, rowB) => {
+  usesGenericTypes: true,
+  implementation: (generics, keys, columns, sort) => {
+    var rows = keys.sort((rowA, rowB) => {
       return sort({[generics.ArgType]: rowA}) < sort({[generics.ArgType]: rowB}) ? -1 : 1
     }).map((val) => {
       return columns({[generics.ArgType]: val})

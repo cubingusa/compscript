@@ -2,7 +2,7 @@ const solver = require('javascript-lp-solver')
 const activityCode = require('./../activity_code')
 const lib = require('./../lib')
 
-function Assign(competition, round, groupFilter, personFilter, jobs, scorers, overwrite) {
+function Assign(competition, round, groupFilter, persons, jobs, scorers, overwrite) {
   // Find matching groups
   var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
     return groupFilter({Activity: activityCode.parse(group.activityCode)})
@@ -32,9 +32,6 @@ function Assign(competition, round, groupFilter, personFilter, jobs, scorers, ov
     }
   }
 
-  var peopleCopy = JSON.parse(JSON.stringify(competition.persons))
-  var people = peopleCopy.filter((person) => personFilter({Person: person}))
-
   var out = {
     round: round,
     warnings: [],
@@ -59,7 +56,7 @@ function Assign(competition, round, groupFilter, personFilter, jobs, scorers, ov
     var conflictingGroupIds = lib.allGroups(competition).filter((otherGroup) => {
       return group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime
     }).map((group) => group.activityId)
-    var eligiblePeople = people.filter((person) => {
+    var eligiblePeople = persons.filter((person) => {
       return person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))
     })
     var neededPeople = jobs.map((job) => job.count).reduce((a, v) => a+v)
@@ -123,7 +120,7 @@ function Assign(competition, round, groupFilter, personFilter, jobs, scorers, ov
       if (spl.length > 3) {
         stationNumber = +spl[3]
       }
-      people.filter((person) => person.wcaUserId == wcaUserId).forEach((person) => {
+      persons.filter((person) => person.wcaUserId == wcaUserId).forEach((person) => {
         var totalScore = 0
         var breakdown = {}
         scorers.forEach((scorer) => {
@@ -154,7 +151,6 @@ function Assign(competition, round, groupFilter, personFilter, jobs, scorers, ov
       })
     })
   })
-  competition.persons = peopleCopy
   return out
 }
 

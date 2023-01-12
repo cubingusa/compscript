@@ -14,11 +14,11 @@ mixin clusters(data)
       tr
         td= cluster.id
         td
-          div= cluster.people.length
+          div= cluster.persons.length
           a(onclick='toggleCluster(' + cluster.id + ')' id='link-' + cluster.id) [show]
         each constraint in data.constraints
           td= cluster.constraints[constraint]
-      each person in cluster.people
+      each person in cluster.persons
         tr(class='person-row cluster-' + cluster.id)
           td= person.person.name
           td= person.person.wcaId

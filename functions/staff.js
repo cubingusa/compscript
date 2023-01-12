@@ -14,9 +14,8 @@ const AssignStaff = {
       lazy: true,
     },
     {
-      name: 'personFilter',
-      type: 'Boolean(Person)',
-      lazy: true,
+      name: 'persons',
+      type: 'Array<Person>',
     },
     {
       name: 'jobs',
@@ -35,8 +34,8 @@ const AssignStaff = {
   outputType: 'StaffAssignmentResult',
   usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, round, groupFilter, personFilter, jobs, scorers, overwrite) => {
-    return assign.Assign(ctx.competition, round, groupFilter, personFilter, jobs, scorers, overwrite || ctx.dryrun)
+  implementation: (ctx, round, groupFilter, persons, jobs, scorers, overwrite) => {
+    return assign.Assign(ctx.competition, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun)
   }
 }
 

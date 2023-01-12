@@ -7,19 +7,19 @@ class BalanceConstraint {
     this.applyTo = applyTo
   }
 
-  populate(clusters, people, iter, model) {
+  populate(clusters, persons, iter, model) {
     var clustersToUse = clusters.filter((cluster) => {
       return this.applyTo.length == 0 || this.applyTo.includes(cluster)
     })
-    var values = people.map((person) => +this.value({Person: person}))
+    var values = persons.map((person) => +this.value({Person: person}))
     var totalValue = values.reduce((partialSum, a) => partialSum + a)
     var targetValue = totalValue / clustersToUse.length
     var maxSize = Math.ceil(targetValue * (1 + this.initialAllowance + this.decay * iter))
     var minSize = Math.floor(targetValue * (1 - this.initialAllowance - this.decay * iter))
     clustersToUse.forEach((cluster) => {
       model.constraints[this.name + '|' + cluster.toString()] = {min: minSize, max: maxSize}
-      for (var i = 0; i < people.length; i++) {
-        model.variables[people[i].wcaUserId.toString() + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
+      for (var i = 0; i < persons.length; i++) {
+        model.variables[persons[i].wcaUserId.toString() + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
       }
     })
   }
@@ -33,18 +33,18 @@ class LimitConstraint {
     this.applyTo = applyTo
   }
 
-  populate(clusters, people, iter, model) {
+  populate(clusters, persons, iter, model) {
     var clustersToUse = clusters.filter((cluster) => {
       return this.applyTo.length == 0 || this.applyTo.includes(cluster)
     })
-    var values = people.map((person) => +this.value({Person: person}))
+    var values = persons.map((person) => +this.value({Person: person}))
     var totalValue = values.reduce((partialSum, a) => partialSum + a)
     var maxSize = (this.max = -1) ? totalValue : this.max
     var minSize = (this.min = -1) ? 0 : this.min
     clustersToUse.forEach((cluster) => {
       model.constraints[this.name + '|' + cluster.toString()] = {min: minSize, max: maxSize}
-      for (var i = 0; i < people.length; i++) {
-        model.variables[people[i].wcaUserId.toString() + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
+      for (var i = 0; i < persons.length; i++) {
+        model.variables[persons[i].wcaUserId.toString() + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
       }
     })
   }
