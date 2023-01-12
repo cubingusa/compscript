@@ -46,6 +46,27 @@ const Length = {
   implementation: (array) => array.length,
 }
 
+const For = {
+  name: 'For',
+  genericParams: ['T', 'U'],
+  args: [
+    {
+      name: 'array',
+      type: 'Array<$T>',
+    },
+    {
+      name: 'operation',
+      type: '$U($T)',
+      lazy: true,
+    },
+  ],
+  outputType: 'Array<$U>',
+  usesGenericTypes: true,
+  implementation: (generics, array, operation) => {
+    return array.map((x) => operation({[generics.T]: x}))
+  },
+}
+
 module.exports = {
-  functions: [MakeArray, In, Length],
+  functions: [MakeArray, In, Length, For],
 }
