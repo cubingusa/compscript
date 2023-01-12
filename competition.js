@@ -287,7 +287,7 @@ router.post('/:competitionId/script', async (req, res) => {
               var type = params.outputs[idx].type.substr(6, params.outputs[idx].type.length - 7)
               params.outputs =
                   params.outputs.slice(0, idx)
-                      .concat(params.outputs[idx].map((x) => { return { type: type, data: x}}))
+                      .concat(params.outputs[idx].data.map((x) => { return { type: type, data: x}}))
                       .concat(params.outputs.slice(idx + 1))
             }
           }
