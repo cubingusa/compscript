@@ -277,12 +277,19 @@ router.post('/:competitionId/script', async (req, res) => {
           params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
         } else {
           var out = await scriptParsed.value({}, ctx)
-          if (outType.type == 'Multi') {
-            out.forEach((val) => {
-              params.outputs.push(val)
-            })
-          } else {
-            params.outputs.push({type: outType.type, data: out})
+          params.outputs.push({type: outType.type, data: out})
+          for (var idx = 0; idx < params.outputs.length; idx++) {
+            if (params.outputs[idx].type === 'Multi') {
+              params.outputs =
+                  params.outputs.slice(0, idx).concat(params.outputs[idx].data).concat(params.outputs.slice(idx + 1))
+              idx--
+            } else if (params.outputs[idx].type.startsWith('Array<')) {
+              var type = params.outputs[idx].type.substr(6, params.outputs[idx].type.length - 7)
+              params.outputs =
+                  params.outputs.slice(0, idx)
+                      .concat(params.outputs[idx].map((x) => { return { type: type, data: x}}))
+                      .concat(params.outputs.slice(idx + 1))
+            }
           }
           if (scriptParsed.mutations.length) {
             if (req.body.dryrun) {
