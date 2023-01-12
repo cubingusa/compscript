@@ -13,7 +13,16 @@ ArgList
   = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
   / "" { return [] }
 
-_ = [ \t\n\r]*
+Whitespace
+  = [ \t]*
+
+WhitespaceLine
+  = Whitespace "#" ([^\n\r]*)?
+  / Whitespace
+
+_
+  = WhitespaceLine $[\n\r]+ _
+  / WhitespaceLine
 
 Variable
   = v:$([a-zA-Z][a-zA-Z0-9]*) { return v }
