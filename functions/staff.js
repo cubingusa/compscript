@@ -35,7 +35,7 @@ const AssignStaff = {
   usesContext: true,
   mutations: ['persons'],
   implementation: (ctx, round, groupFilter, persons, jobs, scorers, overwrite) => {
-    return assign.Assign(ctx.competition, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun)
+    return assign.Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun)
   }
 }
 

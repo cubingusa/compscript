@@ -1,8 +1,10 @@
 const solver = require('javascript-lp-solver')
 const activityCode = require('./../activity_code')
 const lib = require('./../lib')
+const driver = require('./../parser/driver')
 
-function Assign(competition, round, groupFilter, persons, jobs, scorers, overwrite) {
+function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
+  var competition = ctx.competition
   // Find matching groups
   var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
     return groupFilter({Activity: activityCode.parse(group.activityCode)})
@@ -57,7 +59,15 @@ function Assign(competition, round, groupFilter, persons, jobs, scorers, overwri
       return group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime
     }).map((group) => group.activityId)
     var eligiblePeople = persons.filter((person) => {
-      return person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))
+      if (!person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))) {
+        return false
+      }
+      var ext = extension.getExtension(person, 'Person')
+      if (!('staffUnavailable' in ext)) {
+        return true
+      }
+      var unavailableFn = driver.parseNode(ext.staffUnavailable.impl, ctx, true)
+      return !unavailableFn({ Activity: group })
     })
     var neededPeople = jobs.map((job) => job.count).reduce((a, v) => a+v)
     if (eligiblePeople.length < neededPeople) {
