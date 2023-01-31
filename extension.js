@@ -1,5 +1,5 @@
-function getExtension(obj, type) {
-  type = 'org.cubingusa.natshelper.v1.' + type
+function getExtension(obj, type, namespace='org.cubingusa.natshelper.v1') {
+  type = namespace + '.' + type
   if (!obj.extensions) {
     obj.extensions = []
   }

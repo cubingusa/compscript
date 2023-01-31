@@ -38,6 +38,9 @@ function Assign(competition, round, assignmentSets, scorers, override) {
   var assignmentsByGroup = {}
   groups.forEach((group) => {
     assignmentsByGroup[group.activityCode] = []
+
+    var ext = extension.getExtension(group, 'ActivityConfig', 'groupifier')
+    ext.featuredUserIds = []
   })
   warnings = []
   assignmentSets.forEach((set) => {
@@ -141,6 +144,10 @@ function Assign(competition, round, assignmentSets, scorers, override) {
           if (key in solution && solution[key] == 1) {
             newlyAssigned.push({person: queueItem.person, group: group})
             indicesToErase.push(idx)
+            if (set.featured) {
+              var ext = extension.getExtension(group, 'ActivityConfig', 'groupifier')
+              ext.featuredUserIds.append(queueItem.person.wcaUserId)
+            }
           }
         })
       })
@@ -186,10 +193,11 @@ function Assign(competition, round, assignmentSets, scorers, override) {
 }
 
 class AssignmentSet {
-  constructor(name, personFilter, groupFilter) {
+  constructor(name, personFilter, groupFilter, featured) {
     this.name = name
     this.personFilter = personFilter
     this.groupFilter = groupFilter
+    this.featured = featured
   }
 }
 

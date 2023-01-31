@@ -29,7 +29,7 @@ const AssignGroups = {
   ],
   outputType: 'GroupAssignmentResult',
   usesContext: true,
-  mutations: ['persons'],
+  mutations: ['persons', 'schedule'],
   implementation: (ctx, round, assignmentSets, scorers, overwrite) => {
     return assign.Assign(ctx.competition, round, assignmentSets, scorers, overwrite || ctx.dryrun)
   }
@@ -52,10 +52,15 @@ const AssignmentSet = {
       type: 'Boolean(Activity)',
       lazy: true,
     },
+    {
+      name: 'featured',
+      type: 'Boolean',
+      defaultValue: false,
+    },
   ],
   outputType: 'AssignmentSet',
-  implementation: (name, personFilter, groupFilter) => {
-    return new assign.AssignmentSet(name, personFilter, groupFilter)
+  implementation: (name, personFilter, groupFilter, featured) => {
+    return new assign.AssignmentSet(name, personFilter, groupFilter, featured)
   }
 }
 
