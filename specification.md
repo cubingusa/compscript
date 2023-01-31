@@ -10,6 +10,8 @@ We define extensions to a few of the objects defined in the [WCIF spec](https://
 
 - [Activity](#Activity)
 - [Competition](#Competition)
+- [Person](#Person)
+- [Function](#Function)
 
 ### Activity
 
@@ -25,24 +27,20 @@ This is used as global storage for the competition.
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `udf` | `Object` | User-defined functions for this competition. |
-
-#### UDFs
-
-The format of the UDFs object is:
-
-```json
-
-{
-  "functionName": {
-    "cmd": ""  // A NatsScript command used to define this function.
-    "impl": {} // The parsed command tree for this function.
-  }
-}
-```
+| `udf` | `Function` | User-defined functions for this competition. |
 
 ### Person
 
 | Attribute | Type | Description |
 | --- | --- | --- |
 | `properties` | `Object` | A mapping of user-defined key-value pairs. |
+| `staffUnavailable` | `Function` | A function returning true for groups that this person is not able to participate as a staff member. |
+
+### Function
+
+Some properties are stored as functions, which can be executed later. The structure of these properties is as follows:
+
+| Attribute | Type | Description |
+| --- | --- | --- |
+| `cmd` | `String` | The NatsScript command used to define this function. |
+| `impl` | `Object` | The parsed command tree for this function. |

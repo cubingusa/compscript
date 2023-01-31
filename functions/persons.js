@@ -160,9 +160,8 @@ const AddPerson = {
   outputType: 'String',
   mutations: ['persons'],
   implementation: (ctx, wcaUserId) => {
-    console.log('executing AddPerson')
-    console.trace()
     ctx.competition.persons.push({ wcaUserId: wcaUserId })
+    return 'Added person with userId ' + wcaUserId
   }
 }
 
@@ -177,8 +176,33 @@ const Persons = {
   ],
   usesContext: true,
   outputType: 'Array<Person>',
-  implementation: (ctx, filter) =>{
+  implementation: (ctx, filter) => {
     return ctx.competition.persons.filter((person) => filter({Person: person}))
+  }
+}
+
+const SetStaffUnavailable = {
+  name: 'SetStaffUnavailable',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'groupFilter',
+      type: 'Boolean(Activity)',
+      serialized: true,
+    },
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  usesContext: true,
+  implementation: (ctx, persons, groupFilter) => {
+    persons.forEach((person) => {
+      const ext = extension.getExtension(ctx.competition, 'Person')
+      ext.staffUnavailable = { implementation: groupFilter, cmd: ctx.command }
+    })
+    return 'Set unavailable for ' + persons.map((person) => person.name).join(', ')
   }
 }
 
@@ -186,6 +210,6 @@ module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'),
-       SetProperty,
+       SetProperty, SetStaffUnavailable,
        AddPerson, Persons],
 }
