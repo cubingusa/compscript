@@ -14,7 +14,7 @@ const CompetingIn = {
   usesContext: true,
   implementation: (ctx, activity, person) => {
     // TODO: implement support for groups.
-    if (activity.groupName) {
+    if (activity.groupNumber) {
       return false
     }
     if (activity.roundNumber) {

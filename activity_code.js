@@ -1,23 +1,23 @@
 const events = require('./events')
 
 class ActivityCode {
-  constructor(eventId, roundNumber, groupName, attemptNumber) {
+  constructor(eventId, roundNumber, groupNumber, attemptNumber) {
     this.eventId = eventId
     this.roundNumber = roundNumber
-    this.groupName = groupName
+    this.groupNumber = groupNumber
     this.attemptNumber = attemptNumber
   }
 
   round(roundNumber) {
-    return new ActivityCode(this.eventId, roundNumber, this.groupName, this.attemptNumber)
+    return new ActivityCode(this.eventId, roundNumber, this.groupNumber, this.attemptNumber)
   }
 
-  group(groupName) {
-    return new ActivityCode(this.eventId, this.roundNumber, groupName, this.attemptNumber)
+  group(groupNumber) {
+    return new ActivityCode(this.eventId, this.roundNumber, groupNumber, this.attemptNumber)
   }
 
   attempt(attemptNumber) {
-    return new ActivityCode(this.eventId, this.roundNumber, this.groupName, attemptNumber)
+    return new ActivityCode(this.eventId, this.roundNumber, this.groupNumber, attemptNumber)
   }
 
   toString() {
@@ -25,8 +25,8 @@ class ActivityCode {
     if (this.roundNumber) {
       out.push('Round ' + this.roundNumber)
     }
-    if (this.groupName) {
-      out.push('Group ' + this.groupName)
+    if (this.groupNumber) {
+      out.push('Group ' + this.groupNumber)
     }
     if (this.attemptNumber) {
       out.push('Attempt ' + this.attemptNumber)
@@ -47,8 +47,8 @@ class ActivityCode {
     if (this.roundNumber) {
       out.push('r' + this.roundNumber)
     }
-    if (this.groupName) {
-      out.push('g' + this.groupName)
+    if (this.groupNumber) {
+      out.push('g' + this.groupNumber)
     }
     if (this.attemptNumber) {
       out.push('a' + this.attemptNumber)
@@ -86,13 +86,13 @@ function parse(code) {
     return null
   }
   var roundNumber = null
-  var groupName = null
+  var groupNumber = null
   var attemptNumber = null
   for (var i = 1; i < codeSplit.length; i++) {
     if (codeSplit[i].startsWith('r')) {
       roundNumber = codeSplit[i].slice(1)
     } else if (codeSplit[i].startsWith('g')) {
-      groupName = codeSplit[i].slice(1)
+      groupNumber = codeSplit[i].slice(1)
     } else if (codeSplit[i].startsWith('a')) {
       attemptNumber = codeSplit[i].slice(1)
     } else {
@@ -100,7 +100,7 @@ function parse(code) {
       return null
     }
   }
-  return new ActivityCode(eventId, roundNumber, groupName, attemptNumber)
+  return new ActivityCode(eventId, roundNumber, groupNumber, attemptNumber)
 }
 
 module.exports = {

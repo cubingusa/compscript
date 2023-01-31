@@ -206,7 +206,7 @@ router.post('/:competitionId/schedule', async (req, res) => {
           var childActivity = roomActivity.childActivities[idx]
           var groupActivityCode = activityCodeObj.group(
               room.name.split(' ')[0] + (numGroups > 1 ? (idx+1).toString() : ''))
-          childActivity.name = groupActivityCode.groupName
+          childActivity.name = room.name.split(' ')[0] + ' ' + groupActivityCode.groupNumber
           childActivity.activityCode = groupActivityCode.id()
           childActivity.startTime = (activityStart.plus({seconds: groupLength * idx})).toISO()
           childActivity.endTime = (activityStart.plus({seconds: groupLength * (idx + 1)})).toISO()

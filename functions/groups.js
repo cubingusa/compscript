@@ -108,10 +108,10 @@ const GroupNumber = {
   args: [],
   outputType: 'Number(Activity)',
   implementation: (activity) => {
-    if (!activity.groupName) {
+    if (!activity.groupNumber) {
       return -1
     }
-    return +activity.groupName.match(/\d+/g)[0]
+    return activity.groupNumber
   }
 }
 
@@ -119,11 +119,13 @@ const Stage = {
   name: 'Stage',
   args: [],
   outputType: 'String(Activity)',
-  implementation: (activity) => {
-    if (!activity.groupName) {
-      return ""
+  usesContext: true,
+  implementation: (ctx, activity) => {
+    var act = lib.activityByCode(ctx.competition, activity)
+    if (act === null) {
+      return ''
     }
-    return activity.groupName.match(/[a-zA-Z]+/g)[0]
+    return act.name.split(' ')[0]
   }
 }
 
@@ -165,10 +167,11 @@ const GroupName = {
   ],
   outputType: 'String',
   implementation: (group) => {
-    if (group === null) {
+    var act = lib.activityByCode(ctx.competition, activity)
+    if (act === null) {
       return ''
     }
-    return group.groupName
+    return act.name.split(' ')
   }
 }
 
