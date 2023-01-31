@@ -17,6 +17,11 @@ const Cluster = {
       type: 'Array<Person>',
     },
     {
+      name: 'preCluster',
+      type: 'String(Person)',
+      lazy: true,
+    },
+    {
       name: 'constraint',
       type: 'Constraint',
       repeated: true,
@@ -24,8 +29,8 @@ const Cluster = {
   ],
   outputType: 'ClusteringResult',
   mutations: ['persons'],
-  implementation: (name, numClusters, persons, constraints) => {
-    return cluster.Cluster(name, numClusters, persons, constraints)
+  implementation: (name, numClusters, persons, preCluster, constraints) => {
+    return cluster.Cluster(name, numClusters, persons, preCluster, constraints)
   }
 }
 

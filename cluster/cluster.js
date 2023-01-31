@@ -1,9 +1,13 @@
 const solver = require('javascript-lp-solver')
 const extension = require('./../extension')
 
-function Cluster(name, numClusters, persons, constraints) {
+function Cluster(name, numClusters, persons, preCluster, constraints) {
   var clusters = [...Array(numClusters).keys()].map((x) => x + 1)
   var result
+  var preClusters = {}
+  persons.forEach((person) => {
+    preClusters[person.wcaUserId] = preCluster({ Person: person })
+  })
   for (var iter = 0; iter < 10; iter++) {
     var model = {
       optimize: "assigned",
@@ -13,18 +17,22 @@ function Cluster(name, numClusters, persons, constraints) {
       ints: {},
     }
     persons.forEach((person) => {
-      var personId = person.wcaUserId.toString()
-      model.constraints[personId] = {min: 0, max: 1}
+      var personPreCluster = preClusters[person.wcaUserId]
+      model.constraints[personPreCluster] = {min: 0, max: 1}
       clusters.forEach((cluster) => {
-        var variableId = personId + '|' + cluster.toString()
-        model.variables[variableId] = { assigned: 1 }
-        model.variables[variableId][personId] = 1
-        model.variables[variableId][variableId] = 1
+        var variableId = personPreCluster + '|' + cluster.toString()
+        if (!(variableId in model.variables)) {
+          model.variables[variableId] = { assigned: 0 }
+          model.variables[variableId][personPreCluster] = 1
+          model.variables[variableId][variableId] = 0
+        }
+        model.variables[variableId].assigned += 1
+        model.variables[variableId][variableId] += 1
         model.constraints[variableId] = {min: 0, max: 1}
         model.ints[variableId] = 1
       })
     })
-    constraints.forEach((constraint) => constraint.populate(clusters, persons, iter, model))
+    constraints.forEach((constraint) => constraint.populate(clusters, persons, preClusters, iter, model))
 
     var result = solver.Solve(model)
     var solved = result.feasible && result.result == persons.length
@@ -40,7 +48,7 @@ function Cluster(name, numClusters, persons, constraints) {
       })
       persons.forEach((person) => {
         clusters.forEach((cluster) => {
-          var key = person.wcaUserId.toString() + '|' + cluster.toString()
+          var key = preClusters[person.wcaUserId] + '|' + cluster.toString()
           if (key in result && result[key] == 1) {
             var constraintValues = Object.fromEntries(
                 constraints.map((constraint) => [constraint.name, constraint.value({Person: person})]))

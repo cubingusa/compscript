@@ -7,7 +7,7 @@ class BalanceConstraint {
     this.applyTo = applyTo
   }
 
-  populate(clusters, persons, iter, model) {
+  populate(clusters, persons, preClusters, iter, model) {
     var clustersToUse = clusters.filter((cluster) => {
       return this.applyTo.length == 0 || this.applyTo.includes(cluster)
     })
@@ -19,7 +19,7 @@ class BalanceConstraint {
     clustersToUse.forEach((cluster) => {
       model.constraints[this.name + '|' + cluster.toString()] = {min: minSize, max: maxSize}
       for (var i = 0; i < persons.length; i++) {
-        model.variables[persons[i].wcaUserId.toString() + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
+        model.variables[preClusters[persons[i].wcaUserId] + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
       }
     })
   }
@@ -33,7 +33,7 @@ class LimitConstraint {
     this.applyTo = applyTo
   }
 
-  populate(clusters, persons, iter, model) {
+  populate(clusters, persons, preClusters, iter, model) {
     var clustersToUse = clusters.filter((cluster) => {
       return this.applyTo.length == 0 || this.applyTo.includes(cluster)
     })
@@ -44,7 +44,7 @@ class LimitConstraint {
     clustersToUse.forEach((cluster) => {
       model.constraints[this.name + '|' + cluster.toString()] = {min: minSize, max: maxSize}
       for (var i = 0; i < persons.length; i++) {
-        model.variables[persons[i].wcaUserId.toString() + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
+        model.variables[preClusters[persons[i].wcaUserId] + '|' + cluster.toString()][this.name + '|' + cluster.toString()] = values[i]
       }
     })
   }
