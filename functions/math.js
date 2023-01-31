@@ -150,8 +150,33 @@ const If = {
   }
 }
 
+const Even = {
+  name: 'Even',
+  args: [
+    {
+      name: 'val',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (val) => val % 2 == 0,
+}
+
+const Odd = {
+  name: 'Odd',
+  args: [
+    {
+      name: 'val',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (val) => val % 2 == 1,
+}
+
 module.exports = {
   functions: [GreaterThan, GreaterThan_AttemptResult,
               GreaterThanOrEqualTo, GreaterThanOrEqualTo_AttemptResult,
-              EqualTo, If, Add, ConcatStrings, Subtract],
+              EqualTo, If, Add, ConcatStrings, Subtract,
+              Even, Odd],
 }
