@@ -35,12 +35,12 @@ Some examples:
 The Luke psych sheet
 ```
 Table(
-  And(Registered(), (FirstName() == "Luke")),
+  Persons(And(Registered(), (FirstName() == "Luke"))),
   [Column("Name", Name()),
    Column("WCA ID", WcaId(), WcaLink()),
    Column("Average", PersonalBest(_333)),
    Column("Single", PersonalBest(_333, "single")),
-   Column("psych sheet ranking", PsychSheetRanking(_333))],
+   Column("psych sheet ranking", PsychSheetPosition(_333))],
   PersonalBest(_333, "average"))
 ```
 
