@@ -20,8 +20,6 @@ $ ENV=DEV node main.js
 3. Replace `WCA_HOST`, `API_KEY`, and `API_SECRET` with the production values. You should also consider changing the `COOKIE_SECRET` to a new value, and to change `PORT` to 3033 to distinguish from the dev version.
 4. Run with `$ ENV=PROD node main.js`, using the file suffix you used above.
 
-The production API key 
-
 ## Schedule
 
 You can edit the competition schedule and create groups on the schedule editor page.
