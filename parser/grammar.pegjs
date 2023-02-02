@@ -1,5 +1,5 @@
 Expression
-  = fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
+  = _ fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
   / AttemptResultLiteral
   / BooleanLiteral
   / NumberLiteral
