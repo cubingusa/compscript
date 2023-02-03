@@ -200,7 +200,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       }
     })
   }
-  
+
   return {
     type: outputType.type + (outputType.params.length > 0 ? '(' + outputType.params.join(', ') + ')' : ''),
     value: function(inParams, ctx) {
@@ -249,8 +249,9 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
 function activityNode(activityId) {
   var code = activityCode.parse(activityId)
   if (code) {
+    var type = code.roundNumber ? 'Round' : 'Event';
     return {
-      type: 'Activity',
+      type: type,
       value: (inParams, ctx) => code,
       serialize: () => { return { type: 'Activity', activityId: activityId } },
       mutations: [],
@@ -309,7 +310,7 @@ function parseNode(node, ctx, allowParams) {
     return out
   }
   return out
-}     
+}
 
 module.exports = {
   parseNode: parseNode,

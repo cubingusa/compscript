@@ -10,7 +10,7 @@ const AssignGroups = {
   args: [
     {
       name: 'round',
-      type: 'Activity',
+      type: 'Round',
     },
     {
       name: 'assignmentSets',
@@ -49,7 +49,7 @@ const AssignmentSet = {
     },
     {
       name: 'groupFilter',
-      type: 'Boolean(Activity)',
+      type: 'Boolean(Group)',
       lazy: true,
     },
     {
@@ -94,7 +94,7 @@ const ByFilters = {
     },
     {
       name: 'groupFilter',
-      type: 'Boolean(Activity)',
+      type: 'Boolean(Group)',
       lazy: true,
     },
     {
@@ -111,49 +111,38 @@ const ByFilters = {
 const GroupNumber = {
   name: 'GroupNumber',
   args: [],
-  outputType: 'Number(Activity)',
-  implementation: (activity) => {
-    if (!activity.groupNumber) {
-      return -1
-    }
-    return activity.groupNumber
-  }
+  outputType: 'Number(Group)',
+  implementation: (group) => group.activityCode.groupNumber
 }
 
 const Stage = {
   name: 'Stage',
   args: [],
-  outputType: 'String(Activity)',
-  usesContext: true,
-  implementation: (ctx, activity) => {
-    var act = lib.activityByCode(ctx.competition, activity)
-    if (act === null) {
-      return ''
-    }
-    return act.name.split(' ')[0]
-  }
+  outputType: 'String(Group)',
+  implementation: (group) => group.room.name.split(' ')[0]
 }
 
 const AssignedGroup = {
   name: 'AssignedGroup',
   args: [
     {
-      name: 'event',
-      type: 'Activity',
+      name: 'round',
+      type: 'Round',
     },
   ],
-  outputType: 'Activity(Person)',
+  outputType: 'Group(Person)',
   usesContext: true,
-  implementation: (ctx, evt, person) => {
+  implementation: (ctx, round, person) => {
     var matching = person.assignments.map((assignment) => {
       if (assignment.assignmentCode != "competitor") {
         return null
       }
-      var activity = lib.activityById(ctx.competition, assignment.activityId)
-      if (activity === null) {
+      var group = lib.groupForActivityId(ctx.competition, assignment.activityId)
+      if (round.contains(group.activityCode)) {
+        return group
+      } else {
         return null
       }
-      return activityCode.parse(activity.activityCode)
     }).filter((x) => x !== null)
     if (!matching.length) {
       return null
@@ -162,22 +151,16 @@ const AssignedGroup = {
   }
 }
 
-const GroupName = {
-  name: 'GroupName',
+const Name = {
+  name: 'Name',
   args: [
     {
       name: 'group',
-      type: 'Activity',
+      type: 'Group',
     },
   ],
   outputType: 'String',
-  implementation: (group) => {
-    var act = lib.activityByCode(ctx.competition, activity)
-    if (act === null) {
-      return ''
-    }
-    return act.name.split(' ')
-  }
+  implementation: (group) => group.name()
 }
 
 const StartTime = {
@@ -185,25 +168,18 @@ const StartTime = {
   args: [
     {
       name: 'group',
-      type: 'Activity',
+      type: 'Group',
     },
   ],
   outputType: 'DateTime',
   usesContext: true,
   implementation: (ctx, group) => {
-    if (group === null) {
-      return null
-    }
-    var activity = lib.activityByCode(ctx.competition, group)
-    if (activity === null) {
-      return null
-    }
-    return DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venues[0].timezone)
+    return DateTime.fromISO(group.wcif.startTime).setZone(ctx.competition.schedule.venues[0].timezone)
   }
 }
 
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters,
               GroupNumber, Stage, AssignedGroup,
-              GroupName, StartTime],
+              Name, StartTime],
 }

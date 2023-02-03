@@ -6,12 +6,12 @@ mixin staff(data)
     tr
       th Job
       each group in data.assignments.groups
-        th= fn.parseActivityCode(group.activityCode).groupName
+        th= group.name()
     each jobName in Object.keys(data.assignments.jobs)
       tr
         td= jobName
         each group in data.assignments.groups
           td
-            if group.activityCode in data.assignments.jobs[jobName]
-              each subAssignment in data.assignments.jobs[jobName][group.activityCode]
+            if group.wcif.id in data.assignments.jobs[jobName]
+              each subAssignment in data.assignments.jobs[jobName][group.wcif.id]
                 div= subAssignment.person.name + " (" + subAssignment.score.total + ")"

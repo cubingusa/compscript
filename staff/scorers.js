@@ -5,7 +5,7 @@ class JobCountScorer {
     this.weight = weight
   }
 
-  Score(competition, person, allGroups, groupIdx, job, stationNumber) {
+  Score(competition, person, group, job, stationNumber) {
     return this.weight * person.assignments.filter((assignment) => assignment.assignmentCode.startsWith('staff-')).length
   }
 }
@@ -26,7 +26,7 @@ class PreferenceScorer {
     }).map((s, next) => s + next)
   }
 
-  Score(competition, person, allGroups, groupIdx, job, stationNumber) {
+  Score(competition, person, group, job, stationNumber) {
     var ext = extension.getExtension(person, 'Person')
     var prefs = Object.entries((ext.properties || {}))
                       .filter((e) => e[0].startsWith(this.prefix))
@@ -55,33 +55,30 @@ class PreferenceScorer {
 }
 
 class AdjacentGroupScorer {
-  constructor(weight, previousGroup, nextGroup) {
+  constructor(competition, weight) {
+    this.allGroups = lib.allGroups(competition)
     this.weight = weight
-    this.previousGroupCode = previousGroup
-    this.nextGroupCode = nextGroup
   }
 
-  Score(competition, person, allGroups, groupIdx, job, stationNumber) {
-    var previousGroup, nextGroup
-    if (groupIdx == 0) {
-      if (this.previousGroupCode !== null) {
-        previousGroup = lib.activityByCode(this.previousGroupCode)
-      }
-    } else {
-      previousGroup = allGroups[groupIdx - 1]
-    }
-    if (groupIdx == allGroups.length - 1) {
-      if (this.nextGroupCode !== null) {
-        nextGroup = lib.activityByCode(this.nextGroupCode)
-      }
-    } else {
-      nextGroup = allGroups[groupIdx + 1]
-    }
+  Score(competition, person, group, job, stationNumber) {
+    var sameRoom = this.allGroups.filter((otherGroup) => {
+      return otherGroup.room.id == group.room.id
+    })
+    var allPrevious = sameRoom.filter((otherGroup) => {
+      return otherGroup.endTime.toMillis() === group.startTime.toMillis()
+    })
+    var previousGroup = allPrevious.length ? allPrevious[0] : null
+
+    var allNext = sameRoom.filter((otherGroup) => {
+      return otherGroup.startTime.toMillis() === group.endTime.toMillis()
+    })
+    var nextGroup = allNext.length ? allNext[0] : null
+
     if (!previousGroup && !nextGroup) {
       return 0
     }
     return [previousGroup, nextGroup].filter((x) => !!x).map((group) => {
-      var matchingAssignments = person.assignments.filter((assignment) => assignment.activityId == group.id)
+      var matchingAssignments = person.assignments.filter((assignment) => assignment.activityId == group.wcif.id)
       if (!matchingAssignments.length) {
         return 0
       }

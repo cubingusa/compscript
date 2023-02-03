@@ -190,7 +190,7 @@ const SetStaffUnavailable = {
     },
     {
       name: 'groupFilter',
-      type: 'Boolean(Activity)',
+      type: 'Boolean(Group)',
       serialized: true,
     },
   ],

@@ -2,33 +2,42 @@ const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
 const lib = require('./../lib')
 
-const CompetingIn = {
+const CompetingIn_Event = {
   name: 'CompetingIn',
   args: [
     {
-      name: 'activity',
-      type: 'Activity',
+      name: 'event',
+      type: 'Event',
     },
   ],
   outputType: 'Boolean(Person)',
-  usesContext: true,
-  implementation: (ctx, activity, person) => {
-    // TODO: implement support for groups.
-    if (activity.groupNumber) {
-      return false
-    }
-    if (activity.roundNumber) {
-      var rd = lib.getRound(ctx.competition, activity)
-      return rd.results.filter((res) => res.personId == person.registrantId).length > 0
-    }
-    return person.registration && person.registration.status == 'accepted' && person.registration.eventIds.includes(activity.eventId)
+  implementation: (event, person) => {
+    return person.registration && person.registration.status == 'accepted' && person.registration.eventIds.includes(event.eventId)
   },
 }
+
+const CompetingIn_Round = {
+  name: 'CompetingIn',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    }
+  ],
+  outputType: 'Boolean(Person)',
+  usesContext: true,
+  implementation: (ctx, round, person) => {
+    var rd = lib.getWcifRound(ctx.competition, round)
+    return rd.results.filter((res) => res.personId == person.registrantId).length > 0
+  },
+}
+
+// TODO: Add CompetingIn(Group)
 
 const RegisteredEvents = {
   name: 'RegisteredEvents',
   args: [],
-  outputType: 'Array<Activity>(Person)',
+  outputType: 'Array<Event>(Person)',
   implementation: (person) => {
     if (!person.registration) return []
     if (person.registration.status !== 'accepted') return []
@@ -41,7 +50,7 @@ const PersonalBest = {
   args: [
     {
       name: 'event',
-      type: 'Activity',
+      type: 'Event',
     },
     {
       name: 'type',
@@ -58,7 +67,7 @@ const PsychSheetPosition = {
   args: [
     {
       name: 'event',
-      type: 'Activity',
+      type: 'Event',
     },
     {
       name: 'type',
@@ -88,13 +97,13 @@ const RoundPosition = {
   args: [
     {
       name: 'round',
-      type: 'Activity',
+      type: 'Round',
     },
   ],
   outputType: 'Number(Person)',
   usesContext: true,
   implementation: (ctx, round, person) => {
-    var allResults = lib.getRound(ctx.competition, round).results
+    var allResults = lib.getWcifRound(ctx.competition, round).results
     var res = allResults.filter((res) => res.personId == person.registrantId)
     if (res.length && res[0].ranking) {
       return res[0].ranking
@@ -108,7 +117,7 @@ const AddResults = {
   args: [
     {
       name: 'round',
-      type: 'Activity',
+      type: 'Round',
     },
     {
       name: 'persons',
@@ -125,7 +134,7 @@ const AddResults = {
   usesContext: true,
   mutations: ['events'],
   implementation: (ctx, round, persons, result) => {
-    var rd = lib.getRound(ctx.competition, round)
+    var rd = lib.getWcifRound(ctx.competition, round)
     var attempts = ((rd) => {
       switch (rd.format) {
         case '1':
@@ -173,6 +182,6 @@ const AddResults = {
 }
 
 module.exports = {
-  functions: [CompetingIn, RegisteredEvents, PersonalBest,
+  functions: [CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults],
 }

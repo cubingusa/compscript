@@ -1,11 +1,12 @@
 const attemptResult = require('./attempt_result')
+const groupLib = require('./group')
 
-function getEvent(competition, activity) {
+function getWcifEvent(competition, activity) {
   return competition.events.filter((evt) => evt.id == activity.eventId)[0]
 }
 
-function getRound(competition, activity) {
-  return getEvent(competition, activity).rounds.filter((rd) => rd.id == activity.id())[0]
+function getWcifRound(competition, activity) {
+  return getWcifEvent(competition, activity).rounds.filter((rd) => rd.id == activity.id())[0]
 }
 
 function personalBest(person, evt, type='default') {
@@ -24,51 +25,30 @@ function personalBest(person, evt, type='default') {
 
 function allGroups(competition) {
   return competition.schedule.venues.map((venue) => venue.rooms).flat()
-          .map((room) => room.activities).flat()
-          .map((activity) => [activity].concat(activity.childActivities)).flat()
+    .map((room) => {
+      return room.activities
+               .map((activity) => activity.childActivities).flat()
+               .map((activity) => new groupLib.Group(activity, room, competition))
+    }).flat()
 }
 
-function activityById(competition, activityId) {
-  var matching = allGroups(competition).filter((activity) => activity.id == activityId)
+function groupForActivityId(competition, activityId) {
+  var matching = allGroups(competition).filter((group) => group.wcif.id == activityId)
   if (matching.length) {
     return matching[0]
   }
   return null
-}
-
-function activityByCode(competition, activityCode) {
-  var matching = allGroups(competition).filter((activity) => activity.activityCode == activityCode.id())
-  if (matching.length) {
-    return matching[0]
-  }
-  return null
-}
-
-function groupIdsForRoundCode(competition, roundCode) {
-  return groupsForRoundCode(competition, roundCode).map((group) => group.id)
-}
-
-function activityCodeMapForRoundCode(competition, roundCode) {
-  return groupsForRoundCode(competition, roundCode)
-          .map((activity) => [activity.activityCode, activity.id])
 }
 
 function groupsForRoundCode(competition, roundCode) {
-  return competition.schedule.venues.map((venue) => venue.rooms).flat()
-          .map((room) => room.activities).flat()
-          .filter((activity) => activity.activityCode == roundCode.id())
-          .map((activity) => activity.childActivities).flat()
+  return allGroups(competition).filter((group) => roundCode.contains(group.activityCode))
 }
 
-
 module.exports = {
-  getEvent: getEvent,
-  getRound: getRound,
+  getWcifEvent: getWcifEvent,
+  getWcifRound: getWcifRound,
   personalBest: personalBest,
   allGroups: allGroups,
-  activityById: activityById,
-  activityByCode: activityByCode,
-  groupIdsForRoundCode: groupIdsForRoundCode,
-  activityCodeMapForRoundCode: activityCodeMapForRoundCode,
+  groupForActivityId: groupForActivityId,
   groupsForRoundCode: groupsForRoundCode,
 }

@@ -59,6 +59,22 @@ class ActivityCode {
   isActivity() {
     return true
   }
+
+  contains(other) {
+    if (this.eventId !== other.eventId) {
+      return false
+    }
+    if (this.roundNumber !== null && this.roundNumber !== other.roundNumber) {
+      return false
+    }
+    if (this.groupNumber !== null && this.groupNumber !== other.groupNumber) {
+      return false
+    }
+    if (this.activityNumber !== null && this.activityNumber !== other.activityNumber) {
+      return false
+    }
+    return true
+  }
 }
 
 class OtherActivity {
@@ -90,11 +106,11 @@ function parse(code) {
   var attemptNumber = null
   for (var i = 1; i < codeSplit.length; i++) {
     if (codeSplit[i].startsWith('r')) {
-      roundNumber = codeSplit[i].slice(1)
+      roundNumber = +codeSplit[i].slice(1)
     } else if (codeSplit[i].startsWith('g')) {
-      groupNumber = codeSplit[i].slice(1)
+      groupNumber = +codeSplit[i].slice(1)
     } else if (codeSplit[i].startsWith('a')) {
-      attemptNumber = codeSplit[i].slice(1)
+      attemptNumber = +codeSplit[i].slice(1)
     } else {
       console.log('Invalid ActivityCode ' + code)
       return null

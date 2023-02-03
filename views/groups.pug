@@ -2,8 +2,8 @@ mixin groups(data)
   h3= data.round.toString() + " Groups"
   each warning in data.warnings
     pre= JSON.stringify(warning, null, 2)
-  each group in Object.keys(data.assignments)
-    h4= fn.parseActivityCode(group).groupName + " (" + data.assignments[group].length + ")"
+  each group in data.groups
+    h4= group.name() + " (" + data.assignments[group.wcif.id].length + ")"
     table
       tr
         th Name
@@ -11,7 +11,7 @@ mixin groups(data)
         th Country
         th Personal Best
         th Assignment Set
-      each assignment in data.assignments[group]
+      each assignment in data.assignments[group.wcif.id]
         tr
           td= assignment.person.name
           td

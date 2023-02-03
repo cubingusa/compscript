@@ -1,16 +1,18 @@
 const solver = require('javascript-lp-solver')
 const activityCode = require('./../activity_code')
+const extension = require('./../extension')
 const lib = require('./../lib')
 const driver = require('./../parser/driver')
 
 function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
   var competition = ctx.competition
+  var allGroups = lib.allGroups(competition)
   // Find matching groups
   var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
-    return groupFilter({Activity: activityCode.parse(group.activityCode)})
+    return groupFilter({Group: group})
   })
 
-  var groupIds = groups.map((group) => group.id)
+  var groupIds = groups.map((group) => group.wcif.id)
 
   // Check if there's anyone who already has a staff assignment.
   var peopleAlreadyAssigned = competition.persons.filter((person) => {
@@ -22,14 +24,17 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     if (overwrite) {
       peopleAlreadyAssigned.forEach((person) => {
         person.assignments = person.assignments.filter((assignment) => {
-          return !groupIds.includes(assignment.activityId)
+          return assignment.assignmentCode === 'competitor' || !groupIds.includes(assignment.activityId)
         })
       })
     } else {
       return {
         round: round,
         warnings: ['Jobs are already saved. Not overwriting unless overwrite=true is added.'],
-        assignments: [],
+        assignments: {
+          groups: groups,
+          jobs: {},
+        },
       }
     }
   }
@@ -55,9 +60,9 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
   })
 
   groups.forEach((group, idx) => {
-    var conflictingGroupIds = lib.allGroups(competition).filter((otherGroup) => {
+    var conflictingGroupIds = allGroups.filter((otherGroup) => {
       return group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime
-    }).map((group) => group.activityId)
+    }).map((group) => group.wcif.id)
     var eligiblePeople = persons.filter((person) => {
       if (!person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))) {
         return false
@@ -67,11 +72,11 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
         return true
       }
       var unavailableFn = driver.parseNode(ext.staffUnavailable.impl, ctx, true)
-      return !unavailableFn({ Activity: group })
+      return !unavailableFn({ Group: group })
     })
     var neededPeople = jobs.map((job) => job.count).reduce((a, v) => a+v)
     if (eligiblePeople.length < neededPeople) {
-      out.warnings.push('Not enough people for group ' + group.activityCode + ' (needed ' + neededPeople + ', got ' + eligiblePeople.length + ')')
+      out.warnings.push('Not enough people for group ' + group.name() + ' (needed ' + neededPeople + ', got ' + eligiblePeople.length + ')')
       return
     }
     var model = {
@@ -101,7 +106,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
           var numStr = (num === null) ? '' : '-' + (num + 1)
           var score = 0
           scorers.forEach((scorer) => {
-            var subscore = scorer.Score(competition, person, groups, idx, job.name, num + 1)
+            var subscore = scorer.Score(competition, person, group, job.name, num + 1)
             score += subscore
           })
           var key = 'assignment-' + person.wcaUserId + '-' + job.name + numStr
@@ -116,7 +121,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     })
     var solution = solver.Solve(model)
     if (!solution.feasible) {
-      out.warnings.push('Failed to find a solution for group ' + group.activityCode)
+      out.warnings.push('Failed to find a solution for group ' + group.name())
       return
     }
     Object.keys(solution).forEach((key) => {
@@ -139,7 +144,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
           breakdown[scorer.constructor.name] = subscore
         })
         var jobKey = jobName + (stationNumber ? '-' + stationNumber : '')
-        var groupKey = group.activityCode
+        var groupKey = group.wcif.id
         if (!(groupKey in jobAssignments[jobKey])) {
           jobAssignments[jobKey][groupKey] = []
         }
@@ -154,7 +159,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
           person.assignments = []
         }
         person.assignments.push({
-          activityId: group.id,
+          activityId: group.wcif.id,
           assignmentCode: 'staff-' + jobName,
           stationNumber: stationNumber
         })

@@ -6,11 +6,11 @@ const AssignStaff = {
   args: [
     {
       name: 'round',
-      type: 'Activity',
+      type: 'Round',
     },
     {
       name: 'groupFilter',
-      type: 'Boolean(Activity)',
+      type: 'Boolean(Group)',
       lazy: true,
     },
     {
@@ -111,20 +111,11 @@ const AdjacentGroupScorer = {
       name: 'weight',
       type: 'Number',
     },
-    {
-      name: 'previousGroup',
-      type: 'Activity',
-      defaultValue: null,
-    },
-    {
-      name: 'nextGroup',
-      type: 'Activity',
-      defaultValue: null,
-    },
   ],
   outputType: 'AssignmentScorer',
-  implementation: (weight, previousGroup, nextGroup) => {
-    return new scorers.AdjacentGroupScorer(weight, previousGroup, nextGroup)
+  usesContext: true,
+  implementation: (ctx, weight) => {
+    return new scorers.AdjacentGroupScorer(ctx.competition, weight)
   },
 }
 

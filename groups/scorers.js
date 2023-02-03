@@ -25,7 +25,7 @@ class ByFilters {
     this.personCache = {}
     this.groupCache = {}
   }
-    
+
   getScore(person, group, otherPeople) {
     if (!(person.wcaUserId in this.personCache)) {
       this.personCache[person.wcaUserId] = this.personFilter({Person: person})
@@ -34,9 +34,9 @@ class ByFilters {
       return 0
     }
     if (!(group.activityCode in this.groupCache)) {
-      this.groupCache[group.activityCode] = this.groupFilter({Activity: group})
+      this.groupCache[group.wcif.id] = this.groupFilter({Group: group})
     }
-    if (!this.groupCache[group.activityCode]) {
+    if (!this.groupCache[group.wcif.id]) {
       return 0
     }
     return this.score
