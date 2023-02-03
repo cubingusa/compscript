@@ -87,7 +87,7 @@ const PsychSheetPosition = {
         return false
       }
       var otherPb = lib.personalBest(otherPerson, evt, type)
-      return pb.value <= 0 || pb.value > otherPb.value
+      return otherPb !== null && (pb === null || pb.value > otherPb.value)
     }).length + 1
   }
 }
@@ -108,7 +108,7 @@ const RoundPosition = {
     if (res.length && res[0].ranking) {
       return res[0].ranking
     }
-    return allResults.length + 1
+    return null
   }
 }
 

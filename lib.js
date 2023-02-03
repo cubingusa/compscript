@@ -17,7 +17,7 @@ function personalBest(person, evt, type='default') {
 
   var matching = person.personalBests.filter((best) => best.eventId === eventId && best.type === type)
   if (matching.length == 0) {
-    return new attemptResult.AttemptResult(0, eventId)
+    return null
   } else {
     return new attemptResult.AttemptResult(matching[0].best, eventId)
   }

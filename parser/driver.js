@@ -212,6 +212,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
         argsToUse.push(generics)
       }
 
+      var returnNull = false
       for (var i = 0; i < fn.args.length; i++) {
         var evalFn = (match) => {
           if (fn.args[i].serialized) {
@@ -220,13 +221,20 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           if (fn.args[i].lazy) {
             return (inParams) => match.value(inParams, ctx)
           }
-          return match.value(inParams, ctx)
+          var value = match.value(inParams, ctx)
+          if (value === null && !fn.args[i].nullable) {
+            returnNull = true
+          }
+          return value
         }
         if (fn.args[i].repeated) {
           argsToUse.push(args[i].matches.map(evalFn))
         } else {
           argsToUse.push(evalFn(args[i].matches[0]))
         }
+      }
+      if (returnNull) {
+        return null
       }
       var outputType = parseType(fn.outputType)
       outputType.params.forEach((param) => {

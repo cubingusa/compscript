@@ -6,6 +6,7 @@ const MakeArray = {
       name: 'vals',
       type: '$T',
       repeated: true,
+      nullable: true,
     },
   ],
   outputType: 'Array<$T>',
@@ -21,6 +22,7 @@ const In = {
     {
       name: 'value',
       type: '$T',
+      nullable: true,
     },
     {
       name: 'array',

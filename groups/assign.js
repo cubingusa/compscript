@@ -29,7 +29,17 @@ function Assign(competition, round, assignmentSets, scorers, override) {
 
   var people =
       competition.persons.filter((person) => personIds.includes(person.registrantId))
-      .sort((p1, p2) => lib.personalBest(p1, round).value - lib.personalBest(p2, round).value)
+    .sort((p1, p2) => {
+      var pb1 = lib.personalBest(p1, round)
+      var pb2 = lib.personalBest(p2, round)
+      if (pb1 === null) {
+        return 1
+      }
+      if (pb2 === null) {
+        return -1
+      }
+      return pb1.value - pb2.value
+    })
 
   var assignmentsByPerson = {}
   var assignmentsByGroup = {}

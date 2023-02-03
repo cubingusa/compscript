@@ -11,14 +11,24 @@ const WcaId = {
   name: 'WcaId',
   args: [],
   outputType: 'String(Person)',
-  implementation: (person) => person.wcaId
+  implementation: (person) => {
+    if (person.wcaId === undefined) {
+      return null
+    }
+    return person.wcaId
+  }
 }
 
 const WcaLink = {
   name: 'WcaLink',
   args: [],
   outputType: 'String(Person)',
-  implementation: (person) => 'https://wca.link/' + person.wcaId
+  implementation: (person) => {
+    if (person.wcaId === undefined) {
+      return null
+    }
+    return 'https://wca.link/' + person.wcaId
+  }
 }
 
 const Registered = {
@@ -34,7 +44,7 @@ const WcaIdYear = {
   outputType: 'Number(Person)',
   implementation: (person) => {
     if (!person.wcaId) {
-      return 0
+      return null
     }
     return +person.wcaId.substring(0, 4)
   }
@@ -107,7 +117,6 @@ const HasProperty = {
   outputType: 'Boolean(Person)',
   implementation: (property, person) => {
     const ext = extension.getExtension(person, 'Person')
-    console.log(ext)
     if (!ext.properties) {
       return false
     }

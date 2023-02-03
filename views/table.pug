@@ -9,7 +9,10 @@ mixin table(data)
       tr
         each cell in row
           td
-            if cell.link
-              a(href=cell.link)= cell.value.toString()
+            if cell.link !== null
+              a(href=cell.link)
+                if cell.value !== null
+                  =cell.value.toString()
             else
-              =cell.value.toString()
+              if cell.value !== null
+                =cell.value.toString()

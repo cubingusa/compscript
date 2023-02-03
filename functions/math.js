@@ -4,14 +4,21 @@ const GreaterThan = {
     {
       name: 'val1',
       type: 'Number',
+      nullable: true,
     },
     {
       name: 'val2',
       type: 'Number',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
-  implementation: (val1, val2) => val1 > val2,
+  implementation: (val1, val2) => {
+    if (val1 === null || val2 === null) {
+      return false
+    }
+    return val1 > val2
+  }
 }
 
 const GreaterThan_AttemptResult = {
@@ -20,14 +27,21 @@ const GreaterThan_AttemptResult = {
     {
       name: 'val1',
       type: 'AttemptResult',
+      nullable: true,
     },
     {
       name: 'val2',
       type: 'AttemptResult',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
-  implementation: (val1, val2) => val1 > val2,
+  implementation: (val1, val2) => {
+    if (val1 === null || val2 === null) {
+      return false
+    }
+    return val1 > val2
+  }
 }
 
 const GreaterThanOrEqualTo = {
@@ -36,14 +50,21 @@ const GreaterThanOrEqualTo = {
     {
       name: 'val1',
       type: 'Number',
+      nullable: true,
     },
     {
       name: 'val2',
       type: 'Number',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
-  implementation: (val1, val2) => val1 >= val2,
+  implementation: (val1, val2) => {
+    if (val1 === null || val2 === null) {
+      return false
+    }
+    return val1 >= val2
+  }
 }
 
 const GreaterThanOrEqualTo_AttemptResult = {
@@ -52,14 +73,21 @@ const GreaterThanOrEqualTo_AttemptResult = {
     {
       name: 'val1',
       type: 'AttemptResult',
+      nullable: true,
     },
     {
       name: 'val2',
       type: 'AttemptResult',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
-  implementation: (val1, val2) => val1 >= val2,
+  implementation: (val1, val2) => {
+    if (val1 === null || val2 === null) {
+      return false
+    }
+    return val1 >= val2
+  }
 }
 
 const EqualTo = {
@@ -69,10 +97,12 @@ const EqualTo = {
     {
       name: 'val1',
       type: '$T',
+      nullalbe: true,
     },
     {
       name: 'val2',
       type: '$T',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
@@ -138,10 +168,12 @@ const If = {
     {
       name: 'ifTrue',
       type: '$T',
+      nullable: true,
     },
     {
       name: 'ifFalse',
       type: '$T',
+      nullable: true,
     },
   ],
   outputType: '$T',
@@ -156,10 +188,11 @@ const Even = {
     {
       name: 'val',
       type: 'Number',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
-  implementation: (val) => val % 2 == 0,
+  implementation: (val) => val !== null && val % 2 == 0,
 }
 
 const Odd = {
@@ -168,10 +201,11 @@ const Odd = {
     {
       name: 'val',
       type: 'Number',
+      nullable: true,
     },
   ],
   outputType: 'Boolean',
-  implementation: (val) => val % 2 == 1,
+  implementation: (val) => val !== null && val % 2 == 1,
 }
 
 module.exports = {

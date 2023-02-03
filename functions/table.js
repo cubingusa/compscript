@@ -43,11 +43,13 @@ const Column = {
     {
       name: 'value',
       type: '$T',
+      nullable: true,
     },
     {
       name: 'link',
       type: 'String',
-      defaultValue: '',
+      defaultValue: null,
+      nullable: true,
     },
   ],
   outputType: 'Column',
