@@ -48,7 +48,7 @@ Defining a custom function
 ```
 Define(
   "SumOfRankings",
-  (PsychSheetPosition(<1, Activity>, "average") + PsychSheetPosition(<1, Activity>, "single")))
+  (PsychSheetPosition(<1, Event>, "average") + PsychSheetPosition(<1, Event>, "single")))
 ```
 which can then be called by:
 ```
