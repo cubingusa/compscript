@@ -95,53 +95,8 @@ function Assign(competition, round, assignmentSets, scorers, override) {
     while (queue.length) {
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] < totalToAssign / eligibleGroups.length)
-      var model = {
-        optimize: 'score',
-        opType: 'max',
-        constraints: {},
-        variables: {},
-        ints: {},
-      }
-      queue.slice(0, 100).forEach((queueItem) => {
-        var personKey = queueItem.person.wcaUserId.toString()
-        model.constraints[personKey] = {min: 0, max: 1}
-        var scores = {}
-        var total = 0
-        groupsToUse.forEach((group) => {
-          if (personKey in preAssignedByPerson && preAssignedByPerson[personKey] != group.wcif.id) {
-            return
-          }
-          var newScore = 0
-          scorers.forEach((scorer) => {
-            newScore += scorer.getScore(queueItem.person, group, assignmentsByGroup[group.wcif.id].map((assignment) => assignment.person).concat(currentByGroup[group.wcif.id]))
-          })
-          total += newScore
-          scores[group.wcif.id] = newScore
-        })
-        groupsToUse.forEach((group) => {
-          if (!(group.wcif.id in scores)) {
-            return
-          }
-          // Normalize all of the scores so that the average score is -idx.
-          var adjustedScore = scores[group.wcif.id] - total / groupsToUse.length - queueItem.idx
-          var groupKey = group.wcif.id
-          var key = personKey + '-' + groupKey
-          model.variables[key] = {
-            score: adjustedScore,
-            totalAssigned: 1,
-          }
-          model.variables[key][personKey] = 1
-          model.variables[key][groupKey] = 1
-          model.variables[key][key] = 1
-          model.constraints[key] = {min: 0, max: 1}
-          model.ints[key] = 1
-        })
-      })
-      groupsToUse.forEach((group) => {
-        model.constraints[group.wcif.id] = {min: 0, max: 1}
-      })
-      var numToAssign = Math.min(queue.length, groupsToUse.length)
-      model.constraints.totalAssigned = {equal: numToAssign}
+
+      var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, preAssignedByPerson)
       var solution = solver.Solve(model)
       var newlyAssigned = []
       var indicesToErase = []
@@ -197,6 +152,57 @@ function Assign(competition, round, assignmentSets, scorers, override) {
     assignments: assignmentsByGroup,
     warnings: warnings,
   }
+}
+
+function constructModel(queue, groupsToUse, scorers, preAssignedByPerson) {
+  var model = {
+    optimize: 'score',
+    opType: 'max',
+    constraints: {},
+    variables: {},
+    ints: {},
+  }
+  queue.slice(0, 100).forEach((queueItem) => {
+    var personKey = queueItem.person.wcaUserId.toString()
+    model.constraints[personKey] = {min: 0, max: 1}
+    var scores = {}
+    var total = 0
+    groupsToUse.forEach((group) => {
+      if (personKey in preAssignedByPerson && preAssignedByPerson[personKey] != group.wcif.id) {
+        return
+      }
+      var newScore = 0
+      scorers.forEach((scorer) => {
+        newScore += scorer.getScore(queueItem.person, group, assignmentsByGroup[group.wcif.id].map((assignment) => assignment.person).concat(currentByGroup[group.wcif.id]))
+      })
+      total += newScore
+      scores[group.wcif.id] = newScore
+    })
+    groupsToUse.forEach((group) => {
+      if (!(group.wcif.id in scores)) {
+        return
+      }
+      // Normalize all of the scores so that the average score is -idx.
+      var adjustedScore = scores[group.wcif.id] - total / groupsToUse.length - queueItem.idx
+      var groupKey = group.wcif.id
+      var key = personKey + '-' + groupKey
+      model.variables[key] = {
+        score: adjustedScore,
+        totalAssigned: 1,
+      }
+      model.variables[key][personKey] = 1
+      model.variables[key][groupKey] = 1
+      model.variables[key][key] = 1
+      model.constraints[key] = {min: 0, max: 1}
+      model.ints[key] = 1
+    })
+  })
+  groupsToUse.forEach((group) => {
+    model.constraints[group.wcif.id] = {min: 0, max: 1}
+  })
+  var numToAssign = Math.min(queue.length, groupsToUse.length)
+  model.constraints.totalAssigned = {equal: numToAssign}
+  return model
 }
 
 class AssignmentSet {
