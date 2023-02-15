@@ -27,16 +27,21 @@ const AssignGroups = {
       defaultValue: [],
     },
     {
+      name: 'attemptNumber',
+      type: 'Number',
+      defaultValue: null,
+    },
+    {
       name: 'overwrite',
       type: 'Boolean',
       defaultValue: false,
-    },
+    }
   ],
   outputType: 'GroupAssignmentResult',
   usesContext: true,
   mutations: ['persons', 'schedule'],
-  implementation: (ctx, round, assignmentSets, scorers, stationRules, overwrite) => {
-    return assign.Assign(ctx.competition, round, assignmentSets, scorers, stationRules, overwrite || ctx.dryrun)
+  implementation: (ctx, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite) => {
+    return assign.Assign(ctx.competition, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite || ctx.dryrun)
   }
 }
 

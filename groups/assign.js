@@ -3,8 +3,11 @@ const activityCode = require('./../activity_code')
 const extension = require('./../extension')
 const lib = require('./../lib')
 
-function Assign(competition, round, assignmentSets, scorers, stationRules, override) {
+function Assign(competition, round, assignmentSets, scorers, stationRules, attemptNumber, override) {
   var groups = lib.groupsForRoundCode(competition, round)
+  if (attemptNumber !== null) {
+    groups = groups.filter((group) => group.activityCode.attemptNumber === attemptNumber)
+  }
   var activityIds = groups.map((group) => group.wcif.id)
 
   if (competition.persons.map((person) => person.assignments).flat()
