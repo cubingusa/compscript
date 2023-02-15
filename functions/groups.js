@@ -22,6 +22,11 @@ const AssignGroups = {
       defaultValue: [],
     },
     {
+      name: 'stationRules',
+      type: 'Array<StationAssignmentRule>',
+      defaultValue: [],
+    },
+    {
       name: 'overwrite',
       type: 'Boolean',
       defaultValue: false,
@@ -30,8 +35,8 @@ const AssignGroups = {
   outputType: 'GroupAssignmentResult',
   usesContext: true,
   mutations: ['persons', 'schedule'],
-  implementation: (ctx, round, assignmentSets, scorers, overwrite) => {
-    return assign.Assign(ctx.competition, round, assignmentSets, scorers, overwrite || ctx.dryrun)
+  implementation: (ctx, round, assignmentSets, scorers, stationRules, overwrite) => {
+    return assign.Assign(ctx.competition, round, assignmentSets, scorers, stationRules, overwrite || ctx.dryrun)
   }
 }
 
@@ -108,6 +113,32 @@ const ByFilters = {
   }
 }
 
+const StationAssignmentRule = {
+  name: 'StationAssignmentRule',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'groupFilter',
+      type: 'Boolean(Group)',
+      lazy: true,
+    },
+    {
+      name: 'mode',
+      type: 'String',
+    },
+    {
+      name: 'sortKey',
+      type: '$T(Person)',
+      lazy: true,
+      defaultValue: 0,
+    },
+  ],
+  outputType: 'StationAssignmentRule',
+  implementation: (groupFilter, mode, sortKey) => {
+    return new assign.StationAssignmentRule(groupFilter, mode, sortKey)
+  }
+}
+
 const GroupNumber = {
   name: 'GroupNumber',
   args: [],
@@ -179,7 +210,7 @@ const StartTime = {
 }
 
 module.exports = {
-  functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters,
+  functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
               Name, StartTime],
 }

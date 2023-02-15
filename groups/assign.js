@@ -3,7 +3,7 @@ const activityCode = require('./../activity_code')
 const extension = require('./../extension')
 const lib = require('./../lib')
 
-function Assign(competition, round, assignmentSets, scorers, override) {
+function Assign(competition, round, assignmentSets, scorers, stationRules, override) {
   var groups = lib.groupsForRoundCode(competition, round)
   var activityIds = groups.map((group) => group.wcif.id)
 
@@ -96,7 +96,7 @@ function Assign(competition, round, assignmentSets, scorers, override) {
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] < totalToAssign / eligibleGroups.length)
 
-      var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, preAssignedByPerson)
+      var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson)
       var solution = solver.Solve(model)
       var newlyAssigned = []
       var indicesToErase = []
@@ -134,16 +134,24 @@ function Assign(competition, round, assignmentSets, scorers, override) {
       })
     }
   })
+
+  assignStations(stationRules, groups, assignmentsByGroup, assignmentsByPerson)
+
   for (const groupId in assignmentsByGroup) {
     assignmentsByGroup[groupId].sort(
         (a1, a2) => lib.personalBest(a1.person, round) < lib.personalBest(a2.person, round) ? -1 : 1)
   }
-  competition.persons.forEach((person) => {
+
+  people.forEach((person) => {
     if (person.wcaUserId in assignmentsByPerson) {
-      person.assignments.push({
+      var assignment = {
         activityId: assignmentsByPerson[person.wcaUserId].group.wcif.id,
         assignmentCode: "competitor",
-      })
+      }
+      if ('stationNumber' in assignmentsByPerson[person.wcaUserId]) {
+        assignment.stationNumber = assignmentsByPerson[person.wcaUserId].stationNumber
+      }
+      person.assignments.push(assignment)
     }
   })
   return {
@@ -154,7 +162,7 @@ function Assign(competition, round, assignmentSets, scorers, override) {
   }
 }
 
-function constructModel(queue, groupsToUse, scorers, preAssignedByPerson) {
+function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson) {
   var model = {
     optimize: 'score',
     opType: 'max',
@@ -205,6 +213,26 @@ function constructModel(queue, groupsToUse, scorers, preAssignedByPerson) {
   return model
 }
 
+function assignStations(stationRules, groups, assignmentsByGroup, assignmentsByPerson) {
+  stationRules.forEach((rule) => {
+    groups.filter((group) => rule.groupFilter({Group: group})).forEach((group) => {
+      assignmentsByGroup[group.wcif.id].sort((a1, a2) => {
+        switch (rule.mode) {
+          case "ascending":
+            return rule.sortKey({Person: a1.person}) < rule.sortKey({Person: a2.person}) ? -1 : 1
+          case "descending":
+            return rule.sortKey({Person: a2.person}) < rule.sortKey({Person: a1.person}) ? 1 : -1
+          case "arbitrary":
+            return Math.random() - 0.5
+        }
+      }).forEach((assignment, idx) => {
+        assignmentsByPerson[assignment.person.wcaUserId].stationNumber = idx + 1
+        assignment.stationNumber = idx + 1
+      })
+    })
+  })
+}
+
 class AssignmentSet {
   constructor(name, personFilter, groupFilter, featured) {
     this.name = name
@@ -214,7 +242,16 @@ class AssignmentSet {
   }
 }
 
+class StationAssignmentRule {
+  constructor(groupFilter, mode, sortKey) {
+    this.groupFilter = groupFilter
+    this.mode = mode
+    this.sortKey = sortKey
+  }
+}
+
 module.exports = {
   Assign: Assign,
   AssignmentSet: AssignmentSet,
+  StationAssignmentRule: StationAssignmentRule,
 }

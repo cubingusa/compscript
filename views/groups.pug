@@ -13,7 +13,7 @@ mixin groups(data)
         th Assignment Set
       each assignment in data.assignments[group.wcif.id]
         tr
-          td= assignment.person.name
+          td= assignment.person.name + ('stationNumber' in assignment ? (' (' + assignment.stationNumber + ')') : '')
           td
             a(href='https://wca.link/' + assignment.person.wcaId)= assignment.person.wcaId
           td= assignment.person.countryIso2
