@@ -10,6 +10,23 @@ function parseType(type) {
   }
 }
 
+function typesMatch(typeA, typeB) {
+  if (typeA.type !== typeB.type && typeA.type !== 'Any' && typeB.type !== 'Any') {
+    return false
+  }
+  if (typeA.length !== typeB.length) {
+    return false
+  }
+  for (var i = 0; i < typeA.length; i++) {
+    var argA = typeA.params[i]
+    var argB = typeB.params[i]
+    if (argA !== argB && argA !== 'Any' && argB !== 'Any') {
+      return false
+    }
+  }
+  return true
+}
+
 function literalNode(type, value) {
   var serialized = (() => {
     switch (type) {
@@ -108,7 +125,9 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           var genericValue = match.type.substring(idx).match(/^[a-zA-Z]*/)[0]
           if (fn.genericParams && fn.genericParams.includes(generic)) {
             argType = argType.replaceAll('$' + generic, genericValue)
-            generics[generic] = genericValue
+            if (genericValue !== 'Any') {
+              generics[generic] = genericValue
+            }
           } else {
             errors.push({ errorType: 'INVALID_GENERIC',
                           argumentType: arg.type,
@@ -120,7 +139,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
         var matchParsed = parseType(match.type)
         var argParsed = parseType(argType)
 
-        if (matchParsed.type == argParsed.type) {
+        if (typesMatch(matchParsed, argParsed)) {
           matchParsed.params.forEach((param) => {
             if (!argParsed.params.includes(param) && !extraParams.includes(param)) {
               extraParams.push(param)

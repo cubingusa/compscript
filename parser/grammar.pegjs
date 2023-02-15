@@ -62,6 +62,7 @@ BinaryOperation
 
 Array
   = "[" vals:ExpressionList "]" { return { type: 'Function', name: 'MakeArray', args: vals } }
+  / "[" _ "]" { return { type: 'Function', name: 'MakeEmptyArray', args: [] } }
 
 ExpressionList
   = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }

@@ -15,6 +15,13 @@ const MakeArray = {
   },
 }
 
+const MakeEmptyArray = {
+  name: 'MakeEmptyArray',
+  args: [],
+  outputType: 'Array<Any>',
+  implementation: () => [],
+}
+
 const In = {
   name: 'In',
   genericParams: ['T'],
@@ -70,5 +77,5 @@ const For = {
 }
 
 module.exports = {
-  functions: [MakeArray, In, Length, For],
+  functions: [MakeArray, MakeEmptyArray, In, Length, For],
 }
