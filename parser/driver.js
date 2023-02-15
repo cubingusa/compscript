@@ -71,7 +71,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       // Look for named args.
       var matches = []
       for (var argIdx = 0; argIdx < availableArgs.length; argIdx++) {
-        if (availableArgs[argIdx].name == arg.name) {
+        if (availableArgs[argIdx].argName == arg.name) {
           matches.push(availableArgs[argIdx])
           availableArgs.splice(argIdx, 1)
           argIdx--
@@ -79,7 +79,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       }
       // Otherwise, pick the first arg, or all remaining unnamed args if it's repeated.
       for (var argIdx = 0; argIdx < availableArgs.length; argIdx++) {
-        if (!availableArgs[argIdx].name && (arg.repeated || !matches.length)) {
+        if (!availableArgs[argIdx].argName && (arg.repeated || !matches.length)) {
           matches.push(availableArgs[argIdx])
           availableArgs.splice(argIdx, 1)
           argIdx--
@@ -247,7 +247,11 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       return {
         type: 'Function',
         name: functionName,
-        args: args.map((arg) => arg.matches.map((match) => match.serialize())).flat(),
+        args: args.map((arg) => arg.matches.map((match) => {
+          var out = match.serialize()
+          out.argName = arg.name
+          return out
+        })).flat(),
       }
     },
     mutations: mutations,
@@ -314,8 +318,11 @@ function parseNode(node, ctx, allowParams) {
         return savedUdfArgNode(node.argNum, node.argType, ctx)
     }
   })()
-  if (out.errors) {
+  if (!!out.errors) {
     return out
+  }
+  if (!!node.argName) {
+    out.argName = node.argName
   }
   return out
 }

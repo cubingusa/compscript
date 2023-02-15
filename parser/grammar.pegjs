@@ -10,8 +10,12 @@ Expression
   / Array
   
 ArgList
-  = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
+  = head:Arg tail:(_ "," _ @Arg)* { return [head, ...tail] }
   / "" { return [] }
+
+Arg
+  = Expression
+  / argName:$[a-zA-Z]+ "=" expr:Expression { expr.argName = argName; return expr }
 
 Whitespace
   = [ \t]*
@@ -57,7 +61,10 @@ BinaryOperation
   / "(" left:Expression _ "-" _ right:Expression ")" { return { type: 'Function', name: 'Subtract', args: [left, right] } }
 
 Array
-  = "[" vals:ArgList "]" { return { type: 'Function', name: 'MakeArray', args: vals } }
+  = "[" vals:ExpressionList "]" { return { type: 'Function', name: 'MakeArray', args: vals } }
+
+ExpressionList
+  = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
 
 UdfArg
   = "<" argNum:$[0-9]* "," _ argType:$[a-zA-Z]* ">" { return { type: 'UdfArg', argNum: argNum, argType: argType} }
