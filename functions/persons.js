@@ -131,7 +131,6 @@ const SetProperty = {
     {
       name: 'filter',
       type: 'Array<Person>',
-      lazy: true,
     },
     {
       name: 'property',
@@ -142,7 +141,6 @@ const SetProperty = {
       type: '$T',
     },
   ],
-  usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
   implementation: (persons, property, value) => {
