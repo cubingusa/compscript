@@ -12,7 +12,7 @@ function getWcifRound(competition, activity) {
 function personalBest(person, evt, type='default') {
   const eventId = evt.eventId
   if (type == 'default') {
-    type = ['333bf', '444bf', '555bf', '333fm'].includes(eventId) ? 'single' : 'average'
+    type = ['333bf', '444bf', '555bf', '333mbf'].includes(eventId) ? 'single' : 'average'
   }
 
   var matching = person.personalBests.filter((best) => best.eventId === eventId && best.type === type)
