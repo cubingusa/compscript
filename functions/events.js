@@ -78,6 +78,9 @@ const PsychSheetPosition = {
   outputType: 'Number(Person)',
   usesContext: true,
   implementation: (ctx, evt, type, person) => {
+    if (!person.registration.eventIds.includes(evt.eventId)) {
+      return null
+    }
     var pb = lib.personalBest(person, evt, type)
     return ctx.competition.persons.filter((otherPerson) => {
       if (!otherPerson.registration || otherPerson.registration.status !== 'accepted') {
