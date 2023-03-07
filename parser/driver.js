@@ -104,6 +104,10 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       }
       // Check that all args are the right type.
       matches.forEach((match) => {
+        if ('errorType' in match) {
+          errors.push(match)
+          return
+        }
         if (match.type == arg.type) {
           return
         }
