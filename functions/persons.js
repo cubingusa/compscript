@@ -80,6 +80,8 @@ const Property = (type) => {
         return false
       case 'Number':
         return 0
+      case 'List':
+        return []
     }
   })(type)
   return {
@@ -138,7 +140,8 @@ const SetProperty = {
     },
     {
       name: 'value',
-      type: '$T',
+      type: '$T(Person)',
+      lazy: true,
     },
   ],
   outputType: 'String',
@@ -149,7 +152,7 @@ const SetProperty = {
       if (!ext.properties) {
         ext.properties = {}
       }
-      ext.properties[property] = value
+      ext.properties[property] = value({Person: person})
     })
     return 'Set ' + property + ' for ' + persons.length.toString() + ' persons.'
   }
@@ -216,7 +219,7 @@ const SetStaffUnavailable = {
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
-       Property('Boolean'), Property('String'), Property('Number'),
+       Property('Boolean'), Property('String'), Property('Number'), Property('List'),
        SetProperty, SetStaffUnavailable,
        AddPerson, Persons],
 }
