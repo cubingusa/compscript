@@ -29,6 +29,7 @@ const AssignGroups = {
     {
       name: 'attemptNumber',
       type: 'Number',
+      nullable: true,
       defaultValue: null,
     },
     {
