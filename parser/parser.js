@@ -8,8 +8,8 @@ async function parse(text, req, res, ctx, allowParams) {
     try {
       const data = await fs.readFile('parser/grammar.pegjs')
       req.parser = peggy.generate(data.toString())
-      const tree = req.parser.parse(text)
-      return driver.parseNode(tree, ctx, allowParams)
+      const tree = req.parser.parse(text, {startRule: "Input"})
+      return tree.map((expr) => driver.parseNode(expr, ctx, allowParams))
     } catch (err) {
       console.log(err)
       return { errors: [err.toString()] }

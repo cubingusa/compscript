@@ -266,36 +266,42 @@ router.post('/:competitionId/script', async (req, res) => {
     }
     try {
       var scriptParsed = await parser.parse(req.body.script, req, res, ctx, false)
+      var errors = []
       if (scriptParsed.errors) {
-        scriptParsed.errors.forEach((error) => {
-          params.outputs.push({type: 'Error', data: error})
+        errors = scriptParsed.errors
+      } else {
+        errors = scriptParsed.map((expr) => {
+          if (expr.errors) {
+            return expr.errors
+          }
+          var outputType = driver.parseType(expr.type)
+          if (outputType.params.length) {
+            return { errorType: 'WRONG_OUTPUT_TYPE', type: outputType }
+          }
+          return []
+        }).flat()
+      }
+      if (errors.length) {
+        params.outputs = errors.map((err) => {
+          return { type: 'Error', data: err }
         })
       } else {
-        var outType = driver.parseType(scriptParsed.type)
-        if (outType.params.length) {
-          params.outputs.push({type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outType}})
-        } else {
-          var out = await scriptParsed.value({}, ctx)
+        var mutations = []
+        await scriptParsed.forEach(async (expr) => {
+          var outType = driver.parseType(expr.type)
+          var out = await expr.value({}, ctx)
           params.outputs.push({type: outType.type, data: out})
-          for (var idx = 0; idx < params.outputs.length; idx++) {
-            if (params.outputs[idx].type === 'Multi') {
-              params.outputs =
-                  params.outputs.slice(0, idx).concat(params.outputs[idx].data).concat(params.outputs.slice(idx + 1))
-              idx--
-            } else if (params.outputs[idx].type.startsWith('Array<')) {
-              var type = params.outputs[idx].type.substr(6, params.outputs[idx].type.length - 7)
-              params.outputs =
-                  params.outputs.slice(0, idx)
-                      .concat(params.outputs[idx].data.map((x) => { return { type: type, data: x}}))
-                      .concat(params.outputs.slice(idx + 1))
+          expr.mutations.forEach((mutation) => {
+            if (!mutations.includes(mutation)) {
+              mutations.push(mutation)
             }
-          }
-          if (scriptParsed.mutations.length) {
-            if (req.body.dryrun) {
-              params.dryrunWarning = true
-            } else {
-              await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
-            }
+          })
+        })
+        if (mutations.length) {
+          if (req.body.dryrun) {
+            params.dryrunWarning = true
+          } else {
+            await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
           }
         }
       }

@@ -1,3 +1,7 @@
+Input
+ = head:Expression tail:Input { return [head].concat(tail) }
+ / "" { return [] }
+
 Expression
   = _ fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
   / AttemptResultLiteral
