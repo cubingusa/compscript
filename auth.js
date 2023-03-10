@@ -48,7 +48,7 @@ async function patchWcif(obj, keys, req, res) {
          body: JSON.stringify(toPatch),
          headers: {'Content-Type': 'application/json'}})
   if (out.statusCode !== 200) {
-    throw new Exception(out.body.toString())
+    throw new Error(out.body.toString())
   }
   return JSON.parse(out.body.toString());
 }
