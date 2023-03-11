@@ -141,6 +141,23 @@ const ConcatStrings = {
   implementation: (val1, val2) => val1 + val2,
 }
 
+const ConcatArrays = {
+  name: 'Add',
+  genericTypes: ['T'],
+  args: [
+    {
+      name: 'array1',
+      type: 'Array<T>',
+    },
+    {
+      name: 'array2',
+      type: 'Array<T>',
+    }
+  ],
+  outputType: 'Array<T>',
+  implementation: (array1, array2) => array1.concat(array2),
+}
+
 const Subtract = {
   name: 'Subtract',
   args: [
@@ -211,6 +228,6 @@ const Odd = {
 module.exports = {
   functions: [GreaterThan, GreaterThan_AttemptResult,
               GreaterThanOrEqualTo, GreaterThanOrEqualTo_AttemptResult,
-              EqualTo, If, Add, ConcatStrings, Subtract,
+              EqualTo, If, Add, ConcatStrings, ConcatArrays, Subtract,
               Even, Odd],
 }
