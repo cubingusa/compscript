@@ -2,6 +2,16 @@ const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
 const lib = require('./../lib')
 
+const Events = {
+  name: 'Events',
+  args: [],
+  outputType: 'Array<Event>',
+  usesContext: true,
+  implementation: (ctx) => {
+    return ctx.competition.events.map((evt) => activityCode.parse(evt.id))
+  }
+}
+
 const CompetingIn_Event = {
   name: 'CompetingIn',
   args: [
@@ -185,6 +195,6 @@ const AddResults = {
 }
 
 module.exports = {
-  functions: [CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
+  functions: [Events, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults],
 }
