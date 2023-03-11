@@ -144,7 +144,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           matchParsed.params.forEach((param) => {
             if (!argParsed.params.map(p => p.type).includes(param.type) &&
                 !extraParams.map(p => p.type).includes(param.type)) {
-              extraParams.push(param)
+              extraParams.push({ type: param.type, requestedBy: functionName })
             }
           })
           if (extraParams.length && !allowParams) {
@@ -166,8 +166,19 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       if (!arg.repeated && arg.defaultValue !== undefined && !matches.length) {
         matches.push(literalNode(arg.type, arg.defaultValue))
       }
+      var isExternal = false
       // Check that we have exactly one if it's not repeated.
-      if (!arg.repeated && matches.length != 1) {
+      if (!arg.repeated && matches.length == 0) {
+        if (arg.canBeExternal) {
+          if (!extraParams.map(p => p.type).includes(arg.type)) {
+            extraParams.push({ type: arg.type, requestedBy: functionName })
+          }
+          isExternal = true
+        } else {
+          errors.push({ errorType: 'ARGUMENT_MISSING',
+                        argument: arg })
+        }
+      } else if (!arg.repeated && matches.length > 1) {
         errors.push({ errorType: 'ARGUMENT_WRONG_COUNT',
                       argumentName: arg.name,
                       count: matches.length })
@@ -175,7 +186,8 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
 
       matchedArgs.push({
         arg: arg,
-        matches: matches})
+        matches: matches,
+        isExternal: isExternal})
     })
     // Check there are no remaining args.
     availableArgs.forEach((arg) => {
@@ -250,6 +262,8 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
         }
         if (fn.args[i].repeated) {
           argsToUse.push(args[i].matches.map(evalFn))
+        } else if (args[i].isExternal) {
+          argsToUse.push(inParams[args[i].arg.type])
         } else {
           argsToUse.push(evalFn(args[i].matches[0]))
         }
