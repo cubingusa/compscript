@@ -22,7 +22,7 @@ const EventId = {
     }
   ],
   outputType: 'String',
-  implementation: (evt) => evt.id
+  implementation: (evt) => evt.id()
 }
 
 const CompetingIn_Event = {
