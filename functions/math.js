@@ -143,15 +143,15 @@ const ConcatStrings = {
 
 const ConcatArrays = {
   name: 'Add',
-  genericTypes: ['T'],
+  genericParams: ['T'],
   args: [
     {
       name: 'array1',
-      type: 'Array<T>',
+      type: 'Array<$T>',
     },
     {
       name: 'array2',
-      type: 'Array<T>',
+      type: 'Array<$T>',
     }
   ],
   outputType: 'Array<T>',
