@@ -274,7 +274,7 @@ router.post('/:competitionId/script', async (req, res) => {
           if (expr.errors) {
             return expr.errors
           }
-          var outputType = driver.parseType(expr.type)
+          var outputType = expr.type
           if (outputType.params.length) {
             return { errorType: 'WRONG_OUTPUT_TYPE', type: outputType }
           }
@@ -288,7 +288,7 @@ router.post('/:competitionId/script', async (req, res) => {
       } else {
         var mutations = []
         for (const expr of scriptParsed) {
-          var outType = driver.parseType(expr.type)
+          var outType = expr.type
           var out = await expr.value({}, ctx)
           params.outputs.push({type: outType.type, data: out})
           expr.mutations.forEach((mutation) => {

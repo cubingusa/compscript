@@ -6,7 +6,7 @@ function parseType(type) {
   var parsed = type.match(/([\$a-zA-Z][a-zA-Z0-9<>]*)\((.*)\)/)
   return {
     type: parsed ? parsed[1] : type,
-    params: parsed ? parsed[2].split(',').map((x) => x.trim()) : [],
+    params: parsed ? parsed[2].split(',').map((x) => { return { type: x.trim() } } ) : [],
   }
 }
 
@@ -18,8 +18,8 @@ function typesMatch(typeA, typeB) {
     return false
   }
   for (var i = 0; i < typeA.length; i++) {
-    var argA = typeA.params[i]
-    var argB = typeB.params[i]
+    var argA = typeA.params[i].type
+    var argB = typeB.params[i].type
     if (argA !== argB && argA !== 'Any' && argB !== 'Any') {
       return false
     }
@@ -38,7 +38,7 @@ function literalNode(type, value) {
     }
   })()
   return {
-    type: type,
+    type: { type, params: [] },
     value: (inParams, ctx) => value,
     serialize: () => { return { type: type, value: serialized } },
     mutations: [],
@@ -108,16 +108,13 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           errors.push(match)
           return
         }
-        if (match.type == arg.type) {
-          return
-        }
         var argType = arg.type
         for (const generic of Object.keys(generics)) {
           argType = argType.replaceAll('$' + generic, generics[generic])
         }
         while (argType.indexOf('$') >= 0) {
           var idx = argType.indexOf('$')
-          if (argType.substring(0, idx) !== match.type.substring(0, idx)) {
+          if (argType.substring(0, idx) !== match.type.type.substring(0, idx)) {
             errors.push({ errorType: 'ARGUMENT_WRONG_TYPE_1',
                           argumentName: arg.name,
                           expectedType: arg.type,
@@ -126,7 +123,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
             return
           }
           var generic = argType.substring(idx + 1).match(/^[a-zA-Z0-9]*/)[0]
-          var genericValue = match.type.substring(idx).match(/^[a-zA-Z]*/)[0]
+          var genericValue = match.type.type.substring(idx).match(/^[a-zA-Z]*/)[0]
           if (fn.genericParams && fn.genericParams.includes(generic)) {
             argType = argType.replaceAll('$' + generic, genericValue)
             if (genericValue !== 'Any') {
@@ -140,12 +137,13 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           }
         }
 
-        var matchParsed = parseType(match.type)
+        var matchParsed = match.type
         var argParsed = parseType(argType)
 
         if (typesMatch(matchParsed, argParsed)) {
           matchParsed.params.forEach((param) => {
-            if (!argParsed.params.includes(param) && !extraParams.includes(param)) {
+            if (!argParsed.params.map(p => p.type).includes(param.type) &&
+                !extraParams.map(p => p.type).includes(param.type)) {
               extraParams.push(param)
             }
           })
@@ -225,7 +223,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
   }
 
   return {
-    type: outputType.type + (outputType.params.length > 0 ? '(' + outputType.params.join(', ') + ')' : ''),
+    type: outputType,
     value: function(inParams, ctx) {
       var argsToUse = []
       if (fn.usesContext) {
@@ -261,7 +259,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       }
       var outputType = parseType(fn.outputType)
       outputType.params.forEach((param) => {
-        argsToUse.push(inParams[param])
+        argsToUse.push(inParams[param.type])
       })
 
       return fn.implementation(...argsToUse)
@@ -286,7 +284,7 @@ function activityNode(activityId) {
   if (code) {
     var type = code.roundNumber ? 'Round' : 'Event';
     return {
-      type: type,
+      type: { type, params: [] },
       value: (inParams, ctx) => code,
       serialize: () => { return { type: 'Activity', activityId: activityId } },
       mutations: [],
