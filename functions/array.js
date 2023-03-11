@@ -55,8 +55,8 @@ const Length = {
   implementation: (array) => array.length,
 }
 
-const For = {
-  name: 'For',
+const Map = {
+  name: 'Map',
   genericParams: ['T', 'U'],
   args: [
     {
@@ -77,5 +77,5 @@ const For = {
 }
 
 module.exports = {
-  functions: [MakeArray, MakeEmptyArray, In, Length, For],
+  functions: [MakeArray, MakeEmptyArray, In, Length, Map],
 }
