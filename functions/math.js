@@ -154,7 +154,7 @@ const ConcatArrays = {
       type: 'Array<$T>',
     }
   ],
-  outputType: 'Array<T>',
+  outputType: 'Array<$T>',
   implementation: (array1, array2) => array1.concat(array2),
 }
 
