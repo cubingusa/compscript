@@ -287,7 +287,7 @@ router.post('/:competitionId/script', async (req, res) => {
         })
       } else {
         var mutations = []
-        await scriptParsed.forEach(async (expr) => {
+        for (const expr of scriptParsed) {
           var outType = driver.parseType(expr.type)
           var out = await expr.value({}, ctx)
           params.outputs.push({type: outType.type, data: out})
@@ -296,12 +296,12 @@ router.post('/:competitionId/script', async (req, res) => {
               mutations.push(mutation)
             }
           })
-        })
+        }
         if (mutations.length) {
           if (req.body.dryrun) {
             params.dryrunWarning = true
           } else {
-            await auth.patchWcif(ctx.competition, scriptParsed.mutations, req, res)
+            await auth.patchWcif(ctx.competition, mutations, req, res)
           }
         }
       }
