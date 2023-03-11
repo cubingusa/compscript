@@ -14,16 +14,6 @@ function typesMatch(typeA, typeB) {
   if (typeA.type !== typeB.type && typeA.type !== 'Any' && typeB.type !== 'Any') {
     return false
   }
-  if (typeA.length !== typeB.length) {
-    return false
-  }
-  for (var i = 0; i < typeA.length; i++) {
-    var argA = typeA.params[i].type
-    var argB = typeB.params[i].type
-    if (argA !== argB && argA !== 'Any' && argB !== 'Any') {
-      return false
-    }
-  }
   return true
 }
 
@@ -86,28 +76,28 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
     var generics = {}
     fn.args.forEach((arg) => {
       // Look for named args.
-      var matches = []
+      var matchIdxs = []
       for (var argIdx = 0; argIdx < availableArgs.length; argIdx++) {
         if (availableArgs[argIdx].argName == arg.name) {
-          matches.push(availableArgs[argIdx])
-          availableArgs.splice(argIdx, 1)
-          argIdx--
+          matchIdxs.push(argIdx)
         }
       }
       // Otherwise, pick the first arg, or all remaining unnamed args if it's repeated.
       for (var argIdx = 0; argIdx < availableArgs.length; argIdx++) {
-        if (!availableArgs[argIdx].argName && (arg.repeated || !matches.length)) {
-          matches.push(availableArgs[argIdx])
-          availableArgs.splice(argIdx, 1)
-          argIdx--
+        if (!availableArgs[argIdx].argName && (arg.repeated || !matchIdxs.length)) {
+          matchIdxs.push(argIdx)
         }
       }
+      var alreadyUsed = 0
+      var matches = []
       // Check that all args are the right type.
-      matches.forEach((match) => {
+      matchIdxs.forEach((matchIdx) => {
+        var match = availableArgs[matchIdx - alreadyUsed];
         if ('errorType' in match) {
           errors.push(match)
           return
         }
+        var matchErrors = [];
         var argType = arg.type
         for (const generic of Object.keys(generics)) {
           argType = argType.replaceAll('$' + generic, generics[generic])
@@ -115,12 +105,12 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
         while (argType.indexOf('$') >= 0) {
           var idx = argType.indexOf('$')
           if (argType.substring(0, idx) !== match.type.type.substring(0, idx)) {
-            errors.push({ errorType: 'ARGUMENT_WRONG_TYPE_1',
-                          argumentName: arg.name,
-                          expectedType: arg.type,
-                          actualType: match.type,
-                          generics: generics})
-            return
+            matchErrors.push({ errorType: 'ARGUMENT_WRONG_TYPE_1',
+                               argumentName: arg.name,
+                               expectedType: arg.type,
+                               actualType: match.type,
+                               generics: generics})
+            break
           }
           var generic = argType.substring(idx + 1).match(/^[a-zA-Z0-9]*/)[0]
           var genericValue = match.type.type.substring(idx).match(/^[a-zA-Z]*/)[0]
@@ -130,10 +120,10 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
               generics[generic] = genericValue
             }
           } else {
-            errors.push({ errorType: 'INVALID_GENERIC',
-                          argumentType: arg.type,
-                          invalidGeneric: generic })
-            return
+            matchErrors.push({ errorType: 'INVALID_GENERIC',
+                               argumentType: arg.type,
+                               invalidGeneric: generic })
+            break
           }
         }
 
@@ -148,18 +138,27 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
             }
           })
           if (extraParams.length && !allowParams) {
-            errors.push({ errorType: 'UNEXPECTED_PARAMS',
-                          argumentName: arg.name,
-                          expectedType: arg.type,
-                          actualType: match.type,
-                          generics: generics})
+            matchErrors.push({ errorType: 'UNEXPECTED_PARAMS',
+                               argumentName: arg.name,
+                               expectedType: arg.type,
+                               actualType: match.type,
+                               generics: generics})
           }
         } else {
-          errors.push({ errorType: 'ARGUMENT_WRONG_TYPE_2',
-                        argumentName: arg.name,
-                        expectedType: arg.type,
-                        actualType: match.type,
-                        generics: generics})
+          matchErrors.push({ errorType: 'ARGUMENT_WRONG_TYPE_2',
+                             argumentName: arg.name,
+                             expectedType: arg.type,
+                             actualType: match.type,
+                             generics: generics})
+        }
+        if (!matchErrors.length) {
+          matches.push(match)
+          availableArgs.splice(matchIdx - alreadyUsed, 1)
+          alreadyUsed += 1
+        } else {
+          if (!arg.canBeExternal) {
+            errors = errors.concat(matchErrors)
+          }
         }
       })
       // Use the default value if there's no value.
@@ -252,7 +251,12 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
             return match.serialize()
           }
           if (fn.args[i].lazy) {
-            return (inParams) => match.value(inParams, ctx)
+            return (newParams) => {
+              var mergedParams = {}
+              Object.assign(mergedParams, inParams)
+              Object.assign(mergedParams, newParams)
+              return match.value(mergedParams, ctx)
+            }
           }
           var value = match.value(inParams, ctx)
           if (value === null && !fn.args[i].nullable) {
@@ -317,7 +321,7 @@ function savedUdfArgNode(argNum, argType, ctx) {
 
 function udfArgNode(argNum, argType, ctx) {
   return {
-    type: argType,
+    type: {type: argType, params: [] },
     value: (inParams, ctx) => {
       throw new Error("UDF args should only be used inside Define().")
     },
