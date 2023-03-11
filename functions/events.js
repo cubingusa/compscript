@@ -12,6 +12,19 @@ const Events = {
   }
 }
 
+const EventId = {
+  name: 'EventId',
+  args: [
+    {
+      name: 'event',
+      type: 'Event',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'String',
+  implementation: (evt) => evt.id
+}
+
 const CompetingIn_Event = {
   name: 'CompetingIn',
   args: [
@@ -77,6 +90,7 @@ const PersonalBest = {
     {
       name: 'event',
       type: 'Event',
+      canBeExternal: true,
     },
     {
       name: 'type',
@@ -99,6 +113,7 @@ const PsychSheetPosition = {
     {
       name: 'event',
       type: 'Event',
+      canBeExternal: true,
     },
     {
       name: 'type',
@@ -226,6 +241,6 @@ const AddResults = {
 }
 
 module.exports = {
-  functions: [Events, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
+  functions: [Events, EventId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults],
 }
