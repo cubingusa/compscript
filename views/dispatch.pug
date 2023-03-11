@@ -29,3 +29,5 @@ mixin dispatch(value)
   if value.type.startsWith('Array<')
     each data in value.data
       +dispatch({ type: value.type.substr(6, value.type.length - 7), value: data })
+  if value.type == 'Person'
+    div= value.data.name
