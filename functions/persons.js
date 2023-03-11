@@ -2,15 +2,27 @@ const extension = require('./../extension')
 
 const Name = {
   name: 'Name',
-  args: [],
-  outputType: 'String(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
   implementation: (person) => person.name
 }
 
 const WcaId = {
   name: 'WcaId',
-  args: [],
-  outputType: 'String(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
   implementation: (person) => {
     if (person.wcaId === undefined) {
       return null
@@ -21,8 +33,14 @@ const WcaId = {
 
 const WcaLink = {
   name: 'WcaLink',
-  args: [],
-  outputType: 'String(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
   implementation: (person) => {
     if (person.wcaId === undefined) {
       return null
@@ -33,8 +51,14 @@ const WcaLink = {
 
 const Registered = {
   name: 'Registered',
-  args: [],
-  outputType: 'Boolean(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'Boolean',
   implementation: (person) => person.registration && person.registration.status == 'accepted'
 }
 
@@ -52,22 +76,40 @@ const WcaIdYear = {
 
 const Country = {
   name: 'Country',
-  args: [],
-  outputType: 'String(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
   implementation: (person) => person.countryIso2,
 }
 
 const FirstName = {
   name: 'FirstName',
-  args: [],
-  outputType: 'String(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
   implementation: (person) => person.name.split(' ').at(0),
 }
 
 const LastName = {
   name: 'LastName',
-  args: [],
-  outputType: 'String(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
   implementation: (person) => person.name.split(' ').at(-1),
 }
 
@@ -96,8 +138,13 @@ const Property = (type) => {
         type: type,
         defaultValue: defaultValue,
       },
+      {
+        name: 'person',
+        type: 'Person',
+        canBeExternal: true,
+      }
     ],
-    outputType: type + '(Person)',
+    outputType: type,
     implementation: (name, defaultValue, person) => {
       const ext = extension.getExtension(person, 'Person')
       if (ext.properties && name in ext.properties) {
@@ -115,8 +162,13 @@ const HasProperty = {
       name: 'property',
       type: 'String',
     },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
   ],
-  outputType: 'Boolean(Person)',
+  outputType: 'Boolean',
   implementation: (property, person) => {
     const ext = extension.getExtension(person, 'Person')
     if (!ext.properties) {

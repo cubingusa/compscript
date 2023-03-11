@@ -147,15 +147,27 @@ const StationAssignmentRule = {
 
 const GroupNumber = {
   name: 'GroupNumber',
-  args: [],
-  outputType: 'Number(Group)',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Number',
   implementation: (group) => group.activityCode.groupNumber
 }
 
 const Stage = {
   name: 'Stage',
-  args: [],
-  outputType: 'String(Group)',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'String',
   implementation: (group) => group.room.name.split(' ')[0]
 }
 
@@ -166,8 +178,13 @@ const AssignedGroup = {
       name: 'round',
       type: 'Round',
     },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
   ],
-  outputType: 'Group(Person)',
+  outputType: 'Group',
   usesContext: true,
   implementation: (ctx, round, person) => {
     var matching = person.assignments.map((assignment) => {

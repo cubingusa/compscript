@@ -19,8 +19,13 @@ const CompetingIn_Event = {
       name: 'event',
       type: 'Event',
     },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
   ],
-  outputType: 'Boolean(Person)',
+  outputType: 'Boolean',
   implementation: (event, person) => {
     return person.registration && person.registration.status == 'accepted' && person.registration.eventIds.includes(event.eventId)
   },
@@ -32,9 +37,14 @@ const CompetingIn_Round = {
     {
       name: 'round',
       type: 'Round',
+    },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
     }
   ],
-  outputType: 'Boolean(Person)',
+  outputType: 'Boolean',
   usesContext: true,
   implementation: (ctx, round, person) => {
     var rd = lib.getWcifRound(ctx.competition, round)
@@ -46,8 +56,14 @@ const CompetingIn_Round = {
 
 const RegisteredEvents = {
   name: 'RegisteredEvents',
-  args: [],
-  outputType: 'Array<Event>(Person)',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Array<Event>',
   implementation: (person) => {
     if (!person.registration) return []
     if (person.registration.status !== 'accepted') return []
@@ -67,8 +83,13 @@ const PersonalBest = {
       type: 'String',  // 'single', 'average', or 'default'
       defaultValue: 'default',
     },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
   ],
-  outputType: 'AttemptResult(Person)',
+  outputType: 'AttemptResult',
   implementation: (evt, type, person) => lib.personalBest(person, evt, type),
 }
 
@@ -84,8 +105,13 @@ const PsychSheetPosition = {
       type: 'String',
       defaultValue: 'default',
     },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
   ],
-  outputType: 'Number(Person)',
+  outputType: 'Number',
   usesContext: true,
   implementation: (ctx, evt, type, person) => {
     if (!person.registration.eventIds.includes(evt.eventId)) {
@@ -112,8 +138,13 @@ const RoundPosition = {
       name: 'round',
       type: 'Round',
     },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
   ],
-  outputType: 'Number(Person)',
+  outputType: 'Number',
   usesContext: true,
   implementation: (ctx, round, person) => {
     var allResults = lib.getWcifRound(ctx.competition, round).results
