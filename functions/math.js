@@ -97,7 +97,7 @@ const EqualTo = {
     {
       name: 'val1',
       type: '$T',
-      nullalbe: true,
+      nullable: true,
     },
     {
       name: 'val2',
