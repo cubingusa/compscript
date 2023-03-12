@@ -24,7 +24,8 @@ function literalNode(type, value) {
         return value.value.toString()
       case 'String':
         return value
-      return value.toString()
+      default:
+        return value.toString()
     }
   })()
   return {
@@ -55,6 +56,77 @@ function udfNode(udf, ctx, args, allowParams) {
   }
   ctx.udfArgs = oldUdfArgs
   return out
+}
+
+function substituteExisting(type, generics) {
+  for (const generic of Object.keys(generics)) {
+    type.type = type.type.replaceAll('$' + generic, generics[generic])
+    type.params.forEach((param) => {
+      param.type = param.type.replaceAll('$' + generic, generics[generic])
+    })
+  }
+}
+
+function extractOne(typeString, expectedString, fn, generics, errors) {
+  var idx = typeString.indexOf('$')
+  if (expectedString.substring(0, idx) !== typeString.substring(0, idx)) {
+    errors.push({ errorType: 'ARGUMENT_WRONG_TYPE_1',
+                  expectedType: expectedString,
+                  actualType: typeString,
+                  generics: generics})
+    return {}
+  }
+  var generic = typeString.substring(idx + 1).match(/^[a-zA-Z0-9]*/)[0]
+  var genericValue = expectedString.substring(idx).match(/^[a-zA-Z]*/)[0]
+  if (fn.genericParams && fn.genericParams.includes(generic)) {
+    typeString = typeString.replaceAll('$' + generic, genericValue)
+    if (genericValue !== 'Any') {
+      generics[generic] = genericValue
+    }
+  } else {
+    errors.push({ errorType: 'INVALID_GENERIC',
+                  argumentType: typeString,
+                  invalidGeneric: generic })
+    return {}
+  }
+  return { generic: generic, value: genericValue }
+}
+
+function substituteGenerics(typeWithGenerics, matchType, fn, generics, errors) {
+  substituteExisting(typeWithGenerics, generics)
+
+  while (typeWithGenerics.type.indexOf('$') >= 0) {
+    var newGeneric = extractOne(typeWithGenerics.type, matchType.type, fn, generics, errors)
+    if (errors.length > 0) {
+      return
+    }
+    substituteExisting(typeWithGenerics, { [newGeneric.generic]: newGeneric.value })
+    generics[newGeneric.generic] = newGeneric.value
+  }
+  if (typeWithGenerics.type !== matchType.type) {
+    errors.push({ errorType: 'UNEXPECTED_TYPE',
+                  expectedType: matchType,
+                  gotType: typeWithGenerics })
+    return
+  }
+  matchType.params.forEach((param) => {
+    if (typeWithGenerics.params.map((param) => param.type).includes(param.type)) {
+      return
+    }
+    var paramsWithGeneric = typeWithGenerics.params.filter((p) => p.type.indexOf('$') >= 0)
+    if (paramsWithGeneric.length == 0) {
+      return
+    }
+    var paramWithGeneric = paramsWithGeneric[0]
+    while (paramWithGeneric.type.indexOf('$') >= 0) {
+      var newGeneric = extractOne(paramWithGeneric.type, param.type, fn, generics, errors)
+      if (errors.length > 0) {
+        return
+      }
+      substituteExisting(typeWithGenerics, { [newGeneric.generic]: newGeneric.value })
+      generics[newGeneric.generic] = newGeneric.value
+    }
+  })
 }
 
 function functionNode(functionName, allFunctions, args, allowParams=true) {
@@ -98,41 +170,13 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           return
         }
         var matchErrors = [];
-        var argType = arg.type
-        for (const generic of Object.keys(generics)) {
-          argType = argType.replaceAll('$' + generic, generics[generic])
-        }
-        while (argType.indexOf('$') >= 0) {
-          var idx = argType.indexOf('$')
-          if (argType.substring(0, idx) !== match.type.type.substring(0, idx)) {
-            matchErrors.push({ errorType: 'ARGUMENT_WRONG_TYPE_1',
-                               argumentName: arg.name,
-                               expectedType: arg.type,
-                               actualType: match.type,
-                               generics: generics})
-            break
-          }
-          var generic = argType.substring(idx + 1).match(/^[a-zA-Z0-9]*/)[0]
-          var genericValue = match.type.type.substring(idx).match(/^[a-zA-Z]*/)[0]
-          if (fn.genericParams && fn.genericParams.includes(generic)) {
-            argType = argType.replaceAll('$' + generic, genericValue)
-            if (genericValue !== 'Any') {
-              generics[generic] = genericValue
-            }
-          } else {
-            matchErrors.push({ errorType: 'INVALID_GENERIC',
-                               argumentType: arg.type,
-                               invalidGeneric: generic })
-            break
-          }
-        }
+        var argType = parseType(arg.type)
+        var matchType = match.type
+        substituteGenerics(argType, match.type, fn, generics, matchErrors)
 
-        var matchParsed = match.type
-        var argParsed = parseType(argType)
-
-        if (typesMatch(matchParsed, argParsed)) {
-          matchParsed.params.forEach((param) => {
-            if (!argParsed.params.map(p => p.type).includes(param.type) &&
+        if (typesMatch(matchType, argType)) {
+          matchType.params.forEach((param) => {
+            if (!argType.params.map(p => p.type).includes(param.type) &&
                 !extraParams.map(p => p.type).includes(param.type)) {
               extraParams.push({ type: param.type, requestedBy: functionName })
             }
@@ -140,7 +184,7 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           if (extraParams.length && !allowParams) {
             matchErrors.push({ errorType: 'UNEXPECTED_PARAMS',
                                argumentName: arg.name,
-                               expectedType: arg.type,
+                               expectedType: argType,
                                actualType: match.type,
                                generics: generics})
           }
