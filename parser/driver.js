@@ -25,6 +25,9 @@ function literalNode(type, value) {
       case 'String':
         return value
       default:
+        if (value == null) {
+          return null
+        }
         return value.toString()
     }
   })()
@@ -178,7 +181,8 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
           matchType.params.forEach((param) => {
             if (!argType.params.map(p => p.type).includes(param.type) &&
                 !extraParams.map(p => p.type).includes(param.type)) {
-              extraParams.push({ type: param.type, requestedBy: functionName })
+              var requestedBy = (param.requestedBy !== undefined) ? param.requestedBy : functionName
+              extraParams.push({ type: param.type, requestedBy: requestedBy })
             }
           })
           if (extraParams.length && !allowParams) {
