@@ -32,5 +32,5 @@ const Define = function(argCount) {
 }
 
 module.exports = {
-  functions: [Define(0), Define(1)],
+  functions: [Define(0)]
 }
