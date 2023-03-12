@@ -133,6 +133,7 @@ const PsychSheetPosition = {
       return null
     }
     var pb = lib.personalBest(person, evt, type)
+    var singlePb = lib.personalBest(person, evt, 'single')
     return ctx.competition.persons.filter((otherPerson) => {
       if (!otherPerson.registration || otherPerson.registration.status !== 'accepted') {
         return false
@@ -141,7 +142,20 @@ const PsychSheetPosition = {
         return false
       }
       var otherPb = lib.personalBest(otherPerson, evt, type)
-      return otherPb !== null && (pb === null || pb.value > otherPb.value)
+      if (otherPb === null) {
+        return false
+      }
+      if (pb === null) {
+        return true
+      }
+      if (pb.value > otherPb.value) {
+        return true
+      } else if (pb.value < otherPb.value) {
+        return false
+      } else {
+        var otherSinglePb = lib.personalBest(otherPerson, evt, 'single')
+        return singlePb.value > otherSinglePb.value
+      }
     }).length + 1
   }
 }
