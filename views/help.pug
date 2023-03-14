@@ -41,7 +41,8 @@ mixin help(data)
               if arg.lazy
                 | (lazy)
       h4 Return Type
-      div= fn.fn.outputType
+      ul
+        li= fn.fn.outputType
       if fn.fn.mutations
         h4 Mutations
         ul
