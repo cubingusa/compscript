@@ -28,7 +28,7 @@ The assumption is that there are many stages, and each stage has the same events
 
 ## Scripts
 
-You can enter scripts in the script box, using a custom language called natsscript. There are a variety of commands, defined in the `functions` directory in this repository.
+You can enter scripts in the script box, using a custom language called NatsScript. See `docs/scripts.md` for full documentation.
 
 Some examples:
 
