@@ -1,0 +1,58 @@
+mixin list_functions(data)
+  h3 Built-in Functions
+  ul
+    each fn in data.functions
+      li
+        a(href=`?script=Help("${fn}")`)= fn
+  h3 User-Defined Functions
+  ul
+    each udf in data.udfs
+      li
+        a(href=`?script=Help("${udf}")`)= udf
+
+mixin help(data)
+  each fn in data
+    if fn.udf
+      h3= fn.udf.name
+      pre= fn.udf.cmd
+    else if fn.fn
+      h3= fn.fn.name
+      if fn.fn.docs
+        div= fn.fn.docs
+      if fn.fn.genericParams !== undefined
+        h4 Generics
+        ul
+          each generic in fn.fn.genericParams
+            li= generic
+      if fn.fn.args.length > 0
+        h4 Args
+        ul
+          each arg in fn.fn.args
+            li= arg.name
+              = ` (type: ${arg.type})`
+              if arg.nullable
+                | (nullable)
+              if arg.defaultValue !== undefined
+                = ` (default: ${arg.defaultValue})`
+              if arg.canBeExternal
+                | (can be external)
+              if arg.repeated
+                | (repeated)
+              if arg.lazy
+                | (lazy)
+      h4 Return Type
+      div= fn.fn.outputType
+      if fn.fn.mutations
+        h4 Mutations
+        ul
+          each mutation in fn.fn.mutations
+            li= mutation
+
+mixin spreadsheet(data)
+  if data.warnings.length > 0
+    p
+      = data.warnings.length + ' warnings'
+      ul
+        each warning in data.warnings
+          li= warning
+  = 'Loaded ' + data.loaded + ' people'

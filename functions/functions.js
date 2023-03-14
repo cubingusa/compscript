@@ -7,6 +7,7 @@ module.exports = {
           require('./display').functions,
           require('./events').functions,
           require('./groups').functions,
+          require('./help').functions,
           require('./math').functions,
           require('./persons').functions,
           require('./sheets').functions,

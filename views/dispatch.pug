@@ -1,5 +1,6 @@
 include cluster.pug
 include groups.pug
+include help.pug
 include spreadsheet.pug
 include staff.pug
 include table.pug
@@ -36,3 +37,7 @@ mixin dispatch(value)
         +dispatch({ type: value.type.substr(6, value.type.length - 7), data: data })
     if value.type == 'Person'
       div= value.data.name
+    if value.type == 'ListFunctionsOutput'
+      +list_functions(value.data)
+    if value.type == 'FunctionHelp'
+      +help(value.data)
