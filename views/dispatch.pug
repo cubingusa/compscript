@@ -5,31 +5,34 @@ include staff.pug
 include table.pug
 
 mixin dispatch(value)
-  if value.type == 'Error'
-    pre= JSON.stringify(value.data, null, 2)
-  if value.type == 'Exception'
-    pre= value.data
-  if value.type == 'Table'
-    +table(value.data)
-  if value.type == 'String'
-    div= value.data
-  if value.type == 'Number'
-    div= value.data
-  if value.type == 'Header'
-    h3= value.data
-  if value.type == 'ClusteringResult'
-    +clusters(value.data)
-  if value.type == 'GroupAssignmentResult'
-    +groups(value.data)
-  if value.type == 'ReadSpreadsheetResult'
-    +spreadsheet(value.data)
-  if value.type == 'StaffAssignmentResult'
-    +staff(value.data)
-  if value.type == 'Multi'
-    each data in value.data
-      +dispatch(data)
-  if value.type.startsWith('Array<')
-    each data in value.data
-      +dispatch({ type: value.type.substr(6, value.type.length - 7), data: data })
-  if value.type == 'Person'
-    div= value.data.name
+  if value.data === null
+    i= "null"
+  else
+    if value.type == 'Error'
+      pre= JSON.stringify(value.data, null, 2)
+    if value.type == 'Exception'
+      pre= value.data
+    if value.type == 'Table'
+      +table(value.data)
+    if value.type == 'String'
+      div= value.data
+    if value.type == 'Number'
+      div= value.data
+    if value.type == 'Header'
+      h3= value.data
+    if value.type == 'ClusteringResult'
+      +clusters(value.data)
+    if value.type == 'GroupAssignmentResult'
+      +groups(value.data)
+    if value.type == 'ReadSpreadsheetResult'
+      +spreadsheet(value.data)
+    if value.type == 'StaffAssignmentResult'
+      +staff(value.data)
+    if value.type == 'Multi'
+      each data in value.data
+        +dispatch(data)
+    if value.type.startsWith('Array<')
+      each data in value.data
+        +dispatch({ type: value.type.substr(6, value.type.length - 7), data: data })
+    if value.type == 'Person'
+      div= value.data.name
