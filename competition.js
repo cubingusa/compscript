@@ -1,5 +1,6 @@
 const express = require('express')
 const { DateTime } = require('luxon')
+const url = require('url')
 
 const auth = require('./auth')
 const activityCode = require('./activity_code')
@@ -234,6 +235,11 @@ router.post('/:competitionId/schedule', async (req, res) => {
 
 router.get('/:competitionId/script', async (req, res) => {
   var script = ''
+  if (req.query.script) {
+    req.session.script = req.query.script
+    res.redirect(url.parse(req.originalUrl).pathname)
+    return
+  }
   if (req.session.script) {
     script = req.session.script
     delete req.session.script
