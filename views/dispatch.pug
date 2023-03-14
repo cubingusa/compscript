@@ -13,6 +13,8 @@ mixin dispatch(value)
     +table(value.data)
   if value.type == 'String'
     div= value.data
+  if value.type == 'Number'
+    div= value.data
   if value.type == 'Header'
     h3= value.data
   if value.type == 'ClusteringResult'
