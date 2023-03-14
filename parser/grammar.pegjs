@@ -9,6 +9,7 @@ Expression
   / NumberLiteral
   / ActivityLiteral
   / StringLiteral
+  / PersonLiteral
   / BinaryOperation
   / UdfArg
   / Array
@@ -52,6 +53,10 @@ AttemptResultLiteral
   = value:$([0-9][0-9\.:]*[mps]) { return { type: 'AttemptResult', value: value } }
   / "DNF" { return { type: 'AttemptResult', value: 'DNF' } }
   / "DNS" { return { type: 'AttemptResult', value: 'DNS' } }
+
+PersonLiteral
+  = "p" wcaId:$([0-9][0-9][0-9][0-9][A-Z][A-Z][A-Z][A-Z][0-9][0-9]) { return { type: 'Person', wcaId: wcaId } }
+  / "p" wcaUserId:$([0-9]+) { return { type: 'Person', wcaUserId: wcaUserId } }
 
 BinaryOperation
   = "(" left:Expression _ "||" _ right:Expression ")" { return { type: 'Function', name: 'Or', args: [left, right] } }

@@ -378,6 +378,27 @@ function udfArgNode(argNum, argType, ctx) {
   }
 }
 
+function personNode(node, ctx) {
+  return {
+    type: {type: 'Person', params: [] },
+    value: (inParams, ctx) => {
+      const matchingPeople = ctx.competition.persons.filter((person) => {
+        if (node.wcaId) {
+          return person.wcaId === node.wcaId
+        } else if (node.wcaUserId) {
+          return person.wcaUserId === +node.wcaUserId
+        }
+      })
+      if (matchingPeople.length === 0) {
+        return null
+      }
+      return matchingPeople[0]
+    },
+    serialize: () => node,
+    mutations: [],
+  }
+}
+
 function parseNode(node, ctx, allowParams) {
   var out = (() => {
     switch (node.type) {
@@ -403,6 +424,8 @@ function parseNode(node, ctx, allowParams) {
         return udfArgNode(node.argNum, node.argType, ctx)
       case 'SavedUdfArg':
         return savedUdfArgNode(node.argNum, node.argType, ctx)
+      case 'Person':
+        return personNode(node, ctx)
     }
   })()
   if (!!out.errors) {
