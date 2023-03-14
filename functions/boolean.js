@@ -1,5 +1,6 @@
 const Or = {
   name: 'Or',
+  docs: 'Returns true if any of the provided arguments are true.',
   args: [
     {
       name: 'param',
@@ -20,6 +21,7 @@ const Or = {
 
 const And = {
   name: 'And',
+  docs: 'Returns true if all of the provided arguments are true.',
   args: [
     {
       name: 'param',
@@ -40,6 +42,7 @@ const And = {
 
 const Not = {
   name: 'Not',
+  docs: 'Returns true if the provided argument is false.',
   args: [
     {
       name: 'param',

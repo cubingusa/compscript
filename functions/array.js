@@ -1,6 +1,7 @@
 const MakeArray = {
   name: 'MakeArray',
   genericParams: ['T'],
+  docs: 'Makes an array containing the provided elements. Can be invoked as a literal expression via [vals].',
   args: [
     {
       name: 'vals',
@@ -17,6 +18,7 @@ const MakeArray = {
 
 const MakeEmptyArray = {
   name: 'MakeEmptyArray',
+  docs: 'Constructs an array containing zero elements. Can be invoked as a literal expression via [].',
   args: [],
   outputType: 'Array<Any>',
   implementation: () => [],
@@ -25,6 +27,7 @@ const MakeEmptyArray = {
 const In = {
   name: 'In',
   genericParams: ['T'],
+  docs: 'Returns whether the provided element is in the given array.',
   args: [
     {
       name: 'value',
@@ -45,6 +48,7 @@ const In = {
 const Length = {
   name: 'Length',
   genericParams: ['T'],
+  docs: 'Returns the length of the provided array.',
   args: [
     {
       name: 'array',
@@ -58,6 +62,7 @@ const Length = {
 const Map = {
   name: 'Map',
   genericParams: ['T', 'U'],
+  docs: 'Transforms the provided array using the provided function.',
   args: [
     {
       name: 'array',
