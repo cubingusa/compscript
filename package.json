@@ -20,12 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/timreyn/natshelper.git"
+    "url": "git+https://github.com/cubingusa/natshelper.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/timreyn/natshelper/issues"
+    "url": "https://github.com/cubingusa/natshelper/issues"
   },
-  "homepage": "https://github.com/timreyn/natshelper#readme"
+  "homepage": "https://github.com/cubingusa/natshelper#readme"
 }

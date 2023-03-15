@@ -9,7 +9,7 @@ function getExtension(obj, type, namespace='org.cubingusa.natshelper.v1') {
   }
   var extension = {
     id: type,
-    specUrl: 'https://github.com/timreyn/natshelper/blob/main/specification.md',
+    specUrl: 'https://github.com/cubingusa/natshelper/blob/main/specification.md',
     data: {}
   }
   obj.extensions.push(extension)
