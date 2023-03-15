@@ -2,6 +2,7 @@ const extension = require('./../extension')
 
 const ListFunctions = {
   name: 'ListFunctions',
+  docs: 'Provide a list of all functions',
   args: [],
   outputType: 'ListFunctionsOutput',
   usesContext: true,
@@ -19,6 +20,7 @@ const ListFunctions = {
 
 const Help = {
   name: 'Help',
+  docs: 'Provide documentation about a single function',
   args: [
     {
       name: 'functionName',

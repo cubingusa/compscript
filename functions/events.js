@@ -4,6 +4,7 @@ const lib = require('./../lib')
 
 const Events = {
   name: 'Events',
+  docs: 'Returns a list of all events in a competition',
   args: [],
   outputType: 'Array<Event>',
   usesContext: true,
@@ -14,6 +15,7 @@ const Events = {
 
 const EventId = {
   name: 'EventId',
+  docs: 'Returns the string event ID for an event',
   args: [
     {
       name: 'event',
@@ -27,6 +29,7 @@ const EventId = {
 
 const CompetingIn_Event = {
   name: 'CompetingIn',
+  docs: 'Returns true if the specified person is competing in the specified event',
   args: [
     {
       name: 'event',
@@ -46,6 +49,7 @@ const CompetingIn_Event = {
 
 const CompetingIn_Round = {
   name: 'CompetingIn',
+  docs: 'Returns true if the specified person is competing in the specified round',
   args: [
     {
       name: 'round',
@@ -69,6 +73,7 @@ const CompetingIn_Round = {
 
 const RegisteredEvents = {
   name: 'RegisteredEvents',
+  docs: 'Returns an array of events that the person is registered for',
   args: [
     {
       name: 'person',
@@ -86,6 +91,7 @@ const RegisteredEvents = {
 
 const PersonalBest = {
   name: 'PersonalBest',
+  docs: 'Returns the personal best for an event',
   args: [
     {
       name: 'event',
@@ -109,6 +115,7 @@ const PersonalBest = {
 
 const PsychSheetPosition = {
   name: 'PsychSheetPosition',
+  docs: 'Returns this person\'s position on the psych sheet for an event',
   args: [
     {
       name: 'event',
@@ -162,6 +169,7 @@ const PsychSheetPosition = {
 
 const RoundPosition = {
   name: 'RoundPosition',
+  docs: 'Returns this person\'s placement in a round that has already happened',
   args: [
     {
       name: 'round',
@@ -187,6 +195,7 @@ const RoundPosition = {
 
 const AddResults = {
   name: 'AddResults',
+  docs: 'Add fake results for the given persons in the given round',
   args: [
     {
       name: 'round',

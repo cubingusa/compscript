@@ -4,6 +4,7 @@ const All = function(argCount) {
   const genericParams = [...Array(argCount).keys()].map((x) => 'T' + x)
   return {
     name: 'All',
+    docs: 'Renders multiple items, possibly of different types',
     genericParams: genericParams,
     args: genericParams.map((param) => {
       return {
@@ -26,6 +27,7 @@ const All = function(argCount) {
 
 const Header = {
   name: 'Header',
+  docs: 'Renders a header',
   args: [
     {
       name: 'value',

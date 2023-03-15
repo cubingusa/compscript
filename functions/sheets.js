@@ -108,6 +108,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
 // competition.js.
 const ReadSpreadsheet = {
   name: 'ReadSpreadsheet',
+  docs: 'Reads data from the provided Google Sheet',
   args: [
     {
       name: 'spreadsheetId',

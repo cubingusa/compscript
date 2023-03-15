@@ -2,6 +2,7 @@ const extension = require('./../extension')
 
 const Name = {
   name: 'Name',
+  docs: 'Returns the person\'s name',
   args: [
     {
       name: 'person',
@@ -15,6 +16,7 @@ const Name = {
 
 const WcaId = {
   name: 'WcaId',
+  docs: 'Returns the person\'s WCA ID',
   args: [
     {
       name: 'person',
@@ -33,6 +35,7 @@ const WcaId = {
 
 const WcaLink = {
   name: 'WcaLink',
+  docs: 'Returns a link to the person\'s WCA profile',
   args: [
     {
       name: 'person',
@@ -51,6 +54,7 @@ const WcaLink = {
 
 const Registered = {
   name: 'Registered',
+  docs: 'Returns true if the person is registered for the competition',
   args: [
     {
       name: 'person',
@@ -64,18 +68,23 @@ const Registered = {
 
 const WcaIdYear = {
   name: 'WcaIdYear',
-  args: [],
-  outputType: 'Number(Person)',
-  implementation: (person) => {
-    if (!person.wcaId) {
-      return null
+  docs: 'Returns the year component of the person\'s WCA ID',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
     }
+  ],
+  outputType: 'Number',
+  implementation: (person) => {
     return +person.wcaId.substring(0, 4)
   }
 }
 
 const Country = {
   name: 'Country',
+  docs: 'Returns the person\'s country',
   args: [
     {
       name: 'person',
@@ -89,6 +98,7 @@ const Country = {
 
 const FirstName = {
   name: 'FirstName',
+  docs: 'Returns the person\'s first name',
   args: [
     {
       name: 'person',
@@ -102,6 +112,7 @@ const FirstName = {
 
 const LastName = {
   name: 'LastName',
+  docs: 'Returns the person\'s last name',
   args: [
     {
       name: 'person',
@@ -128,6 +139,7 @@ const Property = (type) => {
   })(type)
   return {
     name: type + 'Property',
+    docs: 'Gets a property attached to the person\'s WCIF',
     args: [
       {
         name: 'name',
@@ -157,6 +169,7 @@ const Property = (type) => {
 
 const HasProperty = {
   name: 'HasProperty',
+  docs: 'Returns true if the person has this property set',
   args: [
     {
       name: 'property',
@@ -180,6 +193,7 @@ const HasProperty = {
 
 const SetProperty = {
   name: 'SetProperty',
+  docs: 'Sets the given property on the provided people',
   genericParams: ['T'],
   args: [
     {
@@ -212,6 +226,7 @@ const SetProperty = {
 
 const AddPerson = {
   name: 'AddPerson',
+  docs: 'Adds the given person as a staff member',
   args: [
     {
       name: 'wcaUserId',
@@ -229,6 +244,7 @@ const AddPerson = {
 
 const Persons = {
   name: 'Persons',
+  docs: 'Returns all persons matching a property',
   args: [
     {
       name: 'filter',
@@ -245,6 +261,7 @@ const Persons = {
 
 const SetStaffUnavailable = {
   name: 'SetStaffUnavailable',
+  docs: 'Marks the provided staff members as unavailable at the given time',
   args: [
     {
       name: 'persons',

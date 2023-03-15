@@ -7,35 +7,42 @@ const lib = require('./../lib')
 
 const AssignGroups = {
   name: 'AssignGroups',
+  docs: 'Assigns groups for the given round',
   args: [
     {
       name: 'round',
       type: 'Round',
+      docs: 'The round to assign groups for',
     },
     {
       name: 'assignmentSets',
       type: 'Array<AssignmentSet>',
+      docs: 'An ordered array of sets of people that should be evenly assigned',
     },
     {
       name: 'scorers',
       type: 'Array<AssignmentScorer>',
       defaultValue: [],
+      docs: 'A list of scoring functions to use',
     },
     {
       name: 'stationRules',
       type: 'Array<StationAssignmentRule>',
       defaultValue: [],
+      docs: 'Rules for assigning fixed stations',
     },
     {
       name: 'attemptNumber',
       type: 'Number',
       nullable: true,
       defaultValue: null,
+      docs: 'If specified, assign groups for only this attempt number',
     },
     {
       name: 'overwrite',
       type: 'Boolean',
       defaultValue: false,
+      docs: 'If groups are already assigned, overwrite them',
     }
   ],
   outputType: 'GroupAssignmentResult',
@@ -52,21 +59,25 @@ const AssignmentSet = {
     {
       name: 'name',
       type: 'String',
+      docs: 'The name of this assignment set (for debug only)',
     },
     {
       name: 'personFilter',
       type: 'Boolean(Person)',
       lazy: true,
+      docs: 'Which poeple are in this assignment set',
     },
     {
       name: 'groupFilter',
       type: 'Boolean(Group)',
       lazy: true,
+      docs: 'Which groups can be assigned',
     },
     {
       name: 'featured',
       type: 'Boolean',
       defaultValue: false,
+      docs: 'Whether people in this assignment set should be marked as "featured" on their scorecard',
     },
   ],
   outputType: 'AssignmentSet',
@@ -77,16 +88,19 @@ const AssignmentSet = {
 
 const ByMatchingValue = {
   name: 'ByMatchingValue',
+  docs: 'Score people based on how many people in each group match on a certain property',
   genericParams: ['T'],
   args: [
     {
       name: 'value',
       type: '$T(Person)',
       lazy: true,
+      docs: 'The property to consider',
     },
     {
       name: 'score',
       type: 'Number',
+      docs: 'The score to assign for each matching person',
     },
   ],
   outputType: 'AssignmentScorer',
@@ -97,20 +111,24 @@ const ByMatchingValue = {
 
 const ByFilters = {
   name: 'ByFilters',
+  docs: 'Score people based on whether the group satisfies a certain condition',
   args: [
     {
       name: 'personFilter',
       type: 'Boolean(Person)',
       lazy: true,
+      docs: 'The people to consider for this scoring function',
     },
     {
       name: 'groupFilter',
       type: 'Boolean(Group)',
       lazy: true,
+      docs: 'The groups to consider for this scoring function',
     },
     {
       name: 'score',
       type: 'Number',
+      docS: 'The score to assign if the person and group satisfy the filter',
     },
   ],
   outputType: 'AssignmentScorer',
@@ -121,22 +139,26 @@ const ByFilters = {
 
 const StationAssignmentRule = {
   name: 'StationAssignmentRule',
+  docs: 'A rule to assign people to stations',
   genericParams: ['T'],
   args: [
     {
       name: 'groupFilter',
       type: 'Boolean(Group)',
       lazy: true,
+      docs: 'The groups for which this should apply',
     },
     {
       name: 'mode',
       type: 'String',
+      docs: 'The station assignment mode to use, either "ascending", "descending", or "arbitrary"',
     },
     {
       name: 'sortKey',
       type: '$T(Person)',
       lazy: true,
       defaultValue: 0,
+      docs: 'If "mode" is either "ascending" or "descending", the sort key to use',
     },
   ],
   outputType: 'StationAssignmentRule',
@@ -147,6 +169,7 @@ const StationAssignmentRule = {
 
 const GroupNumber = {
   name: 'GroupNumber',
+  docs: 'The number of a group',
   args: [
     {
       name: 'group',
@@ -160,6 +183,7 @@ const GroupNumber = {
 
 const Stage = {
   name: 'Stage',
+  docs: 'The stage name for a group',
   args: [
     {
       name: 'group',
@@ -173,6 +197,7 @@ const Stage = {
 
 const AssignedGroup = {
   name: 'AssignedGroup',
+  docs: 'A person\'s assigned group for a round',
   args: [
     {
       name: 'round',
@@ -207,6 +232,7 @@ const AssignedGroup = {
 
 const Name = {
   name: 'Name',
+  docs: 'The full name of a group',
   args: [
     {
       name: 'group',
@@ -219,6 +245,7 @@ const Name = {
 
 const StartTime = {
   name: 'StartTime',
+  docs: 'The start time of a group',
   args: [
     {
       name: 'group',

@@ -1,5 +1,6 @@
 const GreaterThan = {
   name: 'GreaterThan',
+  docs: 'Return true if val1 > val2 (maybe invoked with ">")',
   args: [
     {
       name: 'val1',
@@ -23,6 +24,7 @@ const GreaterThan = {
 
 const GreaterThan_AttemptResult = {
   name: 'GreaterThan',
+  docs: 'Return true if val1 > val2 (maybe invoked with ">")',
   args: [
     {
       name: 'val1',
@@ -46,6 +48,7 @@ const GreaterThan_AttemptResult = {
 
 const GreaterThanOrEqualTo = {
   name: 'GreaterThanOrEqualTo',
+  docs: 'Return true if val1 >= val2 (maybe invoked with ">=")',
   args: [
     {
       name: 'val1',
@@ -69,6 +72,7 @@ const GreaterThanOrEqualTo = {
 
 const GreaterThanOrEqualTo_AttemptResult = {
   name: 'GreaterThanOrEqualTo',
+  docs: 'Return true if val1 >= val2 (maybe invoked with ">=")',
   args: [
     {
       name: 'val1',
@@ -92,6 +96,7 @@ const GreaterThanOrEqualTo_AttemptResult = {
 
 const EqualTo = {
   name: 'EqualTo',
+  docs: 'Return true if val1 == val2 (maybe invoked with "==")',
   genericParams: ['T'],
   args: [
     {
@@ -111,6 +116,7 @@ const EqualTo = {
 
 const Add = {
   name: 'Add',
+  docs: 'Adds two numbers (may be invoked with "+")',
   args: [
     {
       name: 'val1',
@@ -127,6 +133,7 @@ const Add = {
 
 const ConcatStrings = {
   name: 'Add',
+  docs: 'Concatenates two strings (may be invoked with "+")',
   args: [
     {
       name: 'val1',
@@ -144,6 +151,7 @@ const ConcatStrings = {
 const ConcatArrays = {
   name: 'Add',
   genericParams: ['T'],
+  docs: 'Concatenates two arrays (may be invoked with "+")',
   args: [
     {
       name: 'array1',
@@ -160,6 +168,7 @@ const ConcatArrays = {
 
 const Subtract = {
   name: 'Subtract',
+  docs: 'Subtracts two numbers (may be invoked with "-")',
   args: [
     {
       name: 'val1',
@@ -176,6 +185,7 @@ const Subtract = {
 
 const If = {
   name: 'If',
+  docs: 'If the condition is true, return the first value, else the second value',
   genericParams: ['T'],
   args: [
     {
@@ -201,6 +211,7 @@ const If = {
 
 const Even = {
   name: 'Even',
+  docs: 'Returns true if the number is even',
   args: [
     {
       name: 'val',
@@ -214,6 +225,7 @@ const Even = {
 
 const Odd = {
   name: 'Odd',
+  docs: 'Returns true if the number is odd',
   args: [
     {
       name: 'val',
