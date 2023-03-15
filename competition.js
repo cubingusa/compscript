@@ -244,34 +244,32 @@ router.get('/:competitionId/script', async (req, res) => {
     script = req.session.script
     delete req.session.script
   }
-  res.render('script', {
-    comp: compData(req),
-    fn: pugFunctions,
-    script: script || req.query.script,
-    outputs: [],
-    dryrun: true,
-  })
+  await runScript(req, res, script || req.query.script, true)
 })
 
 router.post('/:competitionId/script', async (req, res) => {
+  await runScript(req, res, req.body.script, req.body.dryrun)
+})
+
+async function runScript(req, res, script, dryrun) {
   var params = {
     comp: compData(req),
     fn: pugFunctions,
-    script: req.body.script,
+    script: script,
     outputs: [],
-    dryrun: req.body.dryrun,
+    dryrun: dryrun,
     dryrunWarning: false,
   }
-  if (req.body.script) {
+  if (script) {
     var ctx = {
       competition: params.comp.competition,
       compData: params.comp,
-      command: req.body.script,
+      command: script,
       allFunctions: functions.allFunctions,
-      dryrun: req.body.dryrun,
+      dryrun: dryrun,
     }
     try {
-      var scriptParsed = await parser.parse(req.body.script, req, res, ctx, false)
+      var scriptParsed = await parser.parse(script, req, res, ctx, false)
       var errors = []
       if (scriptParsed.errors) {
         errors = scriptParsed.errors
@@ -304,7 +302,7 @@ router.post('/:competitionId/script', async (req, res) => {
           })
         }
         if (mutations.length) {
-          if (req.body.dryrun) {
+          if (dryrun) {
             params.dryrunWarning = true
           } else {
             await auth.patchWcif(ctx.competition, mutations, req, res)
@@ -317,7 +315,7 @@ router.post('/:competitionId/script', async (req, res) => {
     }
   }
   res.render('script', params)
-})
+}
 
 module.exports = {
   router: router
