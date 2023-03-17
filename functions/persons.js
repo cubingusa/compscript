@@ -259,36 +259,9 @@ const Persons = {
   }
 }
 
-const SetStaffUnavailable = {
-  name: 'SetStaffUnavailable',
-  docs: 'Marks the provided staff members as unavailable at the given time',
-  args: [
-    {
-      name: 'persons',
-      type: 'Array<Person>',
-    },
-    {
-      name: 'groupFilter',
-      type: 'Boolean(Group)',
-      serialized: true,
-    },
-  ],
-  outputType: 'String',
-  mutations: ['persons'],
-  usesContext: true,
-  implementation: (ctx, persons, groupFilter) => {
-    persons.forEach((person) => {
-      const ext = extension.getExtension(ctx.competition, 'Person')
-      ext.staffUnavailable = { implementation: groupFilter, cmd: ctx.command }
-    })
-    return 'Set unavailable for ' + persons.map((person) => person.name).join(', ')
-  }
-}
-
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('List'),
-       SetProperty, SetStaffUnavailable,
-       AddPerson, Persons],
+       SetProperty, AddPerson, Persons],
 }
