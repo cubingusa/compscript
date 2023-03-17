@@ -1,5 +1,3 @@
-const { DateTime } = require('luxon')
-
 const activityCode = require('./../activity_code')
 const assign = require('./../groups/assign')
 const scorers = require('./../groups/scorers')
@@ -255,12 +253,69 @@ const StartTime = {
   outputType: 'DateTime',
   usesContext: true,
   implementation: (ctx, group) => {
-    return DateTime.fromISO(group.wcif.startTime).setZone(ctx.competition.schedule.venues[0].timezone)
+    return lib.startTime(group, ctx.competition)
   }
+}
+
+const AssignmentAtTime = {
+  name: 'AssignmentAtTime',
+  docs: 'The assignment that a person has at a particular time',
+  args: [
+    {
+      name: 'time',
+      type: 'DateTime',
+    },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'Assignment',
+  usesContext: true,
+  implementation: (ctx, time, person) => {
+    var assignments = person.assignments.map((assignment) => {
+      return {
+        assignment: assignment,
+        group: lib.groupForActivityId(ctx.competition, assignment.activityId)
+      }
+    }).filter((assignment) => {
+      return (time >= lib.startTime(assignment.group, ctx.competition) &&
+              time < lib.endTime(assignment.group, ctx.competition))
+    })
+    return assignments.length == 0 ? null : assignments[0]
+  }
+}
+
+const Code = {
+  name: 'Code',
+  docs: 'The AssignmentCode for an Assignment',
+  args: [
+    {
+      name: 'assignment',
+      type: 'Assignment',
+    }
+  ],
+  outputType: 'String',
+  implementation: (assignment) => assignment.assignment.assignmentCode,
+}
+
+const Group = {
+  name: 'Group',
+  docs: 'The Group for an Assignment',
+  args: [
+    {
+      name: 'assignment',
+      type: 'Assignment',
+    }
+  ],
+  outputType: 'Group',
+  implementation: (assignment) => assignment.group,
 }
 
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
-              Name, StartTime],
+              Name, StartTime,
+              AssignmentAtTime, Code, Group],
 }

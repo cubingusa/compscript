@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const attemptResult = require('./attempt_result')
 const groupLib = require('./group')
 
@@ -44,6 +46,14 @@ function groupsForRoundCode(competition, roundCode) {
   return allGroups(competition).filter((group) => roundCode.contains(group.activityCode))
 }
 
+function startTime(group, competition) {
+  return DateTime.fromISO(group.wcif.startTime).setZone(competition.schedule.venues[0].timezone)
+}
+
+function endTime(group, competition) {
+  return DateTime.fromISO(group.wcif.endTime).setZone(competition.schedule.venues[0].timezone)
+}
+
 module.exports = {
   getWcifEvent: getWcifEvent,
   getWcifRound: getWcifRound,
@@ -51,4 +61,6 @@ module.exports = {
   allGroups: allGroups,
   groupForActivityId: groupForActivityId,
   groupsForRoundCode: groupsForRoundCode,
+  startTime: startTime,
+  endTime: endTime,
 }
