@@ -263,7 +263,28 @@ const AddResults = {
   }
 }
 
+const IsFinal = {
+  name: 'IsFinal',
+  docs: 'Returns true if the provided round is a final',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    }
+  ],
+  outputType: 'Boolean',
+  usesContext: true,
+  implementation: (ctx, round) => {
+    var matchingEvt = ctx.competition.events.filter((evt) => evt.id === round.eventId)
+    if (matchingEvt.length !== 1) {
+      return false
+    }
+    return matchingEvt[0].rounds.length === round.roundNumber
+  },
+}
+
 module.exports = {
   functions: [Events, EventId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
-              PsychSheetPosition, RoundPosition, AddResults],
+              PsychSheetPosition, RoundPosition, AddResults,
+              IsFinal],
 }
