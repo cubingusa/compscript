@@ -313,6 +313,19 @@ const Group = {
   implementation: (assignment) => assignment.group,
 }
 
+const Round = {
+  name: 'Round',
+  docs: 'The Round for a Group',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+    }
+  ],
+  outputType: 'Round',
+  implementation: (group) => group.activityCode.group(null),
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
