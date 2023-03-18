@@ -228,13 +228,14 @@ const AssignedGroup = {
   }
 }
 
-const Name = {
-  name: 'Name',
+const GroupName = {
+  name: 'GroupName',
   docs: 'The full name of a group',
   args: [
     {
       name: 'group',
       type: 'Group',
+      canBeExternal: true,
     },
   ],
   outputType: 'String',
@@ -248,12 +249,34 @@ const StartTime = {
     {
       name: 'group',
       type: 'Group',
+      canBeExternal: true,
     },
   ],
   outputType: 'DateTime',
   usesContext: true,
   implementation: (ctx, group) => {
     return lib.startTime(group, ctx.competition)
+  }
+}
+
+const Date = {
+  name: 'Date',
+  docs: 'The date of a group',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'Date',
+  usesContext: true,
+  implementation: (ctx, group) => {
+    return dateTime = lib.startTime(group, ctx.competition).set({
+      hour: 0,
+      minute: 0,
+      second: 0
+    })
   }
 }
 
@@ -326,9 +349,23 @@ const Round = {
   implementation: (group) => group.activityCode.group(null),
 }
 
+const Groups = {
+  name: 'Groups',
+  docs: 'All groups in a round',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    }
+  ],
+  outputType: 'Array<Group>',
+  usesContext: true,
+  implementation: (ctx, round) => lib.groupsForRoundCode(ctx.competition, round),
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
-              Name, StartTime,
-              AssignmentAtTime, Code, Group],
+              GroupName, StartTime, Date,
+              AssignmentAtTime, Code, Group, Round, Groups],
 }

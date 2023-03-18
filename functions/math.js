@@ -114,6 +114,30 @@ const EqualTo = {
   implementation: (val1, val2) => val1 === val2,
 }
 
+const EqualTo_Date = {
+  name: 'EqualTo',
+  docs: 'Override of EqualTo for Date objects',
+  args: [
+    {
+      name: 'val1',
+      type: 'Date',
+      nullable: true,
+    },
+    {
+      name: 'val2',
+      type: 'Date',
+      nullable: true,
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (date1, date2) => {
+    if (date1 === null || date2 === null) {
+      return false
+    }
+    return date1.year === date2.year && date1.month === date2.month && date1.day === date2.day
+  }
+}
+
 const Add = {
   name: 'Add',
   docs: 'Adds two numbers (may be invoked with "+")',
@@ -240,6 +264,6 @@ const Odd = {
 module.exports = {
   functions: [GreaterThan, GreaterThan_AttemptResult,
               GreaterThanOrEqualTo, GreaterThanOrEqualTo_AttemptResult,
-              EqualTo, If, Add, ConcatStrings, ConcatArrays, Subtract,
+              EqualTo, EqualTo_Date, If, Add, ConcatStrings, ConcatArrays, Subtract,
               Even, Odd],
 }

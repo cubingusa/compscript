@@ -44,14 +44,7 @@ function literalNode(type, value) {
 function dateTimeNode(type, valueStr) {
   return {
     type: { type, params: [] },
-    value: (inParams, ctx) => {
-      switch (type) {
-        case 'DateTime':
-          return DateTime.fromISO(valueStr).setZone(ctx.competition.schedule.venues[0].timezone)
-        case 'Date':
-          return DateTime.fromISO(valueStr)
-      }
-    },
+    value: (inParams, ctx) => DateTime.fromISO(valueStr).setZone(ctx.competition.schedule.venues[0].timezone),
     serialize: () => { return { type: type, value: valueStr } },
     mutations: [],
   }
@@ -271,9 +264,14 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
     }
   })
   if (successfulMatches.length > 1) {
-    return {errors: [{ errorType: 'AMBIGUOUS_CALL',
-                       functionName: functionName,
-                       successfulMatches: successfulMatches}]}
+    var withoutGenerics = successfulMatches.filter((match) => match.fn.genericParams === undefined || match.fn.genericParams.length === 0)
+    if (withoutGenerics.length === 1) {
+      successfulMatches = withoutGenerics
+    } else {
+      return {errors: [{ errorType: 'AMBIGUOUS_CALL',
+                         functionName: functionName,
+                         successfulMatches: successfulMatches}]}
+    }
   }
   if (successfulMatches.length == 0) {
     return {errors: [{ errorType: 'NO_MATCHING_FUNCTION',
