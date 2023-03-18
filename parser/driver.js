@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
 const extension = require('./../extension')
@@ -35,6 +37,22 @@ function literalNode(type, value) {
     type: { type, params: [] },
     value: (inParams, ctx) => value,
     serialize: () => { return { type: type, value: serialized } },
+    mutations: [],
+  }
+}
+
+function dateTimeNode(type, valueStr) {
+  return {
+    type: { type, params: [] },
+    value: (inParams, ctx) => {
+      switch (type) {
+        case 'DateTime':
+          return DateTime.fromISO(valueStr).setZone(ctx.competition.schedule.venues[0].timezone)
+        case 'Date':
+          return DateTime.fromISO(valueStr)
+      }
+    },
+    serialize: () => { return { type: type, value: valueStr } },
     mutations: [],
   }
 }
@@ -426,6 +444,9 @@ function parseNode(node, ctx, allowParams) {
         return savedUdfArgNode(node.argNum, node.argType, ctx)
       case 'Person':
         return personNode(node, ctx)
+      case 'DateTime':
+      case 'Date':
+        return dateTimeNode(node.type, node.value)
     }
   })()
   if (!!out.errors) {

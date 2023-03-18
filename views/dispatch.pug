@@ -41,3 +41,7 @@ mixin dispatch(value)
       +list_functions(value.data)
     if value.type == 'FunctionHelp'
       +help(value.data)
+    if value.type == 'DateTime'
+      = value.data.toLocaleString(fn.DateTime.DATETIME_MED)
+    if value.type == 'Date'
+      = value.data.toLocaleString(fn.DateTime.DATE_FULL)

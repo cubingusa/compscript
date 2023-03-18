@@ -35,6 +35,8 @@ _333-r1  # Round
 DNF  # DNF
 [1, 2, 3]  # Array
 p2005REYN01  # Person
+2023-01-01  # Date
+2023-02-03T10:23  # DateTime (ISO-8601 format, using competition time zone)
 ```
 
 The full grammar is at `parser/grammar.pegjs`.

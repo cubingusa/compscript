@@ -6,6 +6,8 @@ Expression
   = _ fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
   / AttemptResultLiteral
   / BooleanLiteral
+  / DateTimeLiteral
+  / DateLiteral
   / NumberLiteral
   / ActivityLiteral
   / StringLiteral
@@ -37,7 +39,7 @@ Variable
   = v:$([a-zA-Z][a-zA-Z0-9]*) { return v }
   
 NumberLiteral
-  = rawNumber:$[\-0-9\.]+ { return { type: 'Number', value: +rawNumber } }
+  = rawNumber:$[\-]?[0-9\.]+ { return { type: 'Number', value: +rawNumber } }
   
 BooleanLiteral
   = "true" { return { type: 'Boolean', value: true } }
@@ -57,6 +59,12 @@ AttemptResultLiteral
 PersonLiteral
   = "p" wcaId:$([0-9][0-9][0-9][0-9][A-Z][A-Z][A-Z][A-Z][0-9][0-9]) { return { type: 'Person', wcaId: wcaId } }
   / "p" wcaUserId:$([0-9]+) { return { type: 'Person', wcaUserId: wcaUserId } }
+
+DateTimeLiteral
+  = value:$([0-9][0-9][0-9][0-9] "-" [0-9][0-9] "-" [0-9][0-9] "T" [0-9][0-9] ":" [0-9][0-9]) { return { type: 'DateTime', value: value } }
+
+DateLiteral
+  = value:$([0-9][0-9][0-9][0-9] "-" [0-9][0-9] "-" [0-9][0-9]) { return { type: 'Date', value: value } }
 
 BinaryOperation
   = "(" left:Expression _ "||" _ right:Expression ")" { return { type: 'Function', name: 'Or', args: [left, right] } }
