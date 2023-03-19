@@ -426,12 +426,6 @@ function parseNode(node, ctx, allowParams) {
         return functionNode(node.name, ctx.allFunctions,
                             node.args.map((arg) => parseNode(arg, ctx, true)),
                             allowParams)
-      case 'Number':
-        return literalNode('Number', node.value)
-      case 'String':
-        return literalNode('String', node.value)
-      case 'Boolean':
-        return literalNode('Boolean', node.value)
       case 'Activity':
         return activityNode(node.activityId)
       case 'AttemptResult':
@@ -445,6 +439,8 @@ function parseNode(node, ctx, allowParams) {
       case 'DateTime':
       case 'Date':
         return dateTimeNode(node.type, node.value)
+      default:
+        return literalNode(node.type, node.value)
     }
   })()
   if (!!out.errors) {
