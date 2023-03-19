@@ -78,6 +78,7 @@ const WcaIdYear = {
   ],
   outputType: 'Number',
   implementation: (person) => {
+    if (!person.wcaId) return null
     return +person.wcaId.substring(0, 4)
   }
 }
@@ -133,12 +134,13 @@ const Property = (type) => {
         return false
       case 'Number':
         return 0
-      case 'List':
+      case 'Array<String>':
         return []
     }
   })(type)
+  var name = type === 'Array<String>' ? 'ArrayProperty' : type + 'Property'
   return {
-    name: type + 'Property',
+    name: name,
     docs: 'Gets a property attached to the person\'s WCIF',
     args: [
       {
@@ -262,6 +264,6 @@ const Persons = {
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
-       Property('Boolean'), Property('String'), Property('Number'), Property('List'),
+       Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, AddPerson, Persons],
 }
