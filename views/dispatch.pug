@@ -44,6 +44,8 @@ mixin dispatch(value)
     if value.type == 'FunctionHelp'
       +help(value.data)
     if value.type == 'DateTime'
-      = value.data.toLocaleString(fn.DateTime.DATETIME_MED)
+      div= value.data.toLocaleString(fn.DateTime.DATETIME_MED)
     if value.type == 'Date'
-      = value.data.toLocaleString(fn.DateTime.DATE_FULL)
+      div= value.data.toLocaleString(fn.DateTime.DATE_FULL)
+    if value.type == 'Event'
+      div= value.data.eventId
