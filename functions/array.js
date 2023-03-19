@@ -81,6 +81,28 @@ const Map = {
   },
 }
 
+const Filter = {
+  name: 'Filter',
+  genericParams: ['T'],
+  docs: 'Filters an array to those satisfying a property.',
+  args: [
+    {
+      name: 'array',
+      type: 'Array<$T>',
+    },
+    {
+      name: 'condition',
+      type: 'Boolean($T)',
+      lazy: true,
+    },
+  ],
+  outputType: 'Array<$T>',
+  usesGenericTypes: true,
+  implementation: (generics, array, condition) => {
+    return array.filter((x) => condition({[generics.T]: x}))
+  },
+}
+
 module.exports = {
-  functions: [MakeArray, MakeEmptyArray, In, Length, Map],
+  functions: [MakeArray, MakeEmptyArray, In, Length, Map, Filter],
 }
