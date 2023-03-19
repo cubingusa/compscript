@@ -33,6 +33,7 @@ const In = {
       name: 'value',
       type: '$T',
       nullable: true,
+      canBeExternal: true,
     },
     {
       name: 'array',
