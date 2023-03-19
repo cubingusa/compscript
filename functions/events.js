@@ -283,8 +283,21 @@ const IsFinal = {
   },
 }
 
+const RoundNumber = {
+  name: 'RoundNumber',
+  docs: 'Returns the number of a round',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    }
+  ],
+  outputType: 'Number',
+  implementation: round => round.roundNumber,
+}
+
 module.exports = {
   functions: [Events, EventId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults,
-              IsFinal],
+              IsFinal, RoundNumber],
 }
