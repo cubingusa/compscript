@@ -6,7 +6,12 @@ function Cluster(name, numClusters, persons, preCluster, constraints) {
   var result
   var preClusters = {}
   persons.forEach((person) => {
-    preClusters[person.wcaUserId] = preCluster({ Person: person })
+    var preClusterValue = preCluster({ Person: person })
+    if (!!preClusterValue) {
+      preClusters[person.wcaUserId] = 'CLUSTER-' + preClusterValue
+    } else {
+      preClusters[person.wcaUserId] = 'PERSON-' + person.wcaUserId
+    }
   })
   for (var iter = 0; iter < 10; iter++) {
     var model = {

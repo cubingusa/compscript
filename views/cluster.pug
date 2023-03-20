@@ -23,4 +23,7 @@ mixin clusters(data)
           td= person.person.name
           td= person.person.wcaId
           each constraint in data.constraints
-            td= person.constraints[constraint]
+            if person.constraints[constraint] === true
+              td(style='background-color: #00ff00')= person.constraints[constraint]
+            else
+              td= person.constraints[constraint]

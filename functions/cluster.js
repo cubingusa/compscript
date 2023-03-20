@@ -118,7 +118,7 @@ function LimitConstraint(argType) {
     ],
     outputType: 'Constraint',
     implementation: (name, value, min, max, applyTo) => {
-      return new condition.LimitConstraint(name, value, min, max, applyTo)
+      return new constraint.LimitConstraint(name, value, min, max, applyTo)
     }
   }
 }
