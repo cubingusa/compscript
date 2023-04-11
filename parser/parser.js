@@ -13,8 +13,9 @@ async function parse(text, req, res, ctx, allowParams) {
       var line = data.toString().split('\n')[err.location.start.line - 1]
       return { errors: [{ type: 'GrammarParseError', data: { line: line, location: err.location } }] }
     }
+    var tree = null
     try {
-      const tree = req.parser.parse(text, {startRule: "Input"})
+      tree = req.parser.parse(text, {startRule: "Input"})
     } catch (err) {
       console.log(err)
       var line = text.split('\n')[err.location.start.line - 1]

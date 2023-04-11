@@ -272,11 +272,11 @@ async function runScript(req, res, script, dryrun) {
       var scriptParsed = await parser.parse(script, req, res, ctx, false)
       var errors = []
       if (scriptParsed.errors) {
-        errors = scriptParsed.errors
+        errors = scriptParsed.errors.map((err) => { return { type: 'Error', data: err } })
       } else {
         errors = scriptParsed.map((expr) => {
           if (expr.errors) {
-            return expr.errors
+            return expr.errors.map((err) => { return { type: 'Error', data: err } })
           }
           var outputType = expr.type
           if (outputType.params.length) {
