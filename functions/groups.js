@@ -259,6 +259,23 @@ const StartTime = {
   }
 }
 
+const EndTime = {
+  name: 'EndTime',
+  docs: 'The end time of a group',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'DateTime',
+  usesContext: true,
+  implementation: (ctx, group) => {
+    return lib.endTime(group, ctx.competition)
+  }
+}
+
 const Date = {
   name: 'Date',
   docs: 'The date of a group',
@@ -349,6 +366,19 @@ const Round = {
   implementation: (group) => group.activityCode.group(null),
 }
 
+const Event = {
+  name: 'Event',
+  docs: 'The Event for a Group',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+    }
+  ],
+  outputType: 'Event',
+  implementation: (group) => group.activityCode.group(null).round(null),
+}
+
 const Groups = {
   name: 'Groups',
   docs: 'All groups in a round',
@@ -366,6 +396,6 @@ const Groups = {
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
-              GroupName, StartTime, Date,
-              AssignmentAtTime, Code, Group, Round, Groups],
+              GroupName, StartTime, EndTime, Date,
+              AssignmentAtTime, Code, Group, Round, Event, Groups],
 }

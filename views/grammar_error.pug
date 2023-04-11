@@ -1,0 +1,9 @@
+mixin inputParseError(data)
+  div Failed to parse input
+  div= "Line " + data.location.start.line
+  pre= data.line + '\n' + '~'.repeat(data.location.start.column - 1) + '^'
+
+mixin grammarParseError(data)
+  div Failed to parse grammar
+  div= "Line " + data.location.start.line
+  pre= data.line + '\n' + '~'.repeat(data.location.start.column - 1) + '^'

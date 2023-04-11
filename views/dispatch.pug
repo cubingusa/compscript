@@ -1,4 +1,5 @@
 include cluster.pug
+include grammar_error.pug
 include groups.pug
 include help.pug
 include spreadsheet.pug
@@ -11,6 +12,10 @@ mixin dispatch(value)
   else
     if value.type == 'Error'
       pre= JSON.stringify(value.data, null, 2)
+    if value.type == 'InputParseError'
+      +inputParseError(value.data)
+    if value.type == 'GrammarParseError'
+      +grammarParseError(value.data)
     if value.type == 'Exception'
       pre= value.data
     if value.type == 'Table'

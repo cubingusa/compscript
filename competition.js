@@ -280,15 +280,13 @@ async function runScript(req, res, script, dryrun) {
           }
           var outputType = expr.type
           if (outputType.params.length) {
-            return { errorType: 'WRONG_OUTPUT_TYPE', type: outputType }
+            return { type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outputType } }
           }
           return []
         }).flat()
       }
       if (errors.length) {
-        params.outputs = errors.map((err) => {
-          return { type: 'Error', data: err }
-        })
+        params.outputs = errors
       } else {
         var mutations = []
         for (const expr of scriptParsed) {
