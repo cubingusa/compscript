@@ -373,6 +373,7 @@ const Event = {
     {
       name: 'group',
       type: 'Group',
+      canBeExternal: true,
     }
   ],
   outputType: 'Event',
