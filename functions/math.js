@@ -1,39 +1,16 @@
 const GreaterThan = {
   name: 'GreaterThan',
   docs: 'Return true if val1 > val2 (maybe invoked with ">")',
+  genericParams: ['T'],
   args: [
     {
       name: 'val1',
-      type: 'Number',
+      type: '$T',
       nullable: true,
     },
     {
       name: 'val2',
-      type: 'Number',
-      nullable: true,
-    },
-  ],
-  outputType: 'Boolean',
-  implementation: (val1, val2) => {
-    if (val1 === null || val2 === null) {
-      return false
-    }
-    return val1 > val2
-  }
-}
-
-const GreaterThan_AttemptResult = {
-  name: 'GreaterThan',
-  docs: 'Return true if val1 > val2 (maybe invoked with ">")',
-  args: [
-    {
-      name: 'val1',
-      type: 'AttemptResult',
-      nullable: true,
-    },
-    {
-      name: 'val2',
-      type: 'AttemptResult',
+      type: '$T',
       nullable: true,
     },
   ],
@@ -49,39 +26,16 @@ const GreaterThan_AttemptResult = {
 const GreaterThanOrEqualTo = {
   name: 'GreaterThanOrEqualTo',
   docs: 'Return true if val1 >= val2 (maybe invoked with ">=")',
+  genericParams: ['T'],
   args: [
     {
       name: 'val1',
-      type: 'Number',
+      type: '$T',
       nullable: true,
     },
     {
       name: 'val2',
-      type: 'Number',
-      nullable: true,
-    },
-  ],
-  outputType: 'Boolean',
-  implementation: (val1, val2) => {
-    if (val1 === null || val2 === null) {
-      return false
-    }
-    return val1 >= val2
-  }
-}
-
-const GreaterThanOrEqualTo_AttemptResult = {
-  name: 'GreaterThanOrEqualTo',
-  docs: 'Return true if val1 >= val2 (maybe invoked with ">=")',
-  args: [
-    {
-      name: 'val1',
-      type: 'AttemptResult',
-      nullable: true,
-    },
-    {
-      name: 'val2',
-      type: 'AttemptResult',
+      type: '$T',
       nullable: true,
     },
   ],
@@ -262,8 +216,7 @@ const Odd = {
 }
 
 module.exports = {
-  functions: [GreaterThan, GreaterThan_AttemptResult,
-              GreaterThanOrEqualTo, GreaterThanOrEqualTo_AttemptResult,
+  functions: [GreaterThan, GreaterThanOrEqualTo,
               EqualTo, EqualTo_Date, If, Add, ConcatStrings, ConcatArrays, Subtract,
               Even, Odd],
 }
