@@ -104,6 +104,39 @@ const Filter = {
   },
 }
 
+const Flatten = {
+  name: 'Flatten',
+  genericParams: ['T'],
+  docs: 'Flattens an array of arrays into a single array.',
+  arg: [
+    {
+      name: 'args',
+      type: 'Array<Array<$T>>',
+    }
+  ],
+  outputType: 'Array<$T>',
+  implementation: (args) => {
+    return args.flat()
+  }
+}
+
+const Concat = {
+  name: 'Concat',
+  genericParams: ['T'],
+  docs: 'Concatenates multiple arrays into a single array.',
+  args: [
+    {
+      name: 'args',
+      type: 'Array<$T>',
+      repeated: true,
+    }
+  ],
+  outputType: 'Array<$T>',
+  implementation: (args) => {
+    return args.flat()
+  }
+}
+
 module.exports = {
-  functions: [MakeArray, MakeEmptyArray, In, Length, Map, Filter],
+  functions: [MakeArray, MakeEmptyArray, In, Length, Map, Filter, Flatten, Concat],
 }
