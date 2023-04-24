@@ -120,6 +120,28 @@ const AdjacentGroupScorer = {
   },
 }
 
+const ScrambleSpeedScorer = {
+  name: 'ScrambleSpeedScorer',
+  args: [
+    {
+      name: 'event',
+      type: 'Event',
+    },
+    {
+      name: 'maxTime',
+      type: 'AttemptResult',
+    },
+    {
+      name: 'weight',
+      type: 'Number',
+    }
+  ],
+  outputType: 'AssignmentScorer',
+  implementation: (event, maxTime, weight) => {
+    return new scorers.ScrambleSpeedScorer(event, maxTime, weight)
+  }
+}
+
 const SetStaffUnavailable = {
   name: 'SetStaffUnavailable',
   docs: 'Marks the provided staff members as unavailable at the given time',
@@ -147,6 +169,6 @@ const SetStaffUnavailable = {
 }
 
 module.exports = {
-  functions: [AssignStaff, Job, JobCountScorer, PreferenceScorer, AdjacentGroupScorer,
+  functions: [AssignStaff, Job, JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer,
               SetStaffUnavailable],
 }

@@ -101,8 +101,28 @@ class AdjacentGroupScorer {
   }
 }
 
+class ScrambleSpeedScorer {
+  constructor(event, maxTime, weight) {
+    this.event = event
+    this.maxTime = maxTime
+    this.weight = weight
+  }
+
+  Score(competition, person, group, job, stationNumber) {
+    if (job !== 'scrambler') {
+      return 0
+    }
+    var pr = lib.personalBest(person, this.event)
+    if (pr > this.maxTime) {
+      return 0
+    }
+    return this.weight * (this.maxTime.value - pr.value)
+  }
+}
+
 module.exports = {
   JobCountScorer: JobCountScorer,
   PreferenceScorer: PreferenceScorer,
   AdjacentGroupScorer: AdjacentGroupScorer,
+  ScrambleSpeedScorer: ScrambleSpeedScorer,
 }
