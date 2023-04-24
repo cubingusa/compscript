@@ -42,6 +42,9 @@ mixin dispatch(value)
     if value.type.startsWith('Array<')
       each data in value.data
         +dispatch({ type: value.type.substr(6, value.type.length - 7), data: data })
+    if value.type.startsWith('Tuple<')
+      each data, idx in value.data
+        +dispatch({ type: value.type.substr(6, value.type.length - 7).split(',')[idx].trim(), data: data })
     if value.type == 'Person'
       div= value.data.name
     if value.type == 'ListFunctionsOutput'

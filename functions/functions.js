@@ -14,6 +14,7 @@ module.exports = {
           require('./staff').functions,
           require('./table').functions,
           require('./time').functions,
+          require('./tuple').functions,
           require('./udf').functions,
       )
 }
