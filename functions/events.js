@@ -27,6 +27,20 @@ const EventId = {
   implementation: (evt) => evt.id()
 }
 
+const RoundId = {
+  name: 'RoundId',
+  docs: 'Returns the ID for a round',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'String',
+  implementation: (rd) => rd.id()
+}
+
 const CompetingIn_Event = {
   name: 'CompetingIn',
   docs: 'Returns true if the specified person is competing in the specified event',
@@ -34,6 +48,7 @@ const CompetingIn_Event = {
     {
       name: 'event',
       type: 'Event',
+      canBeExternal: true,
     },
     {
       name: 'person',
@@ -297,7 +312,7 @@ const RoundNumber = {
 }
 
 module.exports = {
-  functions: [Events, EventId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
+  functions: [Events, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults,
               IsFinal, RoundNumber],
 }
