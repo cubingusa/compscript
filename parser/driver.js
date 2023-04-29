@@ -90,8 +90,8 @@ function extractOne(typeString, expectedString, fn, generics, errors) {
                   generics: generics})
     return {}
   }
-  var generic = typeString.substring(idx + 1).match(/^[a-zA-Z0-9]*/)[0]
-  var genericValue = expectedString.substring(idx).match(/^[a-zA-Z]*/)[0]
+  var generic = typeString.substring(idx + 1).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9]*>)?/)[0]
+  var genericValue = expectedString.substring(idx).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9]*>)?/)[0]
   if (fn.genericParams && fn.genericParams.includes(generic)) {
     typeString = typeString.replaceAll('$' + generic, genericValue)
     if (genericValue !== 'Any') {
