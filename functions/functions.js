@@ -16,5 +16,6 @@ module.exports = {
           require('./time').functions,
           require('./tuple').functions,
           require('./udf').functions,
+          require('./util').functions,
       )
 }
