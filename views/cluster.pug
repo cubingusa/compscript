@@ -1,9 +1,5 @@
 mixin clusters(data)
   h3= data.name + ' clusters'
-  if data.solved
-    div Success!
-  else
-    div Failed to cluster.
   table(class='cluster')
     tr
       th Cluster

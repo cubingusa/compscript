@@ -53,29 +53,17 @@ function BalanceConstraint(argType) {
         name: 'value',
         type: argType + '(Person)',
         lazy: true,
-        docs: 'The value to compute for each person.',
+        docs: 'The value of the constraint to be evaluated for each person',
       },
       {
-        name: 'decay',
+        name: 'weight',
         type: 'Number',
-        docs: 'What percentage leeway should be granted on each subsequent clustering attempt, if the constraints were impossible to meet on the first attempt.',
+        docs: 'The weighting value to assign to this cluster',
       },
-      {
-        name: 'initialAllowance',
-        type: 'Number',
-        defaultValue: 0,
-        docs: 'The number of people difference that should be allowed on the first attempt.',
-      },
-      {
-        name: 'applyTo',
-        type: 'Array<Number>',
-        defaultValue: [],
-        docs: 'Which clusters this rule should apply to.',
-      }
     ],
     outputType: 'Constraint',
-    implementation: (name, value, decay, initialAllowance, applyTo) => {
-      return new constraint.BalanceConstraint(name, value, decay, initialAllowance, applyTo)
+    implementation: (name, value, weight) => {
+      return new constraint.BalanceConstraint(name, value, weight)
     }
   }
 }
@@ -97,27 +85,19 @@ function LimitConstraint(argType) {
         docs: 'The value of the constraint to be evaluated for each person',
       },
       {
+        name: 'weight',
+        type: 'Number',
+        docs: 'The weighting value to assign to this cluster',
+      },
+      {
         name: 'min',
         type: 'Number',
-        defaultValue: -1,
-        docs: 'The minimum value per cluster, or -1 if disregarded',
+        docs: 'The minimum value per cluster',
       },
-      {
-        name: 'max',
-        type: 'Number',
-        defaultValue: -1,
-        docs: 'The maximum value per cluster, or -1 if disregarded',
-      },
-      {
-        name: 'applyTo',
-        type: 'Array<Number>',
-        defaultValue: [],
-        docs: 'Which clusters this rule should apply to.',
-      }
     ],
     outputType: 'Constraint',
-    implementation: (name, value, min, max, applyTo) => {
-      return new constraint.LimitConstraint(name, value, min, max, applyTo)
+    implementation: (name, value, weight, min) => {
+      return new constraint.LimitConstraint(name, value, weight, min)
     }
   }
 }
