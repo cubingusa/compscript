@@ -24,7 +24,9 @@ function literalNode(type, value) {
     switch (type) {
       case 'AttemptResult':
         return value.value.toString()
+      case 'Number':
       case 'String':
+      case 'Boolean':
         return value
       default:
         if (value == null) {
