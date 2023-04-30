@@ -26,7 +26,7 @@ function Cluster(name, numClusters, persons, preCluster, constraints) {
       model.constraints[personPreCluster] = {min: 0, max: 1}
       clusters.forEach((cluster) => {
         var variableId = personPreCluster + '|' + cluster.toString()
-        if (!(variableId in model.variables)) {
+        if (model.variables[variableId] === undefined) {
           model.variables[variableId] = { assigned: 0 }
           model.variables[variableId][personPreCluster] = 1
           model.variables[variableId][variableId] = 0
@@ -38,8 +38,17 @@ function Cluster(name, numClusters, persons, preCluster, constraints) {
       })
     })
     constraints.forEach((constraint) => constraint.populate(clusters, persons, preClusters, iter, model))
+    Object.values(model.variables).forEach((variable) => {
+      for (var key in variable) {
+        if (variable[key] === 0) {
+          delete variable[key]
+        }
+      }
+    })
 
+    console.log(model)
     var result = solver.Solve(model)
+    console.log(result)
     var solved = result.feasible && result.result == persons.length
     if (solved || iter == 9) {
       var out = {name: name, model: model, result: result, clusters: {}}
