@@ -264,9 +264,14 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
     }
   })
   if (successfulMatches.length > 1) {
-    var withoutGenerics = successfulMatches.filter((match) => match.fn.genericParams === undefined || match.fn.genericParams.length === 0)
-    if (withoutGenerics.length === 1) {
-      successfulMatches = withoutGenerics
+    successfulMatches.sort((a, b) => {
+      if (a.fn.genericParams === undefined) return -1
+      if (b.fn.genericParams === undefined) return 1
+      return a.fn.genericParams.length - b.fn.genericParams.length
+    })
+    if ((successfulMatches[0].fn.genericParams || []).length !==
+      (successfulMatches[1].fn.genericParams || []).length) {
+      successfulMatches = [successfulMatches[0]];
     } else {
       return {errors: [{ errorType: 'AMBIGUOUS_CALL',
                          functionName: functionName,
