@@ -27,9 +27,8 @@ const Cluster = {
       docs: 'People with the same value for this function will be assigned to the same cluster.',
     },
     {
-      name: 'constraint',
-      type: 'Constraint',
-      repeated: true,
+      name: 'constraints',
+      type: 'Array<Constraint>',
       docs: 'Constraints that should be applied to the clustering.',
     },
   ],
