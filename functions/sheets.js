@@ -21,6 +21,9 @@ class Header {
     if (this.type == 'list') {
       return val.split(', ')
     }
+    if (val === null) {
+      return ''
+    }
     return val
   }
 
@@ -73,7 +76,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
         if (firstIdentifier === '') {
           firstIdentifier = identifierVal
         }
-        if (header.getIdentifier(person) === identifierVal) {
+        if (header.getIdentifier(person).toUpperCase() === identifierVal.toUpperCase()) {
           matching++
         }
       })
