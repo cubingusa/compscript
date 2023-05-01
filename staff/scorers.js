@@ -120,9 +120,25 @@ class ScrambleSpeedScorer {
   }
 }
 
+class GroupScorer {
+  constructor(condition, weight) {
+    this.condition = condition
+    this.weight = weight
+  }
+
+  Score(competition, person, group, job, stationNumber) {
+    if (this.condition({Person: person, Group: group})) {
+      return this.weight
+    } else {
+      return 0
+    }
+  }
+}
+
 module.exports = {
   JobCountScorer: JobCountScorer,
   PreferenceScorer: PreferenceScorer,
   AdjacentGroupScorer: AdjacentGroupScorer,
   ScrambleSpeedScorer: ScrambleSpeedScorer,
+  GroupScorer: GroupScorer,
 }

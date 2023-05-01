@@ -142,6 +142,24 @@ const ScrambleSpeedScorer = {
   }
 }
 
+const GroupScorer = {
+  name: 'GroupScorer',
+  args: [
+    {
+      name: 'condition',
+      type: 'Boolean(Person, Group)',
+    },
+    {
+      name: 'weight',
+      type: 'Number',
+    }
+  ],
+  outputType: 'AssignmentScorer',
+  implementation: (condition, weight) => {
+    return new scorers.GroupScorer(condition, weight)
+  }
+}
+
 const SetStaffUnavailable = {
   name: 'SetStaffUnavailable',
   docs: 'Marks the provided staff members as unavailable at the given time',
@@ -169,6 +187,7 @@ const SetStaffUnavailable = {
 }
 
 module.exports = {
-  functions: [AssignStaff, Job, JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer,
+  functions: [AssignStaff, Job,
+              JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer, GroupScorer,
               SetStaffUnavailable],
 }
