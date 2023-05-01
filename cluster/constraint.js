@@ -13,9 +13,9 @@ class BalanceConstraint {
       this.personGroups[key] = []
     }
     this.personGroups[key].push(person)
-    var value = +this.value({Person: person})
+    var value = this.value({Person: person})
     this.personScores[person.wcaUserId] = value
-    this.totalScore += value
+    this.totalScore += +value
   }
 
   valueFor(person) {
@@ -70,9 +70,9 @@ class LimitConstraint {
       this.personGroups[key] = []
     }
     this.personGroups[key].push(person)
-    var value = +this.value({Person: person})
+    var value = this.value({Person: person})
     this.personScores[person.wcaUserId] = value
-    this.totalScore += value
+    this.totalScore += +value
   }
 
   valueFor(person) {
