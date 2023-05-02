@@ -16,8 +16,9 @@ html
     form(method='POST')
       textarea(name='script' cols=100 rows=10)= script
       br
-      input(type='checkbox' name='dryrun' checked=dryrun)
-      label(for='dryrun') Dry Run
+      label
+        input(type='checkbox' name='dryrun' checked=dryrun)
+        = "Dry Run"
       br
       input(type='submit')
     if dryrunWarning
