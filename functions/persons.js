@@ -199,7 +199,7 @@ const SetProperty = {
   genericParams: ['T'],
   args: [
     {
-      name: 'filter',
+      name: 'persons',
       type: 'Array<Person>',
     },
     {
@@ -223,6 +223,32 @@ const SetProperty = {
       ext.properties[property] = value({Person: person})
     })
     return 'Set ' + property + ' for ' + persons.length.toString() + ' persons.'
+  }
+}
+
+const DeleteProperty = {
+  name: 'DeleteProperty',
+  docs: 'Deletes the given property on the provided people',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'property',
+      type: 'String',
+    }
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (persons, property) => {
+    persons.forEach((person) => {
+      const ext = extension.getExtension(person, 'Person')
+      if (ext.properties && ext.properties[property] !== undefined) {
+        delete ext.properties[property]
+      }
+    })
+    return 'Deleted ' + property + ' for ' + persons.length.toString() + ' persons.'
   }
 }
 
@@ -265,5 +291,5 @@ module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
-       SetProperty, AddPerson, Persons],
+       SetProperty, DeleteProperty, AddPerson, Persons],
 }
