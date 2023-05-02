@@ -29,6 +29,7 @@ const Get = function(name, argCount, selected) {
       {
         name: 'tuple',
         type: tupleType,
+        canBeExternal: true,
       }
     ],
     outputType: '$T' + (selected - 1),
