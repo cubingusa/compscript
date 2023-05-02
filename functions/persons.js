@@ -148,18 +148,18 @@ const Property = (type) => {
         type: 'String',
       },
       {
-        name: 'defaultValue',
-        type: type,
-        defaultValue: defaultValue,
-      },
-      {
         name: 'person',
         type: 'Person',
         canBeExternal: true,
+      },
+      {
+        name: 'defaultValue',
+        type: type,
+        defaultValue: defaultValue,
       }
     ],
     outputType: type,
-    implementation: (name, defaultValue, person) => {
+    implementation: (name, person, defaultValue) => {
       const ext = extension.getExtension(person, 'Person')
       if (ext.properties && name in ext.properties) {
         return ext.properties[name]
