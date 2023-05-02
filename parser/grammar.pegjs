@@ -85,4 +85,4 @@ ExpressionList
   = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
 
 UdfArg
-  = "{" argNum:$[0-9]* "," _ argType:$[a-zA-Z<>]* "}" { return { type: 'UdfArg', argNum: argNum, argType: argType} }
+  = "{" argNum:$[0-9]* "," _ argType:$[a-zA-Z<> ,()]* "}" { return { type: 'UdfArg', argNum: argNum, argType: argType} }
