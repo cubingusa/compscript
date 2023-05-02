@@ -91,6 +91,33 @@ function substituteExisting(type, generics) {
   }
 }
 
+function extractSegment(type) {
+  var idx = 0
+  var open = 0
+  while (idx < type.length) {
+    switch (type.charAt(idx)) {
+      case '<':
+      case '(':
+        open++
+        break
+      case '>':
+      case ')':
+        open--
+        break
+      case ',':
+      case ' ':
+        if (open == 0) {
+          return type.substring(0, idx)
+        }
+    }
+    if (open < 0) {
+      return type.substring(0, idx)
+    }
+    idx++
+  }
+  return type
+}
+
 function extractOne(typeString, expectedString, fn, generics, errors) {
   var idx = typeString.indexOf('$')
   if (expectedString.substring(0, idx) !== typeString.substring(0, idx)) {
@@ -100,8 +127,8 @@ function extractOne(typeString, expectedString, fn, generics, errors) {
                   generics: generics})
     return {}
   }
-  var generic = typeString.substring(idx + 1).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9]*>)?/)[0]
-  var genericValue = expectedString.substring(idx).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9, <>]*>)?/)[0]
+  var generic = extractSegment(typeString.substring(idx + 1))
+  var genericValue = extractSegment(expectedString.substring(idx))
   if (fn.genericParams && fn.genericParams.includes(generic)) {
     typeString = typeString.replaceAll('$' + generic, genericValue)
     if (genericValue !== 'Any') {
@@ -153,8 +180,8 @@ function substituteGenerics(typeWithGenerics, matchType, fn, generics, errors) {
   })
 }
 
-function functionNode(functionName, allFunctions, args, genericsIn, allowParams=true) {
-  var matchingFunctions = allFunctions.filter((fn) => fn.name == functionName)
+function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
+  var matchingFunctions = ctx.allFunctions.filter((fn) => fn.name == functionName)
   var errors = args.filter((arg) => !!arg.errors).map((arg) => arg.errors).flat()
   if (!matchingFunctions.length) {
     errors.push({ errorType: 'UNKNOWN_FUNCTION', functionName: functionName})
@@ -386,6 +413,7 @@ function functionNode(functionName, allFunctions, args, genericsIn, allowParams=
           out.argName = arg.name
           return out
         })).flat(),
+        generics: genericsIn,
       }
     },
     mutations: mutations,
@@ -454,7 +482,7 @@ function parseNode(node, ctx, allowParams) {
         if (node.name in (ext.udf || {})) {
           return udfNode(ext.udf[node.name], ctx, node.args, allowParams)
         }
-        return functionNode(node.name, ctx.allFunctions,
+        return functionNode(node.name, ctx,
                             node.args.map((arg) => parseNode(arg, ctx, true)),
                             node.generics, allowParams)
       case 'Activity':
