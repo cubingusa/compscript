@@ -3,7 +3,7 @@ Input
  / "" { return [] }
 
 Expression
-  = _ fn:Variable "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args } }
+  = _ fn:Variable generics:("<" TypeList ">")? "(" _ args:ArgList _ ")" _ { return { type: 'Function', name: fn, args: args, generics: !!generics ? generics[1] : [] } }
   / AttemptResultLiteral
   / BooleanLiteral
   / DateTimeLiteral
@@ -85,4 +85,20 @@ ExpressionList
   = head:Expression tail:(_ "," _ @Expression)* { return [head, ...tail] }
 
 UdfArg
-  = "{" argNum:$[0-9]* "," _ argType:$[a-zA-Z<> ,()]* "}" { return { type: 'UdfArg', argNum: argNum, argType: argType} }
+  = "{" argNum:$[0-9]* "," _ argType:Type "}" { return { type: 'UdfArg', argNum: argNum, argType: argType} }
+
+Type
+  = base:$[a-zA-Z]* generics:("<" TypeList ">")? params:("(" TypeList ")")? {
+    var out = base
+    if (!!generics) {
+      out += "<" + generics[1].join(", ") + ">"
+    }
+    if (!!params) {
+      out += "(" + params[1].join(", ") + ")"
+    }
+    return out
+  }
+
+TypeList
+  = head:Type tail:(_ "," _ @Type)* { return [head, ...tail] }
+  / "" { return [] }

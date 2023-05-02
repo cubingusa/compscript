@@ -12,6 +12,14 @@ function parseType(type) {
   }
 }
 
+function assembleType(type) {
+  if (type.params.length > 0) {
+    return type.type + '(' + type.params.join(',') + ')'
+  } else {
+    return type.type
+  }
+}
+
 function typesMatch(typeA, typeB) {
   if (typeA.type !== typeB.type && typeA.type !== 'Any' && typeB.type !== 'Any') {
     return false
@@ -93,7 +101,7 @@ function extractOne(typeString, expectedString, fn, generics, errors) {
     return {}
   }
   var generic = typeString.substring(idx + 1).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9]*>)?/)[0]
-  var genericValue = expectedString.substring(idx).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9]*>)?/)[0]
+  var genericValue = expectedString.substring(idx).match(/^[a-zA-Z0-9]*(<[a-zA-Z0-9, ]*>)?/)[0]
   if (fn.genericParams && fn.genericParams.includes(generic)) {
     typeString = typeString.replaceAll('$' + generic, genericValue)
     if (genericValue !== 'Any') {
@@ -145,7 +153,7 @@ function substituteGenerics(typeWithGenerics, matchType, fn, generics, errors) {
   })
 }
 
-function functionNode(functionName, allFunctions, args, allowParams=true) {
+function functionNode(functionName, allFunctions, args, genericsIn, allowParams=true) {
   var matchingFunctions = allFunctions.filter((fn) => fn.name == functionName)
   var errors = args.filter((arg) => !!arg.errors).map((arg) => arg.errors).flat()
   if (!matchingFunctions.length) {
@@ -162,6 +170,17 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
     var errors = []
     var extraParams = []
     var generics = {}
+    if ((genericsIn || []).length > 0) {
+      if (genericsIn.length > (fn.genericParams || []).length) {
+        errors.push({
+          errorType: 'TOO_MANY_GENERICS_PROVIDED',
+        })
+      } else {
+        for (var i = 0; i < genericsIn.length; i++) {
+          generics[fn.genericParams[i]] = genericsIn[i];
+        }
+      }
+    }
     fn.args.forEach((arg) => {
       // Look for named args.
       var matchIdxs = []
@@ -231,7 +250,12 @@ function functionNode(functionName, allFunctions, args, allowParams=true) {
       if (!arg.repeated && matches.length == 0) {
         if (arg.canBeExternal) {
           if (!extraParams.map(p => p.type).includes(arg.type)) {
-            extraParams.push({ type: arg.type, requestedBy: functionName })
+            var type = parseType(arg.type)
+            substituteExisting(type, generics)
+            extraParams.push({
+              type: assembleType(type),
+              requestedBy: functionName
+            })
           }
           isExternal = true
         } else {
@@ -392,7 +416,7 @@ function savedUdfArgNode(argNum, argType, ctx) {
 
 function udfArgNode(argNum, argType, ctx) {
   return {
-    type: {type: argType, params: [] },
+    type: parseType(argType),
     value: (inParams, ctx) => {
       throw new Error("UDF args should only be used inside Define().")
     },
@@ -432,7 +456,7 @@ function parseNode(node, ctx, allowParams) {
         }
         return functionNode(node.name, ctx.allFunctions,
                             node.args.map((arg) => parseNode(arg, ctx, true)),
-                            allowParams)
+                            node.generics, allowParams)
       case 'Activity':
         return activityNode(node.activityId)
       case 'AttemptResult':
