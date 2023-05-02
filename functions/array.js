@@ -108,7 +108,7 @@ const Flatten = {
   name: 'Flatten',
   genericParams: ['T'],
   docs: 'Flattens an array of arrays into a single array.',
-  arg: [
+  args: [
     {
       name: 'args',
       type: 'Array<Array<$T>>',
