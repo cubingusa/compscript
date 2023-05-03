@@ -3,19 +3,20 @@ mixin groups(data)
   each warning in data.warnings
     pre= JSON.stringify(warning, null, 2)
   each group in data.groups
-    h4= group.name() + " (" + data.assignments[group.wcif.id].length + ")"
-    table
-      tr
-        th Name
-        th WCA ID
-        th Country
-        th Personal Best
-        th Assignment Set
-      each assignment in data.assignments[group.wcif.id]
+    if group.wcif.id in data.assignments
+      h4= group.name() + " (" + data.assignments[group.wcif.id].length + ")"
+      table
         tr
-          td= assignment.person.name + ('stationNumber' in assignment ? (' (' + assignment.stationNumber + ')') : '')
-          td
-            a(href='https://wca.link/' + assignment.person.wcaId)= assignment.person.wcaId
-          td= assignment.person.countryIso2
-          td= fn.personalBest(assignment.person, data.round).toString()
-          td= assignment.set
+          th Name
+          th WCA ID
+          th Country
+          th Personal Best
+          th Assignment Set
+        each assignment in data.assignments[group.wcif.id]
+          tr
+            td= assignment.person.name + ('stationNumber' in assignment ? (' (' + assignment.stationNumber + ')') : '')
+            td
+              a(href='https://wca.link/' + assignment.person.wcaId)= assignment.person.wcaId
+            td= assignment.person.countryIso2
+            td= fn.personalBest(assignment.person, data.round).toString()
+            td= assignment.set
