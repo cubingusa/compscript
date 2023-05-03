@@ -52,6 +52,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     var ext = extension.getExtension(group.wcif, 'ActivityConfig', 'groupifier')
     ext.featuredCompetitorWcaUserIds = []
   })
+  var groupSizeLimit = people.length / groups.length
   warnings = []
   assignmentSets.forEach((set) => {
     var eligibleGroups = groups.filter((group) => set.groupFilter({Group: group}))
@@ -70,6 +71,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     var preAssignedByPerson = {}
     // group id -> count
     var preAssignedByGroup = {}
+    var preAssignedTotal = 0
     eligibleGroups.forEach((group) => {
       currentByGroup[group.wcif.id] = []
       preAssignedByGroup[group.wcif.id] = 0
@@ -82,22 +84,16 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
           queue.push({person: person, idx: queue.length})
           preAssignedByPerson[person.wcaUserId] = group.wcif.id
           preAssignedByGroup[group.wcif.id] += 1
-        } else {
-          warnings.push({
-            type: 'ALREADY_ASSIGNED',
-            set: set.name,
-            person: person,
-            group: group.wcif.id,
-          })
+          preAssignedTotal += 1
         }
       } else {
         queue.push({person: person, idx: queue.length})
       }
     })
     var totalToAssign = queue.length
-    while (queue.length) {
+    while (queue.length > preAssignedTotal) {
       // Don't assign any more to groups with enough people pre-assigned.
-      var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] < totalToAssign / eligibleGroups.length)
+      var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] <= groupSizeLimit)
 
       var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson)
       var solution = solver.Solve(model)
@@ -105,7 +101,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
       var indicesToErase = []
       queue.forEach((queueItem, idx) => {
         groupsToUse.forEach((group) => {
-          var key = queueItem.person.wcaUserId.toString() + '-' + group.wcif.id
+          var key = queueItem.person.wcaUserId.toString() + '-g' + group.wcif.id
           if (key in solution && solution[key] == 1) {
             newlyAssigned.push({person: queueItem.person, group: group})
             indicesToErase.push(idx)
@@ -123,6 +119,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
         if (assn.person.wcaUserId in preAssignedByPerson) {
           delete preAssignedByPerson[assn.person.wcaUserId]
           preAssignedByGroup[assn.group.wcif.id] -= 1
+          preAssignedTotal -= 1
         }
       })
     }
@@ -195,7 +192,7 @@ function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, current
       }
       // Normalize all of the scores so that the average score is -idx.
       var adjustedScore = scores[group.wcif.id] - total / groupsToUse.length - queueItem.idx
-      var groupKey = group.wcif.id
+      var groupKey = 'g' + group.wcif.id
       var key = personKey + '-' + groupKey
       model.variables[key] = {
         score: adjustedScore,
@@ -209,7 +206,7 @@ function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, current
     })
   })
   groupsToUse.forEach((group) => {
-    model.constraints[group.wcif.id] = {min: 0, max: 1}
+    model.constraints['g' + group.wcif.id] = {min: 0, max: 1}
   })
   var numToAssign = Math.min(queue.length, groupsToUse.length)
   model.constraints.totalAssigned = {equal: numToAssign}
