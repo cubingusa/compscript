@@ -276,6 +276,7 @@ const AddResults = {
                    }
                    return res
                  })
+    return 'Added ' + rd.results.length + ' results for ' + round.id()
   }
 }
 
@@ -312,8 +313,26 @@ const RoundNumber = {
   implementation: round => round.roundNumber,
 }
 
+const RoundForEvent = {
+  name: 'RoundForEvent',
+  docs: 'Returns a round for the specified event.',
+  args: [
+    {
+      name: 'number',
+      type: 'Number',
+    },
+    {
+      name: 'event',
+      type: 'Event',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Round',
+  implementation: (number, event) => event.round(number),
+}
+
 module.exports = {
   functions: [Events, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults,
-              IsFinal, RoundNumber],
+              IsFinal, RoundNumber, RoundForEvent],
 }
