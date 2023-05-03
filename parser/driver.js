@@ -346,7 +346,7 @@ function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
     }
   })
 
-  var mutations = [...(new Set(args.filter((arg) => !!arg.mutations).map((arg) => arg.mutations).flat()))]
+  var mutations = [...(new Set(args.map((arg) => arg.matches).flat().map((match) => match.mutations).flat()))]
   if (fn.mutations) {
     fn.mutations.forEach((mut) => {
       if (!mutations.includes(mut)) {
