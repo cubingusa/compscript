@@ -389,7 +389,9 @@ function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
         if (fn.args[i].repeated) {
           argsToUse.push(args[i].matches.map(evalFn))
         } else if (args[i].isExternal) {
-          argsToUse.push(inParams[args[i].arg.type])
+          var type = parseType(args[i].arg.type)
+          substituteExisting(type, generics)
+          argsToUse.push(inParams[assembleType(type)])
         } else {
           argsToUse.push(evalFn(args[i].matches[0]))
         }
