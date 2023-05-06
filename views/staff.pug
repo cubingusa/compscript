@@ -14,4 +14,4 @@ mixin staff(data)
           td
             if group.wcif.id in data.assignments.jobs[jobName]
               each subAssignment in data.assignments.jobs[jobName][group.wcif.id]
-                div= subAssignment.person.name + " (" + subAssignment.score.total + ")"
+                div= subAssignment.person.name
