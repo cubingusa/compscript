@@ -59,7 +59,10 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     }
   })
 
+  var times = {}
+
   groups.forEach((group, idx) => {
+    console.log('assigning ' + group.wcif.activityCode)
     var conflictingGroupIds = allGroups.filter((otherGroup) => {
       return group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime
     }).map((group) => group.wcif.id)
@@ -97,17 +100,45 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     })
     eligiblePeople.forEach((person) => {
       model.constraints['person-' + person.wcaUserId] = {min: 0, max: 1}
+      var personScore = 0
+      scorers.forEach((scorer) => {
+        if (!scorer.caresAboutJobs) {
+          var start = Date.now()
+          var subscore = scorer.Score(competition, person, group)
+          var end = Date.now()
+          if (times[scorer.name] === undefined) times[scorer.name] = 0
+          times[scorer.name] += (end - start)
+          personScore += subscore
+        }
+      })
       jobs.forEach((job) => {
         if (!job.eligibility({Person: person})) {
           return
         }
+        var jobScore = personScore
+        scorers.forEach((scorer) => {
+          if (scorer.caresAboutJobs && !scorer.caresAboutStations) {
+            var start = Date.now()
+            var subscore = scorer.Score(competition, person, group, job.name)
+            var end = Date.now()
+            if (times[scorer.name] === undefined) times[scorer.name] = 0
+            times[scorer.name] += (end - start)
+            jobScore += subscore
+          }
+        })
         var stations = job.assignStations ? [...Array(job.count).keys()] : [null]
         stations.forEach((num) => {
           var numStr = (num === null) ? '' : '-' + (num + 1)
-          var score = 0
+          var score = jobScore
           scorers.forEach((scorer) => {
-            var subscore = scorer.Score(competition, person, group, job.name, num + 1)
-            score += subscore
+            if (scorer.caresAboutStations) {
+              var start = Date.now()
+              var subscore = scorer.Score(competition, person, group, job.name, num + 1)
+              var end = Date.now()
+              if (times[scorer.name] === undefined) times[scorer.name] = 0
+              times[scorer.name] += (end - start)
+              score += subscore
+            }
           })
           var key = 'assignment-' + person.wcaUserId + '-' + job.name + numStr
           model.variables[key] = {score: score}
@@ -119,7 +150,14 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
         })
       })
     })
+    var start = Date.now()
     var solution = solver.Solve(model)
+    var end = Date.now()
+    if (times['Solver'] === undefined) {
+      times['Solver'] = 0
+    }
+    times['Solver'] += (end - start)
+    console.log(times)
     if (!solution.feasible) {
       out.warnings.push('Failed to find a solution for group ' + group.name())
       return

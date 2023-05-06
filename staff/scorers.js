@@ -1,11 +1,15 @@
+const extension = require('./../extension')
 const lib = require('./../lib')
 
 class JobCountScorer {
   constructor(weight) {
     this.weight = weight
+    this.caresAboutStations = false
+    this.caresAboutJobs = false
+    this.name = 'JobCountScorer'
   }
 
-  Score(competition, person, group, job, stationNumber) {
+  Score(competition, person, group) {
     return this.weight * person.assignments.filter((assignment) => assignment.assignmentCode.startsWith('staff-')).length
   }
 }
@@ -15,23 +19,26 @@ class PreferenceScorer {
     this.weight = weight
     this.prefix = prefix
     this.prior = prior
+    this.caresAboutStations = false
+    this.caresAboutJobs = true
+    this.name = 'PreferenceScorer'
   }
 
-  #subscore(vals, expected) {
-    var totalVal = vals.reduce((s, e) => s + e[1])
-    return Object.entries(expected).forEach((e) => {
+  subscore(vals, expected) {
+    var totalVal = vals.reduce((s, e) => s + e[1], 0)
+    return Object.entries(expected).map((e) => {
       var target = e[1]
       var actual = vals[e[0]] / totalVal
       return (target - actual) ** 2
     }).map((s, next) => s + next)
   }
 
-  Score(competition, person, group, job, stationNumber) {
+  Score(competition, person, group, job) {
     var ext = extension.getExtension(person, 'Person')
     var prefs = Object.entries((ext.properties || {}))
                       .filter((e) => e[0].startsWith(this.prefix))
                       .map((e) => [e[0].slice(this.prefix.length), e[1]])
-    var totalPrefs = prefs.reduce((s, e) => s + e[1])
+    var totalPrefs = prefs.reduce((s, e) => s + e[1], 0)
     if (totalPrefs === 0) {
       return 0
     }
@@ -40,15 +47,22 @@ class PreferenceScorer {
       return -100000
     }
 
-    var actual = Object.entries(person.assignments
+    var allAssignments = person.assignments
                        .filter((assignment) => assignment.assignmentCode.startsWith('staff-'))
-                       .group((assignment) => assignment.assignmentCode.slice('staff-'.length)))
-                       .map((e) => [e[0], e[1].length])
-    var currentAdjusted = actual.map((e) => [e[0], e[1] + ratios[e[0]] * this.prior])
+    var actual = {}
+    allAssignments.forEach((assignment) => {
+      var key = assignment.assignmentCode.slice('staff-'.length)
+      if (actual[key] === undefined) {
+        actual[key] = 0
+      }
+      actual[key] += 1
+    })
+
+    var currentAdjusted = Object.entries(actual).map((e) => [e[0], e[1] + ratios[e[0]] * this.prior])
     var newAdjusted = currentAdjusted.map((e) => [e[0], e[1] + (job === e[0] ? 1 : 0)])
 
-    var oldScore = this.subscore(Object.fromEntries(currentAdjusted), ratios)
-    var newScore = this.subscore(Object.fromEntries(newAdjusted), ratios)
+    var oldScore = this.subscore(currentAdjusted, ratios)
+    var newScore = this.subscore(newAdjusted, ratios)
 
     return this.weight * (newScore - oldScore)
   }
@@ -58,6 +72,9 @@ class AdjacentGroupScorer {
   constructor(competition, weight) {
     this.allGroups = lib.allGroups(competition)
     this.weight = weight
+    this.caresAboutStations = true
+    this.caresAboutJobs = true
+    this.name = 'AdjacentGroupScorer'
   }
 
   Score(competition, person, group, job, stationNumber) {
@@ -106,9 +123,12 @@ class ScrambleSpeedScorer {
     this.event = event
     this.maxTime = maxTime
     this.weight = weight
+    this.caresAboutStations = false
+    this.caresAboutJobs = true
+    this.name = 'ScrambleSpeedScorer'
   }
 
-  Score(competition, person, group, job, stationNumber) {
+  Score(competition, person, group, job) {
     if (job !== 'scrambler') {
       return 0
     }
@@ -124,9 +144,12 @@ class GroupScorer {
   constructor(condition, weight) {
     this.condition = condition
     this.weight = weight
+    this.caresAboutStations = false
+    this.caresAboutJobs = false
+    this.name = 'GroupScorer'
   }
 
-  Score(competition, person, group, job, stationNumber) {
+  Score(competition, person, group) {
     if (this.condition({Person: person, Group: group})) {
       return this.weight
     } else {
