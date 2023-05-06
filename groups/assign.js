@@ -94,6 +94,14 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     while (queue.length > preAssignedTotal) {
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] <= groupSizeLimit)
+      queue = queue.filter((queueItem, idx) => {
+        var preAssigned = preAssignedByPerson[queueItem.person.wcaUserId]
+        var toKeep = preAssigned === undefined || groupsToUse.map((group) => group.wcif.id).includes(preAssigned)
+        if (!toKeep) {
+          preAssignedTotal--
+        }
+        return toKeep
+      })
 
       var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson)
       var solution = solver.Solve(model)
