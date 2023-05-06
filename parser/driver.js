@@ -44,7 +44,7 @@ function literalNode(type, value) {
     }
   })()
   return {
-    type: { type, params: [] },
+    type: parseType(type),
     value: (inParams, ctx) => value,
     serialize: () => { return { type: type, value: serialized } },
     mutations: [],
