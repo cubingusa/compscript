@@ -15,10 +15,11 @@ class JobCountScorer {
 }
 
 class PreferenceScorer {
-  constructor(weight, prefix, prior) {
+  constructor(weight, prefix, prior, allJobs) {
     this.weight = weight
     this.prefix = prefix
     this.prior = prior
+    this.allJobs = allJobs
     this.caresAboutStations = false
     this.caresAboutJobs = true
     this.name = 'PreferenceScorer'
@@ -28,9 +29,9 @@ class PreferenceScorer {
     var totalVal = vals.reduce((s, e) => s + e[1], 0)
     return Object.entries(expected).map((e) => {
       var target = e[1]
-      var actual = vals[e[0]] / totalVal
+      var actual = Object.fromEntries(vals)[e[0]] / totalVal
       return (target - actual) ** 2
-    }).map((s, next) => s + next)
+    }).reduce((s, next) => s + next, 0)
   }
 
   Score(competition, person, group, job) {
@@ -49,7 +50,7 @@ class PreferenceScorer {
 
     var allAssignments = person.assignments
                        .filter((assignment) => assignment.assignmentCode.startsWith('staff-'))
-    var actual = {}
+    var actual = Object.fromEntries(this.allJobs.map(job => [job, 0]))
     allAssignments.forEach((assignment) => {
       var key = assignment.assignmentCode.slice('staff-'.length)
       if (actual[key] === undefined) {

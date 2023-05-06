@@ -98,10 +98,14 @@ const PreferenceScorer = {
       name: 'prior',
       type: 'Number',
     },
+    {
+      name: 'allJobs',
+      type: 'Array<String>',
+    }
   ],
   outputType: 'AssignmentScorer',
-  implementation: (weight, prefix, prior) => {
-    return new scorers.PreferenceScorer(weight, prefix, prior)
+  implementation: (weight, prefix, prior, allJobs) => {
+    return new scorers.PreferenceScorer(weight, prefix, prior, allJobs)
   },
 }
 
