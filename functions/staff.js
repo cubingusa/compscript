@@ -148,6 +148,7 @@ const GroupScorer = {
     {
       name: 'condition',
       type: 'Boolean(Person, Group)',
+      lazy: true,
     },
     {
       name: 'weight',
