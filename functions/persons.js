@@ -287,9 +287,78 @@ const Persons = {
   }
 }
 
+const AddRole = {
+  name: 'AddRole',
+  docs: 'Adds the provided Role to the given people',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'role',
+      type: 'String',
+    },
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (persons, role) => {
+    persons.forEach((person) => {
+      if (!person.roles.includes(role)) {
+        person.roles.push(role)
+      }
+    })
+    return 'Added ' + role + ' to ' + persons.length + ' people.'
+  }
+}
+
+const DeleteRole = {
+  name: 'DeleteRole',
+  docs: 'Deletes the provided Role from the given people',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'role',
+      type: 'String',
+    },
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (persons, role) => {
+    persons.forEach((person) => {
+      person.roles = person.roles.filter(existingRole => existingRole !== role)
+    })
+    return 'Removed ' + role + ' from ' + persons.length + ' people.'
+  }
+}
+
+const HasRole = {
+  name: 'HasRole',
+  docs: 'Returns whether the given person has the given role',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+    {
+      name: 'role',
+      type: 'String',
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (person, role) => {
+    return person.roles.includes(role)
+  }
+}
+
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
-       SetProperty, DeleteProperty, AddPerson, Persons],
+       SetProperty, DeleteProperty, AddPerson, Persons,
+       AddRole, DeleteRole, HasRole],
 }
