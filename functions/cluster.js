@@ -85,19 +85,19 @@ function LimitConstraint(argType) {
         docs: 'The value of the constraint to be evaluated for each person',
       },
       {
-        name: 'weight',
-        type: 'Number',
-        docs: 'The weighting value to assign to this cluster',
-      },
-      {
         name: 'min',
         type: 'Number',
         docs: 'The minimum value per cluster',
       },
+      {
+        name: 'weight',
+        type: 'Number',
+        docs: 'The weighting value to assign to this cluster',
+      },
     ],
     outputType: 'Constraint',
-    implementation: (name, value, weight, min) => {
-      return new constraint.LimitConstraint(name, value, weight, min)
+    implementation: (name, value, min, weight) => {
+      return new constraint.LimitConstraint(name, value, min, weight)
     }
   }
 }

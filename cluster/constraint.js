@@ -55,7 +55,7 @@ class BalanceConstraint {
 }
 
 class LimitConstraint {
-  constructor(name, value, weight, min) {
+  constructor(name, value, min, weight) {
     this.name = name
     this.value = value
     this.weight = weight
@@ -106,7 +106,7 @@ class LimitConstraint {
     } else if (totalNeeded > remainder) {
       return -1000
     }
-    return Math.pow(1 - totalNeeded / remainder, 4) * this.weight
+    return Math.pow(1 - totalNeeded / remainder, 2) * this.weight
   }
 }
 
