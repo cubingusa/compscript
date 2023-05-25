@@ -106,7 +106,7 @@ class LimitConstraint {
     } else if (totalNeeded > remainder) {
       return -1000
     }
-    return Math.pow(1 - totalNeeded / remainder, 2) * this.weight
+    return Math.pow(1 - totalNeeded / remainder, 4) * this.weight
   }
 }
 
