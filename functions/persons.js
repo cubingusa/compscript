@@ -351,7 +351,7 @@ const HasRole = {
   ],
   outputType: 'Boolean',
   implementation: (person, role) => {
-    return person.roles.includes(role)
+    return (person.roles || []).includes(role)
   }
 }
 
