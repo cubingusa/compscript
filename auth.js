@@ -2,7 +2,7 @@ const express = require('express')
 const { Issuer, custom } = require('openid-client')
 
 custom.setHttpOptionsDefaults({
-  timeout: 60000,
+  timeout: 120000,
 });
 
 var router = express.Router()
