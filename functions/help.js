@@ -7,13 +7,10 @@ const ListFunctions = {
   outputType: 'ListFunctionsOutput',
   usesContext: true,
   implementation: (ctx) => {
-    const ext = extension.getExtension(ctx.competition, 'Competition')
-    if (!ext.udf) {
-      ext.udf = {}
-    }
+    const exts = extension.getExtensionsWithPrefix(ctx.competition, 'Competition', 'udf.')
     return {
       functions: [...new Set(ctx.allFunctions.map((fn) => fn.name))],
-      udfs: Object.keys(ext.udf),
+      udfs: exts.map((udf) => udf.name)
     }
   }
 }
@@ -38,9 +35,9 @@ const Help = {
         }
       })
     }
-    const ext = extension.getExtension(ctx.competition, 'Competition')
-    if (ext.udf && ext.udf[functionName]) {
-      return [{ udf: ext.udf[functionName] }]
+    const ext = extension.getExtension(ctx.competition, 'Competition.udf.' + functionName)
+    if (!!ext) {
+      return [{ udf: ext }]
     }
     return []
   }

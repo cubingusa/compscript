@@ -48,7 +48,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
 
   // Clear existing properties.
   competition.persons.forEach((person) => {
-    var ext = extension.getExtension(person, 'Person')
+    var ext = extension.getOrInsertExtension(person, 'Person')
     if (!ext.properties) {
       return
     }
@@ -92,7 +92,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
       out.warnings.push('Ambiguous row for ' + firstIdentifier)
       return
     }
-    var ext = extension.getExtension(matchingPerson, 'Person')
+    var ext = extension.getOrInsertExtension(matchingPerson, 'Person')
     if (!ext.properties) {
       ext.properties = {}
     }

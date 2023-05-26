@@ -35,7 +35,7 @@ class PreferenceScorer {
   }
 
   Score(competition, person, group, job) {
-    var ext = extension.getExtension(person, 'Person')
+    var ext = extension.getExtension(person, 'Person') || {}
     var prefs = Object.entries((ext.properties || {}))
                       .filter((e) => e[0].startsWith(this.prefix))
                       .map((e) => [e[0].slice(this.prefix.length), e[1]])

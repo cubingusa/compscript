@@ -161,7 +161,7 @@ const Property = (type) => {
     outputType: type,
     implementation: (name, person, defaultValue) => {
       const ext = extension.getExtension(person, 'Person')
-      if (ext.properties && name in ext.properties) {
+      if (ext !== null && ext.properties && name in ext.properties) {
         return ext.properties[name]
       }
       return defaultValue
@@ -186,7 +186,7 @@ const HasProperty = {
   outputType: 'Boolean',
   implementation: (property, person) => {
     const ext = extension.getExtension(person, 'Person')
-    if (!ext.properties) {
+    if (!ext || !ext.properties) {
       return false
     }
     return property in ext.properties
@@ -216,7 +216,7 @@ const SetProperty = {
   mutations: ['persons'],
   implementation: (persons, property, value) => {
     persons.forEach((person) => {
-      const ext = extension.getExtension(person, 'Person')
+      const ext = extension.getOrInsertExtension(person, 'Person')
       if (!ext.properties) {
         ext.properties = {}
       }
@@ -244,7 +244,7 @@ const DeleteProperty = {
   implementation: (persons, property) => {
     persons.forEach((person) => {
       const ext = extension.getExtension(person, 'Person')
-      if (ext.properties && ext.properties[property] !== undefined) {
+      if (ext && ext.properties && ext.properties[property] !== undefined) {
         delete ext.properties[property]
       }
     })

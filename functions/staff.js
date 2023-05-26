@@ -184,7 +184,7 @@ const SetStaffUnavailable = {
   usesContext: true,
   implementation: (ctx, persons, groupFilter) => {
     persons.forEach((person) => {
-      const ext = extension.getExtension(ctx.competition, 'Person')
+      const ext = extension.getOrInsertExtension(ctx.competition, 'Person')
       ext.staffUnavailable = { implementation: groupFilter, cmd: ctx.command }
     })
     return 'Set unavailable for ' + persons.map((person) => person.name).join(', ')

@@ -75,7 +75,7 @@ function Cluster(name, numClusters, persons, preCluster, constraints) {
         personOut.constraints[constraint.name] = val
         out.clusters[cluster].constraints[constraint.name] += val
       })
-      var ext = extension.getExtension(person, 'Person')
+      var ext = extension.getOrInsertExtension(person, 'Person')
       if (!ext.properties) {
         ext.properties = {}
       }

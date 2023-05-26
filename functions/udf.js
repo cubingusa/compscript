@@ -20,11 +20,10 @@ const Define = function(argCount) {
     outputType: 'String',
     usesContext: true,
     implementation: (ctx, name, implementation) => {
-      const ext = extension.getExtension(ctx.competition, 'Competition')
-      if (!ext.udf) {
-        ext.udf = {}
-      }
-      ext.udf[name] = {impl: implementation, cmd: ctx.command, name: name}
+      const ext = extension.getOrInsertExtension(ctx.competition, 'Competition.udf.' + name)
+      ext.impl = implementation
+      ext.cmd = ctx.command
+      ext.name = name
       return 'Defined function ' + name
     },
     mutations: ['extensions'],

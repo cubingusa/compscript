@@ -186,7 +186,7 @@ router.post('/:competitionId/schedule', async (req, res) => {
         if (!isActive) {
           return
         }
-        extension.getExtension(roomActivity, 'Activity').adjustment = adjustment
+        extension.getOrInsertExtension(roomActivity, 'Activity').adjustment = adjustment
         if (numGroups === 0) {
           roomActivity.startTime = activityStart.toISO()
           roomActivity.endTime = activityEnd.toISO()

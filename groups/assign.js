@@ -49,7 +49,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
   groups.forEach((group) => {
     assignmentsByGroup[group.wcif.id] = []
 
-    var ext = extension.getExtension(group.wcif, 'ActivityConfig', 'groupifier')
+    var ext = extension.getOrInsertExtension(group.wcif, 'ActivityConfig', 'groupifier')
     ext.featuredCompetitorWcaUserIds = []
   })
   var groupSizeLimit = people.length / groups.length
@@ -115,7 +115,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
             newlyAssigned.push({person: queueItem.person, group: group})
             indicesToErase.push(idx)
             if (set.featured) {
-              var ext = extension.getExtension(group.wcif, 'ActivityConfig', 'groupifier')
+              var ext = extension.getOrInsertExtension(group.wcif, 'ActivityConfig', 'groupifier')
               ext.featuredCompetitorWcaUserIds.push(queueItem.person.wcaUserId)
             }
           }

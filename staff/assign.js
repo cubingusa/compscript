@@ -71,7 +71,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
         return false
       }
       var ext = extension.getExtension(person, 'Person')
-      if (!('staffUnavailable' in ext)) {
+      if (!ext || !('staffUnavailable' in ext)) {
         return true
       }
       var unavailableFn = driver.parseNode(ext.staffUnavailable.impl, ctx, true)

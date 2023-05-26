@@ -480,9 +480,9 @@ function parseNode(node, ctx, allowParams) {
   var out = (() => {
     switch (node.type) {
       case 'Function':
-        var ext = extension.getExtension(ctx.competition, 'Competition')
-        if (node.name in (ext.udf || {})) {
-          return udfNode(ext.udf[node.name], ctx, node.args, allowParams)
+        var ext = extension.getExtension(ctx.competition, 'Competition.udf.' + node.name)
+        if (ext !== null) {
+          return udfNode(ext, ctx, node.args, allowParams)
         }
         return functionNode(node.name, ctx,
                             node.args.map((arg) => parseNode(arg, ctx, true)),
