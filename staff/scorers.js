@@ -134,7 +134,7 @@ class ScrambleSpeedScorer {
       return 0
     }
     var pr = lib.personalBest(person, this.event)
-    if (pr > this.maxTime) {
+    if (pr > this.maxTime || pr == null) {
       return 0
     }
     return this.weight * (this.maxTime.value - pr.value)
