@@ -19,11 +19,12 @@ class ByMatchingValue {
 }
 
 class ByFilters {
-  constructor(personFilter, groupFilter) {
+  constructor(personFilter, groupFilter, score) {
     this.personFilter = personFilter
     this.groupFilter = groupFilter
     this.personCache = {}
     this.groupCache = {}
+    this.score = score
   }
 
   getScore(person, group, otherPeople) {

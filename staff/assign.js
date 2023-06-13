@@ -16,9 +16,9 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
 
   // Check if there's anyone who already has a staff assignment.
   var peopleAlreadyAssigned = competition.persons.filter((person) => {
-    return !person.assignments.every((assignment) => {
-      assignment.assignmentCode !== 'competitor' || !groupIds.includes(assignment.activityId)
-    })
+    return person.assignments.filter((assignment) => {
+      return assignment.assignmentCode !== 'competitor' && groupIds.includes(assignment.activityId)
+    }).length > 0
   })
   if (peopleAlreadyAssigned.length > 0) {
     if (overwrite) {

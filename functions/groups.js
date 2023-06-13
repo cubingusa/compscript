@@ -126,12 +126,12 @@ const ByFilters = {
     {
       name: 'score',
       type: 'Number',
-      docS: 'The score to assign if the person and group satisfy the filter',
+      docs: 'The score to assign if the person and group satisfy the filter',
     },
   ],
   outputType: 'AssignmentScorer',
   implementation: (personFilter, groupFilter, score) => {
-    return new scorers.ByMatchingValue(personFilter, groupFilter, score)
+    return new scorers.ByFilters(personFilter, groupFilter, score)
   }
 }
 

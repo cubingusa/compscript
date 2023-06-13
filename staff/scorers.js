@@ -25,15 +25,6 @@ class PreferenceScorer {
     this.name = 'PreferenceScorer'
   }
 
-  subscore(vals, expected) {
-    var totalVal = vals.reduce((s, e) => s + e[1], 0)
-    return Object.entries(expected).map((e) => {
-      var target = e[1]
-      var actual = Object.fromEntries(vals)[e[0]] / totalVal
-      return (target - actual) ** 2
-    }).reduce((s, next) => s + next, 0)
-  }
-
   Score(competition, person, group, job) {
     var ext = extension.getExtension(person, 'Person') || {}
     var prefs = Object.entries((ext.properties || {}))
@@ -50,22 +41,14 @@ class PreferenceScorer {
 
     var allAssignments = person.assignments
                        .filter((assignment) => assignment.assignmentCode.startsWith('staff-'))
-    var actual = Object.fromEntries(this.allJobs.map(job => [job, 0]))
-    allAssignments.forEach((assignment) => {
-      var key = assignment.assignmentCode.slice('staff-'.length)
-      if (actual[key] === undefined) {
-        actual[key] = 0
-      }
-      actual[key] += 1
-    })
-
-    var currentAdjusted = Object.entries(actual).map((e) => [e[0], e[1] + ratios[e[0]] * this.prior])
-    var newAdjusted = currentAdjusted.map((e) => [e[0], e[1] + (job === e[0] ? 1 : 0)])
-
-    var oldScore = this.subscore(currentAdjusted, ratios)
-    var newScore = this.subscore(newAdjusted, ratios)
-
-    return this.weight * (newScore - oldScore)
+    var matchingAssignments = allAssignments.filter((assignment) => assignment.assignmentCode === 'staff-' + job)
+    if (allAssignments.length === 0) {
+      return 0
+    }
+    var targetRatio = ratios[job]
+    var actualRatio = matchingAssignments.length / allAssignments.length
+    var decay = Math.min(allAssignments.length, this.prior) / this.prior
+    return decay * this.weight * (targetRatio - actualRatio)
   }
 }
 
