@@ -108,11 +108,11 @@ function parseString(str) {
     value = 0
     if (str.indexOf(':') != -1) {
       value += 6000 * +(str.substr(0, str.indexOf(':')))
-      str = str.substr(str.indexOf(':' + 1))
+      str = str.substr(str.indexOf(':') + 1)
     }
     if (str.indexOf(':') != -1) {
       value = value * 60 + 6000 * +(str.substr(0, str.indexOf(':')))
-      str = str.substr(str.indexOf(':' + 1))
+      str = str.substr(str.indexOf(':') + 1)
     }
     value += 100 * +str
     return new AttemptResult(value, '333')
