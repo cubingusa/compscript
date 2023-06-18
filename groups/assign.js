@@ -94,6 +94,11 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     while (queue.length > preAssignedTotal) {
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] <= groupSizeLimit)
+      // but if that filters aout all groups, it means the math is wrong and we need to allow more space.
+      if (groupsToUse.length === 0) {
+        groupSizeLimit++
+        continue
+      }
       // Remove anyone from the queue who's pre-assigned to a full group.
       queue = queue.filter((queueItem, idx) => {
         var preAssigned = preAssignedByPerson[queueItem.person.wcaUserId]
