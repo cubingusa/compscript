@@ -52,6 +52,23 @@ const WcaLink = {
   }
 }
 
+const CompetitionGroupsLink = {
+  name: 'CompetitionGroups',
+  docs: 'Returns a link to competitiongroups.com for the person',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'String',
+  usesContext: true,
+  implementation: (ctx, person) => {
+    return `https://www.competitiongroups.com/competitions/${ctx.competition.id}/persons/${person.registrantId}`
+  }
+}
+
 const Registered = {
   name: 'Registered',
   docs: 'Returns true if the person is registered for the competition',
@@ -355,10 +372,24 @@ const HasRole = {
   }
 }
 
+const RegistrationStatus = {
+  name: 'RegistrationStatus',
+  docs: 'Returns the registration.status field in WCIF.',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'String',
+  implementation: (person) => person.registration.status,
+}
+
 module.exports = {
   functions:
-      [Name, WcaId, WcaLink, Registered, WcaIdYear, Country, FirstName, LastName,
+      [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, DeleteProperty, AddPerson, Persons,
-       AddRole, DeleteRole, HasRole],
+       AddRole, DeleteRole, HasRole, RegistrationStatus],
 }
