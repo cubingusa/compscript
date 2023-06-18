@@ -15,14 +15,20 @@ const Table = {
       name: 'sort',
       type: '$SortType($ArgType)',
       lazy: true,
+      defaultValue: null,
+      nullable: true,
     },
   ],
   outputType: 'Table',
   usesGenericTypes: true,
   implementation: (generics, keys, columns, sort) => {
-    var rows = keys.sort((rowA, rowB) => {
-      return sort({[generics.ArgType]: rowA}) < sort({[generics.ArgType]: rowB}) ? -1 : 1
-    }).map((val) => {
+    var rows = keys
+    if (sort) {
+      rows = keys.sort((rowA, rowB) => {
+        return sort({[generics.ArgType]: rowA}) < sort({[generics.ArgType]: rowB}) ? -1 : 1
+      })
+    }
+    rows = rows.map((val) => {
       return columns({[generics.ArgType]: val})
     })
     return {
