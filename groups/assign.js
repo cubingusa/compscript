@@ -46,8 +46,15 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
 
   var assignmentsByPerson = {}
   var assignmentsByGroup = {}
+  var conflictingActivitiesByGroup = {}
   groups.forEach((group) => {
     assignmentsByGroup[group.wcif.id] = []
+    conflictingActivitiesByGroup[group.wcif.id] = []
+    lib.allGroups(competition).forEach((otherGroup) => {
+      if (group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime) {
+        conflictingActivitiesByGroup[group.wcif.id].push(otherGroup.wcif.id)
+      }
+    })
 
     var ext = extension.getOrInsertExtension(group.wcif, 'ActivityConfig', 'groupifier')
     ext.featuredCompetitorWcaUserIds = []
@@ -94,7 +101,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     while (queue.length > preAssignedTotal) {
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] <= groupSizeLimit)
-      // but if that filters aout all groups, it means the math is wrong and we need to allow more space.
+      // but if that filters out all groups, it means the math is wrong and we need to allow more space.
       if (groupsToUse.length === 0) {
         groupSizeLimit++
         continue
@@ -109,7 +116,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
         return toKeep
       })
 
-      var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson)
+      var model = constructModel(queue.slice(0, 100), groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson, conflictingActivitiesByGroup)
       var solution = solver.Solve(model)
       var newlyAssigned = []
       var indicesToErase = []
@@ -176,7 +183,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
   }
 }
 
-function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson) {
+function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, currentByGroup, preAssignedByPerson, conflictingActivitiesByGroup) {
   var model = {
     optimize: 'score',
     opType: 'max',
@@ -191,6 +198,9 @@ function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, current
     var total = 0
     groupsToUse.forEach((group) => {
       if (personKey in preAssignedByPerson && preAssignedByPerson[personKey] != group.wcif.id) {
+        return
+      }
+      if (!queueItem.person.assignments.every((assignment) => !conflictingActivitiesByGroup[group.wcif.id].includes(assignment.activityId))) {
         return
       }
       var newScore = 0
