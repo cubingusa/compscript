@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const activityCode = require('./../activity_code')
 const assign = require('./../groups/assign')
 const scorers = require('./../groups/scorers')
@@ -394,9 +396,92 @@ const Groups = {
   implementation: (ctx, round) => lib.groupsForRoundCode(ctx.competition, round),
 }
 
+const CreateGroup = {
+  name: 'CreateGroup',
+  docs: 'Inserts a group into the schudle.',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    },
+    {
+      name: 'number',
+      type: 'Number',
+    },
+    {
+      name: 'stage',
+      type: 'String',
+    },
+    {
+      name: 'start',
+      type: 'DateTime',
+    },
+    {
+      name: 'end',
+      type: 'DateTime',
+    }
+  ],
+  outputType: 'String',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx, round, number, stage, start, end) => {
+    var maxActivityId = 0
+    ctx.competition.schedule.venues.forEach((venue) => {
+      venue.rooms.forEach((room) => {
+        room.activities.forEach((activity) => {
+          maxActivityId = Math.max(maxActivityId, activity.id)
+          activity.childActivities.forEach((childActivity) => {
+            maxActivityId = Math.max(maxActivityId, childActivity.id)
+            // Theoretically this could have more child activities, but in practice it won't.
+          })
+        })
+      })
+    })
+
+    var venue = ctx.competition.schedule.venues[0]
+    var matchingRooms = venue.rooms.filter((room) => room.name === stage)
+    if (matchingRooms.length === 0) {
+      return 'Stage ' + stage + ' not found.'
+    }
+    var matchingActivities = matchingRooms[0].activities.filter((activity) => {
+      return activity.activityCode === round.id() &&
+        start >= DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venues[0].timezone) &&
+        end <= DateTime.fromISO(activity.endTime).setZone(ctx.competition.schedule.venues[0].timezone)
+    })
+    var activity = null
+    if (matchingActivities.length === 0) {
+      activity = {
+        id: ++maxActivityId,
+        activityCode: round.id(),
+        childActivities: [],
+        scrambleSetId: null,
+        extensions: [],
+        startTime: start.toISO(),
+        endTime: end.toISO(),
+        name: round.id()
+      }
+      matchingRooms[0].activities.push(activity)
+    } else {
+      activity = matchingActivities[0]
+    }
+    activity.childActivities.push({
+      id: ++maxActivityId,
+      activityCode: round.group(number).id(),
+      childActivities: [],
+      scrambleSetId: null,
+      extensions: [],
+      startTime: start.toISO(),
+      endTime: end.toISO(),
+      name: stage.split(' ')[0] + ' ' + number
+    })
+    return 'Successfully added group.'
+  }
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
               GroupName, StartTime, EndTime, Date,
-              AssignmentAtTime, Code, Group, Round, Event, Groups],
+              AssignmentAtTime, Code, Group, Round, Event, Groups,
+              CreateGroup],
 }
