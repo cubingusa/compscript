@@ -25,7 +25,7 @@ class ActivityCode {
     if (this.roundNumber) {
       out.push('Round ' + this.roundNumber)
     }
-    if (this.groupNumber) {
+    if (this.groupNumber || this.groupNumber === 0) {
       out.push('Group ' + this.groupNumber)
     }
     if (this.attemptNumber) {
@@ -47,7 +47,7 @@ class ActivityCode {
     if (this.roundNumber) {
       out.push('r' + this.roundNumber)
     }
-    if (this.groupNumber) {
+    if (this.groupNumber || this.groupNumber === 0) {
       out.push('g' + this.groupNumber)
     }
     if (this.attemptNumber) {
