@@ -60,7 +60,6 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
   })
 
   groups.forEach((group, idx) => {
-    console.log('assigning ' + group.wcif.activityCode)
     var conflictingGroupIds = allGroups.filter((otherGroup) => {
       return group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime
     }).map((group) => group.wcif.id)
