@@ -404,7 +404,10 @@ function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
         argsToUse.push(inParams[param.type])
       })
 
-      return fn.implementation(...argsToUse)
+      ctx.logger.start('FN_' + fn.name)
+      var out = fn.implementation(...argsToUse)
+      ctx.logger.stop('FN_' + fn.name)
+      return out
     },
     serialize: function() {
       return {
