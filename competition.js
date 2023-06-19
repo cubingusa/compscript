@@ -5,6 +5,7 @@ const url = require('url')
 const auth = require('./auth')
 const activityCode = require('./activity_code')
 const extension = require('./extension')
+const perf = require('./perf')
 const pugFunctions = require('./pug_functions')
 const functions = require('./functions/functions')
 const driver = require('./parser/driver')
@@ -110,8 +111,11 @@ compData = function(req) {
 }
 
 router.use('/:competitionId', async (req, res, next) => {
+  req.logger = new perf.PerfLogger()
   try {
+    req.logger.start('fetch')
     req.competition = await auth.getWcaApi('/api/v0/competitions/' + req.params.competitionId + '/wcif', req, res)
+    req.logger.stop('fetch')
     next()
   } catch (e) {
     res.redirect('/')
@@ -252,8 +256,12 @@ router.post('/:competitionId/script', async (req, res) => {
 })
 
 async function runScript(req, res, script, dryrun) {
+  var logger = req.logger
+  logger.start('compData')
+  var comp = compData(req)
+  logger.stop('compData')
   var params = {
-    comp: compData(req),
+    comp,
     fn: pugFunctions,
     script: script,
     outputs: [],
@@ -267,9 +275,12 @@ async function runScript(req, res, script, dryrun) {
       command: script,
       allFunctions: functions.allFunctions,
       dryrun: dryrun,
+      logger,
     }
     try {
+      ctx.logger.start('parse')
       var scriptParsed = await parser.parse(script, req, res, ctx, false)
+      ctx.logger.stop('parse')
       var errors = []
       if (scriptParsed.errors) {
         errors = scriptParsed.errors
@@ -303,7 +314,9 @@ async function runScript(req, res, script, dryrun) {
           if (dryrun) {
             params.dryrunWarning = true
           } else {
+            ctx.logger.start('patch')
             await auth.patchWcif(ctx.competition, mutations, req, res)
+            ctx.logger.stop('patch')
           }
         }
       }
@@ -312,7 +325,10 @@ async function runScript(req, res, script, dryrun) {
       console.log(e)
     }
   }
+  ctx.logger.start('render')
   res.render('script', params)
+  ctx.logger.stop('render')
+  logger.log()
 }
 
 module.exports = {
