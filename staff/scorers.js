@@ -120,7 +120,7 @@ class ScrambleSpeedScorer {
     if (pr > this.maxTime || pr == null) {
       return 0
     }
-    return this.weight * (this.maxTime.value - pr.value)
+    return -1 * this.weight * pr.value / this.maxTime
   }
 }
 
