@@ -386,10 +386,46 @@ const RegistrationStatus = {
   implementation: (person) => person.registration.status,
 }
 
+const ClearAssignments = {
+  name: 'ClearAssignments',
+  docs: 'Clears assignments.',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'clearStaff',
+      type: 'Boolean',
+    },
+    {
+      name: 'clearGroups',
+      type: 'Boolean',
+    },
+  ],
+  mutations: ['persons'],
+  outputType: 'String',
+  implementation: (persons, clearStaff, clearGroups) => {
+    persons.forEach((person) => {
+      person.assignments = person.assignments.filter((assignment) => {
+        if (clearGroups && assignment.assignmentCode === 'competitor') {
+          return false
+        }
+        if (clearStaff && assignment.assignmentCode.startsWith('staff-')) {
+          return false
+        }
+        return true
+      })
+    })
+    return 'ok'
+  }
+}
+
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, DeleteProperty, AddPerson, Persons,
-       AddRole, DeleteRole, HasRole, RegistrationStatus],
+       AddRole, DeleteRole, HasRole, RegistrationStatus,
+       ClearAssignments],
 }

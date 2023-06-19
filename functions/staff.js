@@ -199,15 +199,43 @@ const SetStaffUnavailable = {
   usesContext: true,
   implementation: (ctx, persons, groupFilter) => {
     persons.forEach((person) => {
-      const ext = extension.getOrInsertExtension(ctx.competition, 'Person')
+      const ext = extension.getOrInsertExtension(person, 'Person')
       ext.staffUnavailable = { implementation: groupFilter, cmd: ctx.command }
     })
     return 'Set unavailable for ' + persons.map((person) => person.name).join(', ')
   }
 }
 
+const NumJobs = {
+  name: 'NumJobs',
+  docs: 'The number of jobs for a given person. If type is not provided, all jobs are included.',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+    {
+      name: 'type',
+      type: 'String',
+      defaultValue: null,
+      nullable: true,
+    }
+  ],
+  outputType: 'Number',
+  implementation: (person, type) => {
+    return person.assignments.filter((assignment) => {
+      if (type !== null) {
+        return assignment.assignmentCode === 'staff-' + type
+      } else {
+        return assignment.assignmentCode.startsWith('staff-')
+      }
+    }).length
+  }
+}
+
 module.exports = {
   functions: [AssignStaff, Job,
               JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
-              SetStaffUnavailable],
+              SetStaffUnavailable, NumJobs],
 }
