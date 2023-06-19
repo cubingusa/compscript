@@ -59,8 +59,6 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     }
   })
 
-  var times = {}
-
   groups.forEach((group, idx) => {
     console.log('assigning ' + group.wcif.activityCode)
     var conflictingGroupIds = allGroups.filter((otherGroup) => {
@@ -106,8 +104,6 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
           var start = Date.now()
           var subscore = scorer.Score(competition, person, group)
           var end = Date.now()
-          if (times[scorer.name] === undefined) times[scorer.name] = 0
-          times[scorer.name] += (end - start)
           personScore += subscore
         }
       })
@@ -121,8 +117,6 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
             var start = Date.now()
             var subscore = scorer.Score(competition, person, group, job.name)
             var end = Date.now()
-            if (times[scorer.name] === undefined) times[scorer.name] = 0
-            times[scorer.name] += (end - start)
             jobScore += subscore
           }
         })
@@ -135,8 +129,6 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
               var start = Date.now()
               var subscore = scorer.Score(competition, person, group, job.name, num + 1)
               var end = Date.now()
-              if (times[scorer.name] === undefined) times[scorer.name] = 0
-              times[scorer.name] += (end - start)
               score += subscore
             }
           })
@@ -153,11 +145,6 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     var start = Date.now()
     var solution = solver.Solve(model)
     var end = Date.now()
-    if (times['Solver'] === undefined) {
-      times['Solver'] = 0
-    }
-    times['Solver'] += (end - start)
-    console.log(times)
     if (!solution.feasible) {
       out.warnings.push('Failed to find a solution for group ' + group.name())
       return
