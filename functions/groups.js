@@ -202,6 +202,7 @@ const AssignedGroup = {
     {
       name: 'round',
       type: 'Round',
+      canBeExternal: true,
     },
     {
       name: 'person',
@@ -227,6 +228,26 @@ const AssignedGroup = {
       return null
     }
     return matching[0]
+  }
+}
+
+const AssignedGroups = {
+  name: 'AssignedGroups',
+  docs: 'All of a person\'s assigned groups',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Array<Group>',
+  usesContext: true,
+  implementation: (ctx, person) => {
+    var activityIds = person.assignments
+        .filter((assignment) => assignment.assignmentCode === "competitor" )
+        .map((assignment) => assignment.activityId)
+    return lib.allGroups(ctx.competition).filter((group) => activityIds.includes(group.wcif.id))
   }
 }
 
@@ -362,6 +383,7 @@ const Round = {
     {
       name: 'group',
       type: 'Group',
+      canBeExternal: true,
     }
   ],
   outputType: 'Round',
@@ -526,7 +548,7 @@ const ManuallyAssign = {
 
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
-              GroupNumber, Stage, AssignedGroup,
+              GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               AssignmentAtTime, Code, Group, Round, Event, Groups,
               CreateGroup, ManuallyAssign],

@@ -13,6 +13,17 @@ const Events = {
   }
 }
 
+const Rounds = {
+  name: 'Rounds',
+  docs: 'Returns a list of all rounds in a competition',
+  args: [],
+  outputType: 'Array<Round>',
+  usesContext: true,
+  implementation: (ctx) => {
+    return ctx.competition.events.map((evt) => evt.rounds.map((rd) => activityCode.parse(rd.id))).flat()
+  }
+}
+
 const EventId = {
   name: 'EventId',
   docs: 'Returns the string event ID for an event',
@@ -287,6 +298,7 @@ const IsFinal = {
     {
       name: 'round',
       type: 'Round',
+      canBeExternal: true,
     }
   ],
   outputType: 'Boolean',
@@ -331,8 +343,22 @@ const RoundForEvent = {
   implementation: (number, event) => event.round(number),
 }
 
+const EventForRound = {
+  name: 'EventForRound',
+  docs: 'Returns the event for the round.',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Event',
+  implementation: (round) => round.round(null),
+}
+
 module.exports = {
-  functions: [Events, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
+  functions: [Events, Rounds, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults,
-              IsFinal, RoundNumber, RoundForEvent],
+              IsFinal, RoundNumber, RoundForEvent, EventForRound],
 }
