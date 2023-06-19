@@ -71,8 +71,8 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
       if (!ext || !('staffUnavailable' in ext)) {
         return true
       }
-      var unavailableFn = driver.parseNode(ext.staffUnavailable.impl, ctx, true)
-      return !unavailableFn({ Group: group })
+      var unavailableFn = driver.parseNode(ext.staffUnavailable.implementation, ctx, true)
+      return !unavailableFn.value({ Group: group }, ctx)
     })
     var neededPeople = jobs.map((job) => job.count).reduce((a, v) => a+v)
     if (eligiblePeople.length < neededPeople) {
