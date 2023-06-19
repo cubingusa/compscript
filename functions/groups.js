@@ -478,10 +478,56 @@ const CreateGroup = {
   }
 }
 
+const ManuallyAssign = {
+  name: 'ManuallyAssign',
+  docs: 'Manually assign the provided competitors to the provided groups.',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'round',
+      type: 'Round',
+    },
+    {
+      name: 'stage',
+      type: 'String',
+    },
+    {
+      name: 'number',
+      type: 'Number',
+    }
+  ],
+  usesContext: true,
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (ctx, persons, round, stage, number) => {
+    var groupsForRound = lib.groupsForRoundCode(ctx.competition, round)
+    var groups = groupsForRound.filter((group) => {
+      return group.room.name === stage && group.activityCode.groupNumber === number
+    })
+    if (groups.length === 0) {
+      return 'No matching groups found'
+    }
+    persons.forEach((person) => {
+      person.assignments = person.assignments.filter((assignment) => {
+        return assignment.assignmentCode !== 'competitor' ||
+          !groupsForRound.map((group) => group.wcif.id).includes(assignment.activityId)
+      })
+      person.assignments.push({
+        activityId: groups[0].wcif.id,
+        assignmentCode: 'competitor',
+      })
+    })
+    return 'Assigned ' + persons.length + ' people.'
+  }
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup,
               GroupName, StartTime, EndTime, Date,
               AssignmentAtTime, Code, Group, Round, Event, Groups,
-              CreateGroup],
+              CreateGroup, ManuallyAssign],
 }
