@@ -1,5 +1,6 @@
 const { DateTime } = require('luxon')
 
+const events = require('./../events')
 const activityCode = require('./../activity_code')
 const assign = require('./../groups/assign')
 const scorers = require('./../groups/scorers')
@@ -546,10 +547,25 @@ const ManuallyAssign = {
   }
 }
 
+const FixGroupNames = {
+  name: 'FixGroupNames',
+  args: [],
+  outputType: 'Array<String>',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx) => {
+    return lib.allGroups(ctx.competition).map((group) => {
+      const activityCodeObj = activityCode.parse(group.wcif.activityCode)
+      group.wcif.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + group.room.name.split(' ')[0] + ' ' + activityCodeObj.groupNumber
+      return group.wcif.name
+    })
+  }
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               AssignmentAtTime, Code, Group, Round, Event, Groups,
-              CreateGroup, ManuallyAssign],
+              CreateGroup, ManuallyAssign, FixGroupNames],
 }

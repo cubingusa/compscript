@@ -4,6 +4,7 @@ const url = require('url')
 
 const auth = require('./auth')
 const activityCode = require('./activity_code')
+const events = require('./events')
 const extension = require('./extension')
 const perf = require('./perf')
 const pugFunctions = require('./pug_functions')
@@ -210,7 +211,7 @@ router.post('/:competitionId/schedule', async (req, res) => {
         for (var idx = 0; idx < roomActivity.childActivities.length; idx++) {
           var childActivity = roomActivity.childActivities[idx]
           var groupActivityCode = activityCodeObj.group(idx + 1)
-          childActivity.name = room.name.split(' ')[0] + ' ' + groupActivityCode.groupNumber
+          childActivity.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + room.name.split(' ')[0] + ' ' + groupActivityCode.groupNumber
           childActivity.activityCode = groupActivityCode.id()
           childActivity.startTime = (activityStart.plus({seconds: groupLength * idx})).toISO()
           childActivity.endTime = (activityStart.plus({seconds: groupLength * (idx + 1)})).toISO()
