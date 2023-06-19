@@ -46,6 +46,29 @@ const In = {
   },
 }
 
+const InByString = function(type) {
+  return {
+    name: 'In',
+    docs: 'Returns whether the provided element is in the given array, using toString().',
+    args: [
+      {
+        name: 'value',
+        type: type,
+        nullable: true,
+        canBeExternal: true,
+      },
+      {
+        name: 'array',
+        type: 'Array<' + type + '>',
+      },
+    ],
+    outputType: 'Boolean',
+    implementation: (value, array) => {
+      return array.some((val) => val.toString() === value.toString())
+    },
+  }
+}
+
 const Length = {
   name: 'Length',
   genericParams: ['T'],
@@ -138,5 +161,6 @@ const Concat = {
 }
 
 module.exports = {
-  functions: [MakeArray, MakeEmptyArray, In, Length, Map, Filter, Flatten, Concat],
+  functions: [MakeArray, MakeEmptyArray, In, InByString('Event'), InByString('Round'),
+              Length, Map, Filter, Flatten, Concat],
 }
