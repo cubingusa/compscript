@@ -46,10 +46,10 @@ const In = {
   },
 }
 
-const InByString = function(type) {
+const InActivityCode = function(type) {
   return {
     name: 'In',
-    docs: 'Returns whether the provided element is in the given array, using toString().',
+    docs: 'Returns whether the provided element is in the given array, overloaded for activity codes.',
     args: [
       {
         name: 'value',
@@ -64,9 +64,30 @@ const InByString = function(type) {
     ],
     outputType: 'Boolean',
     implementation: (value, array) => {
-      return array.some((val) => val.toString() === value.toString())
+      return array.some((val) => val.id() === value.id())
     },
   }
+}
+
+const InDateTime = {
+  name: 'In',
+  docs: 'In, overloaded for DateTime.',
+  args: [
+    {
+      name: 'value',
+      type: 'DateTime',
+      nullable: true,
+      canBeExternal: true,
+    },
+    {
+      name: 'array',
+      type: 'Array<DateTime>',
+    },
+  ],
+  outputType: 'Boolean',
+  implementation: (value, array) => {
+    return array.some((val) => val.toSeconds() === value.toSeconds())
+  },
 }
 
 const Length = {
@@ -161,6 +182,6 @@ const Concat = {
 }
 
 module.exports = {
-  functions: [MakeArray, MakeEmptyArray, In, InByString('Event'), InByString('Round'),
+  functions: [MakeArray, MakeEmptyArray, In, InActivityCode('Event'), InActivityCode('Round'), InDateTime,
               Length, Map, Filter, Flatten, Concat],
 }
