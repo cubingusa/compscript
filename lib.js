@@ -25,6 +25,16 @@ function personalBest(person, evt, type='default') {
   }
 }
 
+function miscActivityForId(competition, activityId) {
+  var matching = competition.schedule.venues.map((venue) => venue.rooms).flat()
+    .map((room) => room.activities.map((activity) => new groupLib.Group(activity, room, competition))).flat()
+    .filter((activity) => activity.wcif.id == activityId)
+  if (matching.length) {
+    return matching[0]
+  }
+  return null
+}
+
 function allGroups(competition) {
   return competition.schedule.venues.map((venue) => venue.rooms).flat()
     .map((room) => {
@@ -63,4 +73,5 @@ module.exports = {
   groupsForRoundCode: groupsForRoundCode,
   startTime: startTime,
   endTime: endTime,
+  miscActivityForId: miscActivityForId,
 }

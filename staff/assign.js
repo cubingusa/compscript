@@ -4,15 +4,10 @@ const extension = require('./../extension')
 const lib = require('./../lib')
 const driver = require('./../parser/driver')
 
-function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
+function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name) {
   var competition = ctx.competition
   var allGroups = lib.allGroups(competition)
-  // Find matching groups
-  var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
-    return groupFilter({Group: group})
-  })
-
-  var groupIds = groups.map((group) => group.wcif.id)
+  var groupIds = activities.map((group) => group.wcif.id)
 
   // Check if there's anyone who already has a staff assignment.
   var peopleAlreadyAssigned = competition.persons.filter((person) => {
@@ -29,10 +24,10 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
       })
     } else {
       return {
-        round: round,
+        round: name,
         warnings: ['Jobs are already saved. Not overwriting unless overwrite=true is added.'],
         assignments: {
-          groups: groups,
+          activities: activities,
           jobs: {},
         },
       }
@@ -40,10 +35,10 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
   }
 
   var out = {
-    round: round,
+    round: name,
     warnings: [],
     assignments: {
-      groups: groups,
+      activities: activities,
       jobs: {},
     },
   }
@@ -59,10 +54,10 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     }
   })
 
-  groups.forEach((group, idx) => {
+  activities.forEach((activity, idx) => {
     var conflictingGroupIds = allGroups.filter((otherGroup) => {
-      return group.startTime < otherGroup.endTime && otherGroup.startTime < group.endTime
-    }).map((group) => group.wcif.id)
+      return activity.startTime < otherGroup.endTime && otherGroup.startTime < activity.endTime
+    }).map((activity) => activity.wcif.id)
     var eligiblePeople = persons.filter((person) => {
       if (!person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))) {
         return false
@@ -72,11 +67,11 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
         return true
       }
       var unavailables = driver.parseNode(ext.staffUnavailable.implementation, ctx, true).value({}, ctx)
-      return !unavailables.some((unavail) => unavail(group))
+      return !unavailables.some((unavail) => unavail(activity))
     })
     var neededPeople = jobs.map((job) => job.count).reduce((a, v) => a+v)
     if (eligiblePeople.length < neededPeople) {
-      out.warnings.push('Not enough people for group ' + group.name() + ' (needed ' + neededPeople + ', got ' + eligiblePeople.length + ')')
+      out.warnings.push('Not enough people for activity ' + activity.name() + ' (needed ' + neededPeople + ', got ' + eligiblePeople.length + ')')
       return
     }
     var model = {
@@ -101,7 +96,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
       scorers.forEach((scorer) => {
         if (!scorer.caresAboutJobs) {
           var start = Date.now()
-          var subscore = scorer.Score(competition, person, group)
+          var subscore = scorer.Score(competition, person, activity)
           var end = Date.now()
           personScore += subscore
         }
@@ -114,7 +109,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
         scorers.forEach((scorer) => {
           if (scorer.caresAboutJobs && !scorer.caresAboutStations) {
             var start = Date.now()
-            var subscore = scorer.Score(competition, person, group, job.name)
+            var subscore = scorer.Score(competition, person, activity, job.name)
             var end = Date.now()
             jobScore += subscore
           }
@@ -126,7 +121,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
           scorers.forEach((scorer) => {
             if (scorer.caresAboutStations) {
               var start = Date.now()
-              var subscore = scorer.Score(competition, person, group, job.name, num + 1)
+              var subscore = scorer.Score(competition, person, activity, job.name, num + 1)
               var end = Date.now()
               score += subscore
             }
@@ -145,7 +140,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     var solution = solver.Solve(model)
     var end = Date.now()
     if (!solution.feasible) {
-      out.warnings.push('Failed to find a solution for group ' + group.name())
+      out.warnings.push('Failed to find a solution for activity ' + activity.name())
       return
     }
     Object.keys(solution).forEach((key) => {
@@ -163,16 +158,16 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
         var totalScore = 0
         var breakdown = {}
         scorers.forEach((scorer) => {
-          var subscore = scorer.Score(competition, person, group, jobName, stationNumber)
+          var subscore = scorer.Score(competition, person, activity, jobName, stationNumber)
           totalScore += subscore
           breakdown[scorer.constructor.name] = subscore
         })
         var jobKey = jobName + (stationNumber ? '-' + stationNumber : '')
-        var groupKey = group.wcif.id
-        if (!(groupKey in jobAssignments[jobKey])) {
-          jobAssignments[jobKey][groupKey] = []
+        var activityKey = activity.wcif.id
+        if (!(activityKey in jobAssignments[jobKey])) {
+          jobAssignments[jobKey][activityKey] = []
         }
-        jobAssignments[jobKey][groupKey].push({
+        jobAssignments[jobKey][activityKey].push({
           person: person,
           score: {
             total: totalScore,
@@ -183,7 +178,7 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
           person.assignments = []
         }
         person.assignments.push({
-          activityId: group.wcif.id,
+          activityId: activity.wcif.id,
           assignmentCode: 'staff-' + jobName,
           stationNumber: stationNumber
         })
@@ -191,6 +186,29 @@ function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
     })
   })
   return out
+}
+
+function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
+  var competition = ctx.competition
+  var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
+    return groupFilter({Group: group})
+  })
+  return AssignImpl(ctx, groups, persons, jobs, scorers, overwrite, round.toString())
+}
+
+function AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite) {
+  var activity = lib.miscActivityForId(ctx.competition, activityId)
+  if (activity === null) {
+    return {
+      round: 'unknown',
+      warnings: ['No activity found.'],
+      assignments: {
+        activities: [],
+        jobs: {},
+      },
+    }
+  }
+  return AssignImpl(ctx, [activity], persons, jobs, scorers, overwrite, activity.name())
 }
 
 function Job(name, count, assignStations, eligibility) {
@@ -204,5 +222,6 @@ function Job(name, count, assignStations, eligibility) {
 
 module.exports = {
   Assign: Assign,
+  AssignMisc: AssignMisc,
   Job: Job,
 }

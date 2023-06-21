@@ -40,6 +40,39 @@ const AssignStaff = {
   }
 }
 
+const AssignMisc = {
+  name: 'AssignMisc',
+  args: [
+    {
+      name: 'activityId',
+      type: 'Number',
+    },
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'jobs',
+      type: 'Array<AssignmentJob>',
+    },
+    {
+      name: 'scorers',
+      type: 'Array<AssignmentScorer>',
+    },
+    {
+      name: 'overwrite',
+      type: 'Boolean',
+      defaultValue: false,
+    }
+  ],
+  outputType: 'StaffAssignmentResult',
+  usesContext: true,
+  mutations: ['persons'],
+  implementation: (ctx, activityId, persons, jobs, scorers, overwrite) => {
+    return assign.AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite || ctx.dryrun)
+  }
+}
+
 const Job = {
   name: 'Job',
   args: [
@@ -298,7 +331,7 @@ const NumJobs = {
 }
 
 module.exports = {
-  functions: [AssignStaff, Job,
+  functions: [AssignStaff, AssignMisc, Job,
               JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
               SetStaffUnavailable, UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
               NumJobs],

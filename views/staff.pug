@@ -5,13 +5,13 @@ mixin staff(data)
   table
     tr
       th Job
-      each group in data.assignments.groups
-        th= group.name()
+      each activity in data.assignments.activities
+        th= activity.name()
     each jobName in Object.keys(data.assignments.jobs)
       tr
         td= jobName
-        each group in data.assignments.groups
+        each activity in data.assignments.activities
           td
-            if group.wcif.id in data.assignments.jobs[jobName]
-              each subAssignment in data.assignments.jobs[jobName][group.wcif.id]
+            if activity.wcif.id in data.assignments.jobs[jobName]
+              each subAssignment in data.assignments.jobs[jobName][activity.wcif.id]
                 div= subAssignment.person.name

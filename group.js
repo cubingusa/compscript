@@ -11,7 +11,11 @@ class Group {
   }
 
   name() {
-    return this.room.name.split(' ')[0] + ' ' + this.activityCode.groupNumber
+    if (this.activityCode.isActivity()) {
+      return this.room.name.split(' ')[0] + ' ' + this.activityCode.groupNumber
+    } else {
+      return this.activityCode.toString()
+    }
   }
 }
 
