@@ -37,7 +37,7 @@ class PerfLogger {
 
   log() {
     this.lastLog = (new Date()).getTime()
-    if (enabled) {
+    if (this.enabled) {
       console.log('Total time: ' + (this.lastLog - this.firstLog) / 1000)
       console.log('Calls: ')
       Object.entries(this.totalTimes).sort((a, b) => b[1] - a[1]).forEach((entry) => {
