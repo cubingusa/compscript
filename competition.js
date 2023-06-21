@@ -119,6 +119,7 @@ router.use('/:competitionId', async (req, res, next) => {
     req.logger.stop('fetch')
     next()
   } catch (e) {
+    console.log(e)
     res.redirect('/')
   }
 })
@@ -326,9 +327,9 @@ async function runScript(req, res, script, dryrun) {
       console.log(e)
     }
   }
-  ctx.logger.start('render')
+  logger.start('render')
   res.render('script', params)
-  ctx.logger.stop('render')
+  logger.stop('render')
   logger.log()
 }
 
