@@ -6,6 +6,7 @@ class PerfLogger {
     this.active = {}
     this.firstLog = null
     this.lastLog = null
+    this.enabled = false
   }
 
   start(ref) {
@@ -36,12 +37,14 @@ class PerfLogger {
 
   log() {
     this.lastLog = (new Date()).getTime()
-    console.log('Total time: ' + (this.lastLog - this.firstLog) / 1000)
-    console.log('Calls: ')
-    Object.entries(this.totalTimes).sort((a, b) => b[1] - a[1]).forEach((entry) => {
-      console.log(entry[0] + ': ' + (entry[1] / 1000) + ' (' + this.calls[entry[0]] + ')')
-    })
-    console.log('')
+    if (enabled) {
+      console.log('Total time: ' + (this.lastLog - this.firstLog) / 1000)
+      console.log('Calls: ')
+      Object.entries(this.totalTimes).sort((a, b) => b[1] - a[1]).forEach((entry) => {
+        console.log(entry[0] + ': ' + (entry[1] / 1000) + ' (' + this.calls[entry[0]] + ')')
+      })
+      console.log('')
+    }
   }
 }
 
