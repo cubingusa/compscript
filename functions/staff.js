@@ -31,12 +31,17 @@ const AssignStaff = {
       type: 'Boolean',
       defaultValue: false,
     },
+    {
+      name: 'avoidConflicts',
+      type: 'Boolean',
+      defaultValue: true,
+    },
   ],
   outputType: 'StaffAssignmentResult',
   usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, round, groupFilter, persons, jobs, scorers, overwrite) => {
-    return assign.Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun)
+  implementation: (ctx, round, groupFilter, persons, jobs, scorers, overwrite, avoidConflicts) => {
+    return assign.Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun, avoidConflicts)
   }
 }
 
@@ -63,13 +68,18 @@ const AssignMisc = {
       name: 'overwrite',
       type: 'Boolean',
       defaultValue: false,
-    }
+    },
+    {
+      name: 'avoidConflicts',
+      type: 'Boolean',
+      defaultValue: true,
+    },
   ],
   outputType: 'StaffAssignmentResult',
   usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, activityId, persons, jobs, scorers, overwrite) => {
-    return assign.AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite || ctx.dryrun)
+  implementation: (ctx, activityId, persons, jobs, scorers, overwrite, avoidConflicts) => {
+    return assign.AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite || ctx.dryrun, avoidConflicts)
   }
 }
 

@@ -4,7 +4,7 @@ const extension = require('./../extension')
 const lib = require('./../lib')
 const driver = require('./../parser/driver')
 
-function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name) {
+function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, avoidConflicts) {
   var competition = ctx.competition
   var allGroups = lib.allGroups(competition)
   var groupIds = activities.map((group) => group.wcif.id)
@@ -59,7 +59,8 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name) {
       return activity.startTime < otherGroup.endTime && otherGroup.startTime < activity.endTime
     }).map((activity) => activity.wcif.id)
     var eligiblePeople = persons.filter((person) => {
-      if (!person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))) {
+      if (avoidConflicts &&
+          !person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))) {
         return false
       }
       var ext = extension.getExtension(person, 'Person')
@@ -188,15 +189,15 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name) {
   return out
 }
 
-function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite) {
+function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite, avoidConflicts) {
   var competition = ctx.competition
   var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
     return groupFilter({Group: group})
   })
-  return AssignImpl(ctx, groups, persons, jobs, scorers, overwrite, round.toString())
+  return AssignImpl(ctx, groups, persons, jobs, scorers, overwrite, round.toString(), avoidConflicts)
 }
 
-function AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite) {
+function AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite, avoidConflicts) {
   var activity = lib.miscActivityForId(ctx.competition, activityId)
   if (activity === null) {
     return {
@@ -208,7 +209,7 @@ function AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite) {
       },
     }
   }
-  return AssignImpl(ctx, [activity], persons, jobs, scorers, overwrite, activity.name())
+  return AssignImpl(ctx, [activity], persons, jobs, scorers, overwrite, activity.name(), avoidConflicts)
 }
 
 function Job(name, count, assignStations, eligibility) {
