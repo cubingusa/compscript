@@ -189,20 +189,83 @@ const SetStaffUnavailable = {
       type: 'Array<Person>',
     },
     {
-      name: 'groupFilter',
-      type: 'Boolean(Group)',
+      name: 'times',
+      type: 'Array<StaffUnavailability>',
       serialized: true,
-    },
+    }
   ],
   outputType: 'String',
   mutations: ['persons'],
-  usesContext: true,
-  implementation: (ctx, persons, groupFilter) => {
+  implementation: (persons, times) => {
     persons.forEach((person) => {
       const ext = extension.getOrInsertExtension(person, 'Person')
-      ext.staffUnavailable = { implementation: groupFilter, cmd: ctx.command }
+      ext.staffUnavailable = { implementation: times }
     })
     return 'Set unavailable for ' + persons.map((person) => person.name).join(', ')
+  }
+}
+
+const UnavailableBetween = {
+  name: 'UnavailableBetween',
+  docs: 'Indicates that the staff member is unavailable at the given time',
+  args: [
+    {
+      name: 'start',
+      type: 'DateTime',
+    },
+    {
+      name: 'end',
+      type: 'DateTime',
+    },
+  ],
+  outputType: 'StaffUnavailability',
+  implementation: (start, end) => {
+    return (activity) => activity.endTime > start && end > activity.startTime
+  }
+}
+
+const UnavailableForDate = {
+  name: 'UnavailableForDate',
+  docs: 'Indicates that the staff member is unavailable on the given date',
+  args: [
+    {
+      name: 'date',
+      type: 'Date',
+    },
+  ],
+  outputType: 'StaffUnavailability',
+  implementation: (date) => {
+    return (activity) => activity.startTime.year === date.year && activity.startTime.month === date.month && activity.startTime.day === date.day
+  }
+}
+
+const DuringTimes = {
+  name: 'DuringTimes',
+  docs: 'Indicates the staff member is unavailable during groups that start in the provided times',
+  args: [
+    {
+      name: 'times',
+      type: 'Array<DateTime>',
+    },
+  ],
+  outputType: 'StaffUnavailability',
+  implementation: (times) => {
+    return (activity) => times.some((time) => +time === +activity.startTime)
+  }
+}
+
+const BeforeTimes = {
+  name: 'BeforeTimes',
+  docs: 'Indicates the staff member is unavailable during groups that end in the provided times',
+  args: [
+    {
+      name: 'times',
+      type: 'Array<DateTime>',
+    },
+  ],
+  outputType: 'StaffUnavailability',
+  implementation: (times) => {
+    return (activity) => times.some((time) => +time === +activity.endTime)
   }
 }
 
@@ -237,5 +300,6 @@ const NumJobs = {
 module.exports = {
   functions: [AssignStaff, Job,
               JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
-              SetStaffUnavailable, NumJobs],
+              SetStaffUnavailable, UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
+              NumJobs],
 }
