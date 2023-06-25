@@ -22,7 +22,6 @@ const Define = function(argCount) {
     implementation: (ctx, name, implementation) => {
       const ext = extension.getOrInsertExtension(ctx.competition, 'Competition.udf.' + name)
       ext.impl = implementation
-      ext.cmd = ctx.command
       ext.name = name
       return 'Defined function ' + name
     },
