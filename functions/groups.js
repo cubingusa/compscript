@@ -344,7 +344,8 @@ const AssignmentAtTime = {
         group: lib.groupForActivityId(ctx.competition, assignment.activityId)
       }
     }).filter((assignment) => {
-      return (time >= lib.startTime(assignment.group, ctx.competition) &&
+      return (assignment.group !== null &&
+              time >= lib.startTime(assignment.group, ctx.competition) &&
               time < lib.endTime(assignment.group, ctx.competition))
     })
     return assignments.length == 0 ? null : assignments[0]
@@ -562,10 +563,49 @@ const FixGroupNames = {
   }
 }
 
+const CheckForMissingGroups = {
+  name: 'CheckForMissingGroups',
+  args: [],
+  outputType: 'Array<String>',
+  usesContext: true,
+  implementation: (ctx) => {
+    issues = [];
+    var groupsById = Object.fromEntries(lib.allGroups(ctx.competition).map((g) => [g.wcif.id, g]))
+    var assignedPersonsByRound = {}
+    ctx.competition.persons.forEach((p) => {
+      p.assignments.forEach((a) => {
+        var round = groupsById[a.activityId].activityCode.group(null).id()
+        if (assignedPersonsByRound[round] === undefined) {
+          assignedPersonsByRound[round] = []
+        }
+        assignedPersonsByRound[round].push(p.registrantId)
+      })
+    })
+    ctx.competition.events.forEach((e) => {
+      e.rounds.forEach((r) => {
+        var assigned = assignedPersonsByRound[r.id]
+        if (r.results.length > 0 && assigned === undefined) {
+          issues.push("No groups for " + r.id)
+          return
+        }
+        r.results.forEach((res) => {
+          if (!assigned.includes(res.personId)) {
+            issues.push("Missing groups for " + res.personId + " in round " + r.id)
+          }
+        })
+      })
+    })
+    if (issues.length === 0) {
+      return ["ok"]
+    }
+    return issues
+  }
+}
+
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               AssignmentAtTime, Code, Group, Round, Event, Groups,
-              CreateGroup, ManuallyAssign, FixGroupNames],
+              CreateGroup, ManuallyAssign, FixGroupNames, CheckForMissingGroups],
 }
