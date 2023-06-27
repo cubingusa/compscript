@@ -115,7 +115,7 @@ router.use('/:competitionId', async (req, res, next) => {
   req.logger = new perf.PerfLogger()
   try {
     req.logger.start('fetch')
-    req.competition = await auth.getWcaApi('/api/v0/competitions/' + req.params.competitionId + '/wcif', req, res)
+    req.competition = await auth.getWcif(req.params.competitionId, req, res)
     req.logger.stop('fetch')
     next()
   } catch (e) {

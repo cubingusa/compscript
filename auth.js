@@ -1,11 +1,19 @@
 const express = require('express')
 const { Issuer, custom } = require('openid-client')
+const fs = require('fs')
+const fse = require('fs-extra')
+
+fse.ensureDirSync('.wcif_cache')
 
 custom.setHttpOptionsDefaults({
   timeout: 240000,
 });
 
 var router = express.Router()
+
+function cachePath(competitionId) {
+  return '.wcif_cache/' + competitionId
+}
 
 const wca = new Issuer({
   issuer: 'worldcubeassociation',
@@ -22,6 +30,29 @@ const client = new wca.Client({
   response_type: 'code',
   redirect_uri: redirect_uri
 })
+
+async function getWcif(competitionId, req, res) {
+  var shouldFetch = false
+  try {
+    var stat = fs.statSync(cachePath(competitionId))
+    if (stat.mtimeMs < Date.now() - 6 * 60 * 60 * 1000) {
+      shouldFetch = true
+    }
+  } catch (e) {
+    console.log(e)
+    shouldFetch = true
+  }
+  if (shouldFetch) {
+    console.log('fetching WCIF')
+    var wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif', req, res)
+    fs.writeFileSync(cachePath(competitionId), JSON.stringify(wcif))
+    return wcif
+  } else {
+    console.log('reading cached WCIF')
+    var wcif = fs.readFileSync(cachePath(competitionId))
+    return JSON.parse(wcif)
+  }
+}
 
 async function getWcaApi(resourceUrl, req, res) {
   if (!req.session.refreshToken) {
@@ -49,6 +80,12 @@ async function patchWcif(obj, keys, req, res) {
          headers: {'Content-Type': 'application/json'}})
   if (out.statusCode !== 200) {
     throw new Error(out.body.toString())
+  }
+  // This automatically clears the cache.
+  try {
+    fs.unlinkSync(cachePath(obj.id))
+  } catch(e) {
+    console.log(e)
   }
   return JSON.parse(out.body.toString());
 }
@@ -118,6 +155,7 @@ async function redirectIfNotLoggedIn(req, res, next) {
 module.exports = {
   router: router,
   getWcaApi: getWcaApi,
+  getWcif: getWcif,
   redirectIfNotLoggedIn: redirectIfNotLoggedIn,
   patchWcif: patchWcif,
 }

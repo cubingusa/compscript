@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 const Type = {
   name: 'Type',
   genericParams: ['T'],
@@ -12,6 +14,16 @@ const Type = {
   implementation: (generics, arg) => generics.T
 }
 
+const ClearCache = {
+  name: 'ClearCache',
+  args: [],
+  outputType: 'String',
+  usesContext: true,
+  implementation: (ctx) => {
+    fs.unlinkSync('.wcif_cache/' + ctx.competition.id)
+  }
+}
+
 module.exports = {
-  functions: [Type],
+  functions: [Type, ClearCache],
 }
