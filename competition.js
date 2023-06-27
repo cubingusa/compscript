@@ -323,7 +323,7 @@ async function runScript(req, res, script, dryrun) {
         }
       }
     } catch (e) {
-      params.outputs.push({type: 'Exception', data: e.stack })
+      params.outputs.splice(0, 0, {type: 'Exception', data: e.stack })
       console.log(e)
     }
   }
