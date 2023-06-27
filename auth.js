@@ -39,7 +39,6 @@ async function getWcif(competitionId, req, res) {
       shouldFetch = true
     }
   } catch (e) {
-    console.log(e)
     shouldFetch = true
   }
   if (shouldFetch) {
