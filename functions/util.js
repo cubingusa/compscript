@@ -1,5 +1,7 @@
 const fs = require('fs')
 
+const extension = require('./../extension')
+
 const Type = {
   name: 'Type',
   genericParams: ['T'],
@@ -21,9 +23,43 @@ const ClearCache = {
   usesContext: true,
   implementation: (ctx) => {
     fs.unlinkSync('.wcif_cache/' + ctx.competition.id)
+    return 'cache cleared'
+  }
+}
+
+const SetExtension = {
+  name: 'SetExtension',
+  docs: 'Sets a property in a competition-level extension.',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'property',
+      type: 'String',
+    },
+    {
+      name: 'value',
+      type: '$T',
+    },
+    {
+      name: 'type',
+      type: 'String',
+    },
+    {
+      name: 'namespace',
+      type: 'String',
+      default: 'org.cubingusa.natshelper.v1',
+    }
+  ],
+  outputType: 'String',
+  usesContext: true,
+  mutations: ['extensions'],
+  implementation: (ctx, property, value, type, namespace) => {
+    var ext = extension.getOrInsertExtension(ctx.competition, type, namespace)
+    ext[property] = value
+    return 'Set ' + property + ' to ' + value
   }
 }
 
 module.exports = {
-  functions: [Type, ClearCache],
+  functions: [Type, ClearCache, SetExtension],
 }
