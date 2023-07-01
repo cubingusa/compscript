@@ -3,7 +3,7 @@ const { Issuer, custom } = require('openid-client')
 const fs = require('fs')
 const fse = require('fs-extra')
 
-fse.ensureDirSync('.wcif_cache')
+fse.ensureDirSync('.wcif_cache/' + process.env.ENV)
 
 custom.setHttpOptionsDefaults({
   timeout: 240000,
@@ -12,7 +12,7 @@ custom.setHttpOptionsDefaults({
 var router = express.Router()
 
 function cachePath(competitionId) {
-  return '.wcif_cache/' + competitionId
+  return '.wcif_cache/' + process.env.ENV + '/' + competitionId
 }
 
 const wca = new Issuer({
@@ -157,4 +157,5 @@ module.exports = {
   getWcif: getWcif,
   redirectIfNotLoggedIn: redirectIfNotLoggedIn,
   patchWcif: patchWcif,
+  cachePath: cachePath,
 }

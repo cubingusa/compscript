@@ -1,5 +1,6 @@
 const fs = require('fs')
 
+const auth = require('./../auth')
 const extension = require('./../extension')
 
 const Type = {
@@ -22,7 +23,7 @@ const ClearCache = {
   outputType: 'String',
   usesContext: true,
   implementation: (ctx) => {
-    fs.unlinkSync('.wcif_cache/' + ctx.competition.id)
+    fs.unlinkSync(auth.cachePath(ctx.competition.id))
     return 'cache cleared'
   }
 }
