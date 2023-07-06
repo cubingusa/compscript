@@ -563,6 +563,26 @@ const FixGroupNames = {
   }
 }
 
+const FixGroupNumbers = {
+  name: 'FixGroupNumbers',
+  args: [],
+  outputType: 'Array<String>',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx) => {
+    return lib.allGroups(ctx.competition).map((group) => {
+      const activityCodeObj = activityCode.parse(group.wcif.activityCode)
+      if (activityCodeObj.groupNumber === 0) {
+        group.wcif.activityCode = activityCodeObj.group(20).id()
+        group.wcif.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + group.room.name.split(' ')[0] + ' ' + 20
+        return group.wcif.name
+      } else {
+        return null
+      }
+    })
+  }
+}
+
 const CheckForMissingGroups = {
   name: 'CheckForMissingGroups',
   args: [],
@@ -607,5 +627,5 @@ module.exports = {
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               AssignmentAtTime, Code, Group, Round, Event, Groups,
-              CreateGroup, ManuallyAssign, FixGroupNames, CheckForMissingGroups],
+              CreateGroup, ManuallyAssign, FixGroupNames, CheckForMissingGroups, FixGroupNumbers],
 }
