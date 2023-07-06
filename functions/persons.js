@@ -282,7 +282,12 @@ const AddPerson = {
   outputType: 'String',
   mutations: ['persons'],
   implementation: (ctx, wcaUserId) => {
-    ctx.competition.persons.push({ wcaUserId: wcaUserId })
+    ctx.competition.persons.push({
+      wcaUserId: wcaUserId,
+      registration: {
+        isCompeting: false,
+      }
+    })
     return 'Added person with userId ' + wcaUserId
   }
 }
