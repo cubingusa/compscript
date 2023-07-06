@@ -411,6 +411,8 @@ const ClearAssignments = {
   mutations: ['persons'],
   outputType: 'String',
   implementation: (persons, clearStaff, clearGroups) => {
+    // TODO: clear this after nationals
+    clearGroups = false
     persons.forEach((person) => {
       person.assignments = person.assignments.filter((assignment) => {
         if (clearGroups && assignment.assignmentCode === 'competitor') {
