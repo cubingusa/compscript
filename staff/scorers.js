@@ -144,14 +144,8 @@ class GroupScorer {
 
 class FollowingGroupScorer {
   constructor(competition, weight) {
-    this.timeToGroups = {}
-    lib.allGroups(competition).forEach((group) => {
-      var startTime = group.startTime.toSeconds()
-      if (this.timeToGroups[startTime] === undefined) {
-        this.timeToGroups[startTime] = []
-      }
-      this.timeToGroups[startTime].push(group.wcif.id)
-    })
+    this.groupToTime = Object.fromEntries(
+        lib.allGroups(competition).map((group) => [group.wcif.id, group.startTime.toSeconds()]))
     this.weight = weight
     this.caresAboutStations = false
     this.caresAboutJobs = false
@@ -159,8 +153,8 @@ class FollowingGroupScorer {
 
   Score(competition, person, group) {
     if (person.assignments.filter((assignment) => assignment.assignmentCode === 'competitor')
-        .map((assignment) => this.timeToGroups[assignment.activityId])
-        .includes(group.startTime.toSeconds())) {
+        .map((assignment) => this.groupToTime[assignment.activityId])
+        .includes(group.endTime.toSeconds())) {
       return this.weight
     } else {
       return 0
