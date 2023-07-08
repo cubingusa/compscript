@@ -52,53 +52,69 @@ class PreferenceScorer {
   }
 }
 
-class AdjacentGroupScorer {
-  constructor(competition, weight) {
-    this.allGroups = lib.allGroups(competition)
-    this.weight = weight
-    this.caresAboutStations = true
+function PrecedingAssignment(person, group, groupsById) {
+  var assignmentsFiltered = person.assignments.filter((assignment) => {
+    return groupsById[assignment.activityId] !== undefined &&
+      +groupsById[assignment.activityId].endTime === +group.startTime
+  })
+  if (assignmentsFiltered.length) {
+    return assignmentsFiltered[0]
+  }
+  return null
+}
+
+class PrecedingAssignmentsScorer {
+  constructor(competition, center, posWeight, negWeight, assignmentFilter) {
+    this.center = center
+    this.posWeight = posWeight
+    this.negWeight = negWeight
+    this.assignmentFilter = assignmentFilter
+    this.groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.wcif.id, g]))
+    this.caresAboutStations = false
     this.caresAboutJobs = true
-    this.name = 'AdjacentGroupScorer'
   }
 
   Score(competition, person, group, job, stationNumber) {
-    var sameRoom = this.allGroups.filter((otherGroup) => {
-      return otherGroup.room.id == group.room.id
-    })
-    var allPrevious = sameRoom.filter((otherGroup) => {
-      return otherGroup.endTime.toMillis() === group.startTime.toMillis()
-    })
-    var previousGroup = allPrevious.length ? allPrevious[0] : null
-
-    var allNext = sameRoom.filter((otherGroup) => {
-      return otherGroup.startTime.toMillis() === group.endTime.toMillis()
-    })
-    var nextGroup = allNext.length ? allNext[0] : null
-
-    if (!previousGroup && !nextGroup) {
+    var assignment = PrecedingAssignment(person, group, this.groupsById)
+    if (assignment === null || !this.assignmentFilter(assignment, job)) {
       return 0
     }
-    return [previousGroup, nextGroup].filter((x) => !!x).map((group) => {
-      var matchingAssignments = person.assignments.filter((assignment) => assignment.activityId == group.wcif.id)
-      if (!matchingAssignments.length) {
-        return 0
-      }
-      var assignment = matchingAssignments[0]
-      if (!assignment.assignmentCode.startsWith('staff-')) {
-        return 0
-      }
-      var code = assignment.assignmentCode.slice('staff-'.length)
-      if (code !== job) {
-        return 0
-      }
-      if (stationNumber && (stationNumber == assignment.stationNumber)) {
-        return this.weight
-      } else if (!stationNumber && !assignment.stationNumber) {
-        return this.weight
-      } else {
-        return 0
-      }
-    }).reduce((s, subscore) => s + subscore)
+    var mostRecentGroup = this.groupsById[assignment.activityId]
+    var endTime = mostRecentGroup.endTime
+    var startTime = mostRecentGroup.startTime
+    while (assignment !== null && this.assignmentFilter(assignment, job)) {
+      var nextGroup = this.groupsById[assignment.activityId]
+      startTime = nextGroup.startTime
+      assignment = PrecedingAssignment(person, nextGroup, this.groupsById)
+    }
+    var totalTime = endTime.diff(startTime, 'minutes').minutes
+    //console.log('For person ' + person.name + ' ' + group.activityCode + ' ' + job + ' totalTime: ' + totalTime + ' center: ' + this.center)
+    if (totalTime > this.center) {
+      //console.log('over-score ' + (totalTime - this.center) / this.center * this.posWeight)
+      return (totalTime - this.center) / this.center * this.posWeight
+    } else {
+      //console.log('under-score ' + (this.center - totalTime) / this.center * this.negWeight)
+      return (this.center - totalTime) / this.center * this.negWeight
+    }
+  }
+}
+
+class MismatchedStationScorer {
+  constructor(competition, weight) {
+    this.groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.wcif.id, g]))
+    this.caresAboutStations = true
+    this.caresAboutJobs = true
+    this.weight = weight
+  }
+  Score(competition, person, group, job, stationNumber) {
+    var previousAssignment = PrecedingAssignment(person, group, this.groupsById)
+    if (stationNumber !== null && previousAssignment !== null &&
+        previousAssignment.stationNumber !== null &&
+        'staff-' + job === previousAssignment.assignmentCode &&
+        previousAssignment.stationNumber !== stationNumber) {
+      return this.weight
+    }
+    return 0
   }
 }
 
@@ -165,7 +181,8 @@ class FollowingGroupScorer {
 module.exports = {
   JobCountScorer: JobCountScorer,
   PreferenceScorer: PreferenceScorer,
-  AdjacentGroupScorer: AdjacentGroupScorer,
+  PrecedingAssignmentsScorer: PrecedingAssignmentsScorer,
+  MismatchedStationScorer: MismatchedStationScorer,
   ScrambleSpeedScorer: ScrambleSpeedScorer,
   GroupScorer: GroupScorer,
   FollowingGroupScorer: FollowingGroupScorer,

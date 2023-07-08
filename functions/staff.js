@@ -152,8 +152,58 @@ const PreferenceScorer = {
   },
 }
 
-const AdjacentGroupScorer = {
-  name: 'AdjacentGroupScorer',
+const SameJobScorer = {
+  name: 'SameJobScorer',
+  args: [
+    {
+      name: 'center',
+      type: 'Number',
+    },
+    {
+      name: 'posWeight',
+      type: 'Number',
+    },
+    {
+      name: 'negWeight',
+      type: 'Number',
+    },
+  ],
+  outputType: 'AssignmentScorer',
+  usesContext: true,
+  implementation: (ctx, center, posWeight, negWeight) => {
+    return new scorers.PrecedingAssignmentsScorer(
+        ctx.competition, center, posWeight, negWeight,
+        (assignment, job) => assignment.assignmentCode === 'staff-' + job)
+  },
+}
+
+const ConsecutiveJobScorer = {
+  name: 'ConsecutiveJobScorer',
+  args: [
+    {
+      name: 'center',
+      type: 'Number',
+    },
+    {
+      name: 'posWeight',
+      type: 'Number',
+    },
+    {
+      name: 'negWeight',
+      type: 'Number',
+    },
+  ],
+  outputType: 'AssignmentScorer',
+  usesContext: true,
+  implementation: (ctx, center, posWeight, negWeight) => {
+    return new scorers.PrecedingAssignmentsScorer(
+        ctx.competition, center, posWeight, negWeight,
+        (assignment, job) => assignment.assignmentCode !== 'competitor')
+  },
+}
+
+const MismatchedStationScorer = {
+  name: 'MismatchedStationScorer',
   args: [
     {
       name: 'weight',
@@ -163,7 +213,7 @@ const AdjacentGroupScorer = {
   outputType: 'AssignmentScorer',
   usesContext: true,
   implementation: (ctx, weight) => {
-    return new scorers.AdjacentGroupScorer(ctx.competition, weight)
+    return new scorers.MismatchedStationScorer(ctx.competition, weight)
   },
 }
 
@@ -342,7 +392,9 @@ const NumJobs = {
 
 module.exports = {
   functions: [AssignStaff, AssignMisc, Job,
-              JobCountScorer, PreferenceScorer, AdjacentGroupScorer, ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
+              JobCountScorer, PreferenceScorer,
+              SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
+              ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
               SetStaffUnavailable, UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
               NumJobs],
 }
