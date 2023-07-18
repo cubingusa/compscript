@@ -131,6 +131,35 @@ const AssignmentsBeforeCompeting = {
   }
 }
 
+const CreateAssignments = {
+  name: 'CreateAssignments',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'activityId',
+      type: 'Number',
+    },
+    {
+      name: 'assignmentCode',
+      type: 'String',
+    },
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (persons, activityId, assignmentCode) => {
+    persons.forEach((person) => {
+      person.assignments.push({
+        activityId: activityId,
+        assignmentCode: assignmentCode,
+      })
+    })
+    return 'ok'
+  }
+}
+
 module.exports = {
-  functions: [Type, ClearCache, SetExtension, RenameAssignments, AssignmentsBeforeCompeting],
+  functions: [Type, ClearCache, SetExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments],
 }
