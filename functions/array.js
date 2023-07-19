@@ -190,15 +190,27 @@ const Sort = {
       type: 'Array<$ValType>',
     },
     {
-      name: 'sort',
+      name: 'sortFns',
       type: '$SortType($ValType)',
       lazy: true,
+      repeated: true,
     }
   ],
   outputType: 'Array<$ValType>',
-  implementation: (vals, sort) => {
+  usesGenericTypes: true,
+  implementation: (generics, vals, sortFns) => {
     return vals.sort((valA, valB) => {
-      return sort({[generics.ValType]: valA}) < sort({[generics.ValType]: valB}) ? -1 : 1
+      for (const sortFn of sortFns) {
+        var sortA = sortFn({[generics.ValType]: valA})
+        var sortB = sortFn({[generics.ValType]: valB})
+        if (sortA < sortB) {
+          return -1
+        }
+        if (sortA > sortB) {
+          return 1
+        }
+      }
+      return 0
     })
   }
 }

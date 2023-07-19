@@ -14,7 +14,7 @@ const Table = {
   ],
   outputType: 'Table',
   usesGenericTypes: true,
-  implementation: (generics, keys, columns, sort) => {
+  implementation: (generics, keys, columns) => {
     var rows = keys
     rows = rows.map((val) => {
       return columns({[generics.ArgType]: val})
