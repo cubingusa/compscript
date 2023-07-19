@@ -181,7 +181,29 @@ const Concat = {
   }
 }
 
+const Sort = {
+  name: 'Sort',
+  genericParams: ['ValType', 'SortType'],
+  args: [
+    {
+      name: 'vals',
+      type: 'Array<$ValType>',
+    },
+    {
+      name: 'sort',
+      type: '$SortType($ValType)',
+      lazy: true,
+    }
+  ],
+  outputType: 'Array<$ValType>',
+  implementation: (vals, sort) => {
+    return vals.sort((valA, valB) => {
+      return sort({[generics.ValType]: valA}) < sort({[generics.ValType]: valB}) ? -1 : 1
+    })
+  }
+}
+
 module.exports = {
   functions: [MakeArray, MakeEmptyArray, In, InActivityCode('Event'), InActivityCode('Round'), InDateTime,
-              Length, Map, Filter, Flatten, Concat],
+              Length, Map, Filter, Flatten, Concat, Sort],
 }
