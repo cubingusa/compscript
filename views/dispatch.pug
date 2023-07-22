@@ -57,3 +57,7 @@ mixin dispatch(value)
       div= value.data.toLocaleString(fn.DateTime.DATE_FULL)
     if value.type == 'Event'
       div= value.data.eventId
+    if value.type == 'NoPageBreak'
+      div(style={'break-inside': 'avoid'})
+        each data in value.data
+          +dispatch(data)
