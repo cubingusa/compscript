@@ -422,6 +422,20 @@ const Groups = {
   implementation: (ctx, round) => lib.groupsForRoundCode(ctx.competition, round),
 }
 
+const GroupForActivityId = {
+  name: 'GroupForActivityId',
+  docs: 'Returns the group with the specified id',
+  args: [
+    {
+      name: 'id',
+      type: 'Number',
+    }
+  ],
+  outputType: 'Group',
+  usesContext: true,
+  implementation: (ctx, id) => lib.groupForActivityId(ctx.competition, id),
+}
+
 const CreateGroup = {
   name: 'CreateGroup',
   docs: 'Inserts a group into the schudle.',
@@ -628,6 +642,6 @@ module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
-              AssignmentAtTime, Code, Group, Round, Event, Groups,
+              AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups,
               CreateGroup, ManuallyAssign, FixGroupNames, CheckForMissingGroups, FixGroupNumbers],
 }
