@@ -415,6 +415,7 @@ const Groups = {
     {
       name: 'round',
       type: 'Round',
+      canBeExternal: true,
     }
   ],
   outputType: 'Array<Group>',
