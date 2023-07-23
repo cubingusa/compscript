@@ -8,7 +8,7 @@ mixin table(data)
     each row in data.rows
       tr
         each cell in row
-          td
+          td(style=cell.value == null ? 'background-color: #ccc' : '')
             if cell.link !== null
               a(href=cell.link)
                 if cell.value !== null

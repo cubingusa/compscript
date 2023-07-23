@@ -211,16 +211,16 @@ const AssignmentReport = {
         ].concat(
             [...Array(maxGroupCount).keys()].map((groupNumber) => {
               if (groupNumber >= groupsByRound[round].length) {
-                return {value: ''}
+                return {value: null}
               }
               var group = groupsByRound[round][groupNumber]
               for (const assignment of person.assignments) {
                 var assignmentGroup = allGroupsKeyed[assignment.activityId]
                 if (!!assignmentGroup && assignmentGroup.startTime <= group.startTime && assignmentGroup.endTime > group.startTime) {
                   var assignmentCode = assignment.assignmentCode.replace("staff-", "")
-                  var code = assignmentCode.toUpperCase()[0] + assignmentCode.substr(1) + " " + assignmentGroup.room.name.substr(0, assignmentGroup.room.name.indexOf(' '))
+                  var code = assignmentCode.toUpperCase()[0] + " " + assignmentGroup.room.name[0]
                   if (assignment.stationNumber > 0) {
-                    return {value: code + " " + assignment.stationNumber}
+                    return {value: code + assignment.stationNumber}
                   } else {
                     return {value: code}
                   }
