@@ -22,6 +22,19 @@ const Type = {
   implementation: (generics, arg) => generics.T
 }
 
+const ToString = {
+  name: 'ToString',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'arg',
+      type: '$T',
+    },
+  ],
+  outputType: 'String',
+  implementation: (arg) => arg.toString(),
+}
+
 const ClearCache = {
   name: 'ClearCache',
   args: [],
@@ -252,5 +265,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, ClearCache, SetExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport],
+  functions: [Type, ClearCache, SetExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString],
 }

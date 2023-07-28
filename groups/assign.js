@@ -62,6 +62,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
   var groupSizeLimit = people.length / groups.length
   warnings = []
   assignmentSets.forEach((set) => {
+    console.log('assigning ' + set.name)
     var eligibleGroups = groups.filter((group) => set.groupFilter({Group: group}))
     var eligiblePeople = people.filter((person) => set.personFilter({Person: person}))
     if (eligibleGroups.length == 0) {
@@ -99,6 +100,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     })
     var totalToAssign = queue.length
     while (queue.length > preAssignedTotal) {
+      console.log(queue.length + ' left')
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] <= groupSizeLimit)
       // but if that filters out all groups, it means the math is wrong and we need to allow more space.

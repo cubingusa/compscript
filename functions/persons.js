@@ -428,11 +428,46 @@ const ClearAssignments = {
   }
 }
 
+const HasResults = {
+  name: 'HasResults',
+  docs: 'Returns true if the person appears in the results',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'Boolean',
+  usesContext: true,
+  implementation: (ctx, person) => {
+    return ctx.competition.events.map((event) => event.rounds[0].results).flat().some((result) => result.personId === person.registrantId && result.attempts.length > 0)
+  }
+}
+
+const IsPossibleNoShow = {
+  name: 'IsPossibleNoShow',
+  docs: 'Returns true if the competitor has not competed and has missed at least one event',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Boolean',
+  usesContext: true,
+  implementation: (ctx, person) => {
+    return !ctx.competition.events.map((event) => event.rounds[0].results).flat().some((result) => result.personId === person.registrantId && result.attempts.length > 0) &&
+      ctx.competition.events.some((event) => !event.rounds[0].results.map((result) => result.personId).includes(person.registrantId) && person.registration && person.registration.eventIds.includes(event.id))
+  }
+}
+
 module.exports = {
   functions:
       [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, DeleteProperty, AddPerson, Persons,
        AddRole, DeleteRole, HasRole, RegistrationStatus,
-       ClearAssignments],
+       ClearAssignments, HasResults, IsPossibleNoShow],
 }

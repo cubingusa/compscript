@@ -45,6 +45,7 @@ async function getWcif(competitionId, req, res) {
     console.log('fetching WCIF')
     var wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif', req, res)
     fs.writeFileSync(cachePath(competitionId), JSON.stringify(wcif))
+    console.log('fetched WCIF')
     return wcif
   } else {
     console.log('reading cached WCIF')
@@ -59,7 +60,11 @@ async function getWcaApi(resourceUrl, req, res) {
   }
   var tokenSet = await client.refresh(req.session.refreshToken)
   req.session.refreshToken = tokenSet.refresh_token
-  var out = await client.requestResource(`${process.env.WCA_HOST}/${resourceUrl}`, tokenSet.access_token)
+  var host = (resourceUrl.startsWith('api/v0') || resourceUrl.startsWith('/api/v0')) ? process.env.WCA_CDN_HOST : process.env.WCA_HOST
+  resourceUrl = resourceUrl.replace('api/v0', '')
+  console.log('starting call ' + resourceUrl)
+  var out = await client.requestResource(`${host}/${resourceUrl}`, tokenSet.access_token)
+  console.log('ending call')
   return JSON.parse(out.body.toString());
 }
 
@@ -70,9 +75,10 @@ async function patchWcif(obj, keys, req, res) {
   keys.forEach((key) => {
     toPatch[key] = obj[key]
   })
+  // TODO: Fix this -- we should use api/v0 unless it's on api.worldcubeassociation.org.
   var out =
     await client.requestResource(
-        `${process.env.WCA_HOST}/api/v0/competitions/${obj.id}/wcif`,
+        `${process.env.WCA_CDN_HOST}/competitions/${obj.id}/wcif`,
         tokenSet.access_token,
         {method: 'PATCH',
          body: JSON.stringify(toPatch),
@@ -137,6 +143,7 @@ async function redirectIfNotLoggedIn(req, res, next) {
       return
     } catch (e) {
       console.log('error, redirecting')
+      console.log(e)
       // Refresh token doesn't work, go to login flow.
     }
   }
