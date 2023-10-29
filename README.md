@@ -57,6 +57,6 @@ SumOfRankings(_333)
 
 ## Google Sheets integration
 
-We use the google-spreadsheets NPM package to read from Google Sheets. Please refer to [this page](https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication) for how to create a Service Account with Google Sheets access. Move the generated JSON file to `google-credentials.json` in the top-level project directory, and make sure to grant the service account access to the spreadsheet you'd like it to read.
+We use the google-spreadsheets NPM package to read from Google Sheets. Please refer to [this page](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication) for how to create a Service Account with Google Sheets access. Move the generated JSON file to `google-credentials.json` in the top-level project directory, and make sure to grant the service account access to the spreadsheet you'd like it to read.
 
 Do not share the service account credentials with anyone who should not have access to the spreadsheets you'd like to read.
