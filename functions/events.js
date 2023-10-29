@@ -74,12 +74,13 @@ const CompetingIn_Event = {
 }
 
 const CompetingIn_Round = {
-  name: 'CompetingIn',
+  name: 'CompetingInRound',
   docs: 'Returns true if the specified person is competing in the specified round',
   args: [
     {
       name: 'round',
       type: 'Round',
+      canBeExternal: true,
     },
     {
       name: 'person',
@@ -92,6 +93,33 @@ const CompetingIn_Round = {
   implementation: (ctx, round, person) => {
     var rd = lib.getWcifRound(ctx.competition, round)
     return rd.results.filter((res) => res.personId == person.registrantId).length > 0
+  },
+}
+
+const PositionInRound = {
+  name: 'PositionInRound',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    },
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'Integer',
+  usesContext: true,
+  implementation: (ctx, round, person) => {
+    var rd = lib.getWcifRound(ctx.competition, round)
+    var res = rd.results.filter((res) => res.personId == person.registrantId)
+    if (res.length > 0) {
+      return res[0].ranking
+    } else {
+      return null
+    }
   },
 }
 
@@ -358,7 +386,8 @@ const EventForRound = {
 }
 
 module.exports = {
-  functions: [Events, Rounds, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, RegisteredEvents, PersonalBest,
+  functions: [Events, Rounds, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, PositionInRound,
+              RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults,
               IsFinal, RoundNumber, RoundForEvent, EventForRound],
 }
