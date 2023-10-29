@@ -51,7 +51,6 @@ const AssignGroups = {
   mutations: ['persons', 'schedule'],
   implementation: (ctx, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite) => {
     // TODO: clear this after nationals
-    overwrite = false
     return assign.Assign(ctx.competition, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite || ctx.dryrun)
   }
 }
