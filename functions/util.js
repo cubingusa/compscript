@@ -66,7 +66,7 @@ const SetExtension = {
     {
       name: 'namespace',
       type: 'String',
-      default: 'org.cubingusa.natshelper.v1',
+      defaultValue: 'org.cubingusa.natshelper.v1',
     }
   ],
   outputType: 'String',
@@ -74,6 +74,44 @@ const SetExtension = {
   mutations: ['extensions'],
   implementation: (ctx, property, value, type, namespace) => {
     var ext = extension.getOrInsertExtension(ctx.competition, type, namespace)
+    ext[property] = value
+    return 'Set ' + property + ' to ' + value
+  }
+}
+
+const SetGroupExtension = {
+  name: 'SetGroupExtension',
+  docs: 'Sets a property in a group extension.',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'property',
+      type: 'String',
+    },
+    {
+      name: 'value',
+      type: '$T',
+    },
+    {
+      name: 'type',
+      type: 'String',
+    },
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    },
+    {
+      name: 'namespace',
+      type: 'String',
+      defaultValue: 'org.cubingusa.natshelper.v1',
+    }
+  ],
+  outputType: 'String',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx, property, value, type, group, namespace) => {
+    var ext = extension.getOrInsertExtension(group.wcif, type, namespace)
     ext[property] = value
     return 'Set ' + property + ' to ' + value
   }
@@ -96,6 +134,65 @@ const RenameAssignments = {
       })
     })
     return 'Updated ' + affected + ' assignments'
+  }
+}
+
+const SwapAssignments = {
+  name: 'SwapAssignments',
+  args: [
+    {
+      name: 'person1',
+      type: 'Person',
+    },
+    {
+      name: 'person2',
+      type: 'Person',
+    },
+    {
+      name: 'groups',
+      type: 'Array<Group>',
+    }
+  ],
+  mutations: ['persons'],
+  outputType: 'String',
+  implementation: (person1, person2, groups) => {
+    var groupIds = groups.map((group) => group.wcif.id)
+    var p1keep = person1.assignments.filter((assignment) => !groupIds.includes(assignment.activityId))
+    var p1drop = person1.assignments.filter((assignment) => groupIds.includes(assignment.activityId))
+    var p2keep = person2.assignments.filter((assignment) => !groupIds.includes(assignment.activityId))
+    var p2drop = person2.assignments.filter((assignment) => groupIds.includes(assignment.activityId))
+
+    person1.assignments = p1keep.concat(p2drop)
+    person2.assignments = p2keep.concat(p1drop)
+
+    console.log(person1.name + ' new assignments: ' + person1.assignments.map((a) => a.activityId))
+    console.log(person2.name + ' new assignments: ' + person2.assignments.map((a) => a.activityId))
+    console.log(person1.name + ' swapped assignments: ' + p1drop.map((a) => a.activityId))
+    console.log(person2.name + ' swapped assignments: ' + p2drop.map((a) => a.activityId))
+
+    return 'Swapped ' + person1.name + ' ' + p1drop.length + ' assignments with ' + person2.name + ' ' + p2drop.length + ' assignments'
+  }
+}
+
+const DeleteAssignments = {
+  name: 'DeleteAssignments',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+    },
+    {
+      name: 'groups',
+      type: 'Array<Group>',
+    },
+  ],
+  mutations: ['persons'],
+  outputType: 'String',
+  implementation: (person, groups) => {
+    var groupIds = groups.map((group) => group.wcif.id)
+    var oldLength = person.assignments.length
+    person.assignments = person.assignments.filter((assignment) => !groupIds.includes(assignment.activityId))
+    return 'Deleted ' + (oldLength - person.assignments.length) + ' assignments'
   }
 }
 
@@ -265,5 +362,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, ClearCache, SetExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString],
+  functions: [Type, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
 }

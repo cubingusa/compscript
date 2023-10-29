@@ -114,6 +114,20 @@ const Country = {
   implementation: (person) => person.countryIso2,
 }
 
+const Email = {
+  name: 'Email',
+  docs: 'Returns the person\'s email',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'String',
+  implementation: (person) => person.email,
+}
+
 const FirstName = {
   name: 'FirstName',
   docs: 'Returns the person\'s first name',
@@ -458,16 +472,30 @@ const IsPossibleNoShow = {
   outputType: 'Boolean',
   usesContext: true,
   implementation: (ctx, person) => {
-    return !ctx.competition.events.map((event) => event.rounds[0].results).flat().some((result) => result.personId === person.registrantId && result.attempts.length > 0) &&
+    return person.registration && person.registration.status === 'accepted' &&
+      !ctx.competition.events.map((event) => event.rounds[0].results).flat().some((result) => result.personId === person.registrantId && result.attempts.length > 0) &&
       ctx.competition.events.some((event) => !event.rounds[0].results.map((result) => result.personId).includes(person.registrantId) && person.registration && person.registration.eventIds.includes(event.id))
   }
 }
 
+const Gender = {
+  name: 'Gender',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'String',
+  implementation: (person) => person.gender,
+}
+
 module.exports = {
   functions:
-      [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Country, FirstName, LastName,
+      [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Email, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, DeleteProperty, AddPerson, Persons,
        AddRole, DeleteRole, HasRole, RegistrationStatus,
-       ClearAssignments, HasResults, IsPossibleNoShow],
+       ClearAssignments, HasResults, IsPossibleNoShow, Gender],
 }

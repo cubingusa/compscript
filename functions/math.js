@@ -116,10 +116,12 @@ const ConcatStrings = {
     {
       name: 'val1',
       type: 'String',
+      nullable: true,
     },
     {
       name: 'val2',
       type: 'String',
+      nullable: true,
     },
   ],
   outputType: 'String',
