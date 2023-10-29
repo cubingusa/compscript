@@ -9,10 +9,10 @@ html
       include script.js
   body
     h1
-      a(href='/' + comp.competition.id)= comp.competition.name
+      a(href='/' + comp.id)= comp.name
       = " Data Viewer"
     include error.pug
-    div(id='competitionId' data-competitionId=comp.competition.id style='display:none')
+    div(id='competitionId' data-competitionId=comp.id style='display:none')
     form(method='POST')
       textarea(name='script' cols=100 rows=10)= script
       br
