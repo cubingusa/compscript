@@ -1,5 +1,5 @@
 Input
- = head:Expression tail:Input { return [head].concat(tail) }
+ = head:Expression _ tail:Input { return [head].concat(tail) }
  / "" { return [] }
 
 Expression
