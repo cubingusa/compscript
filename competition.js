@@ -77,6 +77,7 @@ async function runScript(req, res, script, filename, dryrun) {
         allFunctions: functions.allFunctions,
         dryrun: dryrun,
         logger,
+        udfs: {},
       }
       try {
         ctx.logger.start('parse')

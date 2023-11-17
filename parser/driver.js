@@ -2,7 +2,6 @@ const { DateTime } = require('luxon')
 
 const activityCode = require('./../activity_code')
 const attemptResult = require('./../attempt_result')
-const extension = require('./../extension')
 
 function parseType(type) {
   var parsed = type.match(/([\$a-zA-Z][a-zA-Z0-9<>]*)\((.*)\)/)
@@ -483,9 +482,8 @@ function parseNode(node, ctx, allowParams) {
   var out = (() => {
     switch (node.type) {
       case 'Function':
-        var ext = extension.getExtension(ctx.competition, 'Competition.udf.' + node.name)
-        if (ext !== null) {
-          return udfNode(ext, ctx, node.args, allowParams)
+        if (ctx.udfs[node.name]) {
+          return udfNode(ctx.udfs[node.name], ctx, node.args, allowParams)
         }
         return functionNode(node.name, ctx,
                             node.args.map((arg) => parseNode(arg, ctx, true)),

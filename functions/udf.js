@@ -1,5 +1,3 @@
-const extension = require('./../extension')
-
 const Define = function(argCount) {
   const genericArgs = [...Array(argCount).keys()].map((x) => 'U' + x)
   const implementationType = '$T(' + genericArgs.map((x) => '$' + x).join(', ') + ')'
@@ -17,15 +15,14 @@ const Define = function(argCount) {
         serialized: true,
       },
     ],
-    outputType: 'String',
+    outputType: 'Void',
     usesContext: true,
     implementation: (ctx, name, implementation) => {
-      const ext = extension.getOrInsertExtension(ctx.competition, 'Competition.udf.' + name)
-      ext.impl = implementation
-      ext.name = name
-      return 'Defined function ' + name
+      ctx.udfs[name] = {
+        impl: implementation,
+        name: name,
+      }
     },
-    mutations: ['extensions'],
   }
 }
 
