@@ -58,7 +58,8 @@ async function runScript(req, res, script, filename, dryrun) {
   }
   if (filename) {
     script = `#include ${filename}
-    ${script}`
+    ${script}
+    ListScripts()`
   }
   if (script) {
     compiler.compile(script, {

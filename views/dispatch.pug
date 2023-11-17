@@ -5,6 +5,7 @@ include help.pug
 include spreadsheet.pug
 include staff.pug
 include table.pug
+include udfs.pug
 
 mixin dispatch(value)
   if value.data === null
@@ -61,3 +62,5 @@ mixin dispatch(value)
       div(style={'break-inside': 'avoid'})
         each data in value.data
           +dispatch(data)
+    if value.type == 'ListScriptsOutput'
+      +list_scripts(value.data)
