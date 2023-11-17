@@ -1,6 +1,7 @@
 const express = require('express')
 const { DateTime } = require('luxon')
 const url = require('url')
+const compiler = require('c-preprocessor')
 
 const auth = require('./auth')
 const activityCode = require('./activity_code')
@@ -38,14 +39,14 @@ router.get('/:competitionId', async (req, res) => {
     script = req.session.script
     delete req.session.script
   }
-  await runScript(req, res, script || req.query.script, true)
+  await runScript(req, res, script || req.query.script, req.filename, true)
 })
 
 router.post('/:competitionId', async (req, res) => {
-  await runScript(req, res, req.body.script, req.body.dryrun)
+  await runScript(req, res, req.body.script, req.filename, req.body.dryrun)
 })
 
-async function runScript(req, res, script, dryrun) {
+async function runScript(req, res, script, filename, dryrun) {
   var logger = req.logger
   var params = {
     comp: req.competition,
@@ -55,66 +56,58 @@ async function runScript(req, res, script, dryrun) {
     dryrun: dryrun,
     dryrunWarning: false,
   }
+  if (filename) {
+    script = `#include ${filename}
+    ${script}`
+  }
   if (script) {
-    var ctx = {
-      competition: req.competition,
-      command: script,
-      allFunctions: functions.allFunctions,
-      dryrun: dryrun,
-      logger,
-    }
-    try {
-      ctx.logger.start('parse')
-      var scriptParsed = await parser.parse(script, req, res, ctx, false)
-      ctx.logger.stop('parse')
-      var errors = []
-      if (scriptParsed.errors) {
-        errors = scriptParsed.errors
-      } else {
-        errors = scriptParsed.map((expr) => {
-          if (expr.errors) {
-            return expr.errors.map((err) => { return { type: 'Error', data: err } })
-          }
-          var outputType = expr.type
-          if (outputType.params.length) {
-            return { type: 'Error', data: { errorType: 'WRONG_OUTPUT_TYPE', type: outputType } }
-          }
-          return []
-        }).flat()
+    compiler.compile(script, {
+      basePath: process.env.SCRIPT_BASE + '/',
+      newLine: '\r\n',
+    }, async (err, newScript) => {
+      newScript = newScript.trim()
+      if (err) {
+        params.outputs = [{type: 'Error', data: err}]
+        res.render('script', params)
+        return
       }
-      if (errors.length) {
-        params.outputs = errors
-      } else {
-        var mutations = []
-        for (const expr of scriptParsed) {
-          var outType = expr.type
-          var out = await expr.value({}, ctx)
-          params.outputs.push({type: outType.type, data: out})
-          expr.mutations.forEach((mutation) => {
-            if (!mutations.includes(mutation)) {
-              mutations.push(mutation)
-            }
-          })
-        }
-        if (mutations.length) {
+      var ctx = {
+        competition: req.competition,
+        command: newScript,
+        allFunctions: functions.allFunctions,
+        dryrun: dryrun,
+        logger,
+      }
+      try {
+        ctx.logger.start('parse')
+        var scriptResult = await parser.parse(newScript, req, res, ctx, false)
+        ctx.logger.stop('parse')
+        params.outputs = scriptResult.outputs
+        if (scriptResult.mutations.length) {
           if (dryrun) {
             params.dryrunWarning = true
           } else {
             ctx.logger.start('patch')
-            await auth.patchWcif(ctx.competition, mutations, req, res)
+            await auth.patchWcif(ctx.competition, scriptResult.mutations, req, res)
             ctx.logger.stop('patch')
           }
         }
+      } catch (e) {
+        params.outputs.splice(0, 0, {type: 'Exception', data: e.stack })
+        console.log(e)
       }
-    } catch (e) {
-      params.outputs.splice(0, 0, {type: 'Exception', data: e.stack })
-      console.log(e)
-    }
+      logger.start('render')
+      res.render('script', params)
+      logger.stop('render')
+      logger.log()
+    })
+  } else {
+    logger.start('render')
+    res.render('script', params)
+    logger.stop('render')
+    logger.log()
   }
-  logger.start('render')
-  res.render('script', params)
-  logger.stop('render')
-  logger.log()
+
 }
 
 module.exports = {
