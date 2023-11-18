@@ -2,4 +2,4 @@ mixin list_scripts(data)
   ul
     each fn in data
       li
-        a(href=`?script=${fn.name}()`)= fn.name
+        a(href=`?script=${fn.name}()&filename=${selectedFile}`)= fn.name

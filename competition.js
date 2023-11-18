@@ -1,4 +1,5 @@
 const express = require('express')
+const fs = require('fs')
 const { DateTime } = require('luxon')
 const url = require('url')
 const compiler = require('c-preprocessor')
@@ -14,6 +15,27 @@ const driver = require('./parser/driver')
 const parser = require('./parser/parser')
 
 var router = express.Router()
+
+function listFiles() {
+  if (!process.env.SCRIPT_BASE) {
+    return []
+  }
+  out = []
+  dirs = ['.']
+  i = 0;
+  while (dirs.length && i < 100) {
+    dir = dirs.pop()
+    files = fs.readdirSync(process.env.SCRIPT_BASE + '/' + dir)
+    for (const f of files) {
+      if (f.endsWith('.cs')) {
+        out.push((dir + '/' + f).substring(2))
+      } else if (fs.lstatSync(process.env.SCRIPT_BASE + '/' + dir + '/' + f)) {
+        dirs.push(dir + '/' + f)
+      }
+    }
+  }
+  return out
+}
 
 router.use('/:competitionId', async (req, res, next) => {
   req.logger = new perf.PerfLogger()
@@ -32,18 +54,21 @@ router.get('/:competitionId', async (req, res) => {
   var script = ''
   if (req.query.script) {
     req.session.script = req.query.script
+    req.session.filename = req.query.filename
     res.redirect(url.parse(req.originalUrl).pathname)
     return
   }
   if (req.session.script) {
     script = req.session.script
+    filename = req.session.filename
     delete req.session.script
+    delete req.session.filename
   }
-  await runScript(req, res, script || req.query.script, req.filename, true)
+  await runScript(req, res, script || req.query.script, filename || req.query.filename, true)
 })
 
 router.post('/:competitionId', async (req, res) => {
-  await runScript(req, res, req.body.script, req.filename, req.body.dryrun)
+  await runScript(req, res, req.body.script, req.body.filename, req.body.dryrun)
 })
 
 async function runScript(req, res, script, filename, dryrun) {
@@ -55,9 +80,11 @@ async function runScript(req, res, script, filename, dryrun) {
     outputs: [],
     dryrun: dryrun,
     dryrunWarning: false,
+    files: listFiles(),
+    selectedFile: filename,
   }
   if (filename) {
-    script = `#include ${filename}
+    script = `#include "${filename}"
     ${script}
     ListScripts()`
   }
@@ -66,12 +93,12 @@ async function runScript(req, res, script, filename, dryrun) {
       basePath: process.env.SCRIPT_BASE + '/',
       newLine: '\r\n',
     }, async (err, newScript) => {
-      newScript = newScript.trim()
       if (err) {
         params.outputs = [{type: 'Error', data: err}]
         res.render('script', params)
         return
       }
+      newScript = newScript.trim()
       var ctx = {
         competition: req.competition,
         command: newScript,

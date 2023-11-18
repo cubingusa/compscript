@@ -14,6 +14,14 @@ html
     include error.pug
     div(id='competitionId' data-competitionId=comp.id style='display:none')
     form(method='POST')
+      h3= "Execute saved script"
+      if files.length
+        select(name='filename')
+          option()
+          each file in files
+            option(value=file selected=(file === selectedFile))= file
+      br
+      h3= "Run custom script"
       textarea(name='script' cols=100 rows=10)= script
       br
       label
