@@ -1,10 +1,10 @@
-# NatsScript
+# CompScript
 
-NatsScript is a custom language that allows running various commands and queries over a competition's WCIF data. It is likely that there are bugs or improvements that can be made. Please file issues on [GitHub](https://github.com/timreyn/natshelper) and I'm happy to take a look.
+CompScript is a custom language that allows running various commands and queries over a competition's WCIF data. It is likely that there are bugs or improvements that can be made. Please file issues on [GitHub](https://github.com/timreyn/natshelper) and I'm happy to take a look.
 
 ## Intro
 
-The NatsScript interpreter can be found at (for example) <http://localhost:3030/CubingUSANationals2023/script>. You may enter one or more NatsScript commands into the box and hit "Submit".
+The CompScript interpreter can be found at (for example) <http://localhost:3030/CubingUSANationals2023>. You may enter one or more CompScript commands into the box and hit "Submit".
 
 A sample command is
 ```
@@ -22,7 +22,7 @@ Whitespace is generally ignored, and comments (beginning with python-style `#`) 
 
 ## Literals
 
-The NatsScript parser can understand various expressions, such as:
+The CompScript parser can understand various expressions, such as:
 ```
 12.345  # Number
 "Rubik's Cube"  # String
@@ -41,9 +41,21 @@ DNF  # DNF
 
 The full grammar is at `parser/grammar.pegjs`.
 
+## Files
+
+In addition to the interpreter box, you can write CompScript scripts in any directory on your local computer. These files can be accessed by setting the environment variable `SCRIPT_BASE`.
+
+CompScript files are parsed using a [C-style preprocessor](https://github.com/ParksProjets/C-Preprocessor), so you can do things like including other files:
+
+```
+#include "lib/utilities.cs"
+```
+
+For an example, the CubingUSA Nationals 2023 scripts are available [here](https://github.com/cubingusa/nats-scripts).
+
 ## Functions and Types
 
-NatsScript has many functions. Each of these take zero or more arguments, and has a return type. There may be multiple overloads for one function. For example, `Add()` has overloads that take `Number` and `String`.
+CompScript has many functions. Each of these take zero or more arguments, and has a return type. There may be multiple overloads for one function. For example, `Add()` has overloads that take `Number` and `String`.
 
 Arguments are assumed to be in the order listed in the function, with some exceptions:
 
@@ -53,13 +65,13 @@ Arguments are assumed to be in the order listed in the function, with some excep
 
 Functions can have generic types. For example, one of the overloads of `Add()` takes `Array<$T>` arguments and returns an `Array<$T>`. The type-deduction logic for generics is best-effort; complicated functional types may not be deduced correctly.
 
-Some arguments are marked as `canBeExternal`. This means that, if their value is not provided, the return value is instead a function that taking that as a parameter. For example, `FirstName()` takes a `Person` as an argument, but this can be external. `FirstName(p2007BARR01)` would return a `String` ("Kian"), while `FirstName` would return a `String(Person)`. Functional arguments can be passed through any other function, as long as eventually the functional argument is provided.
+Some arguments are marked as `canBeExternal`. This means that, if their value is not provided, the return value is instead a function that taking that as a parameter. For example, `FirstName()` takes a `Person` as an argument, but this can be external. `FirstName(2007BARR01)` would return a `String` ("Kian"), while `FirstName` would return a `String(Person)`. Functional arguments can be passed through any other function, as long as eventually the functional argument is provided.
 
 For example, `RegisteredEvents()` takes a `Person` argument and returns an `Array<Event>`. Without providing a `Person`, the return value would be `Array<Event>(Person)`. The expression `Length(RegisteredEvents())` would have type `Number(Person)`. Finally, this can all be passed to `Map`:
 
 ```
 Map(
-  [p2005REYN01, p2008CLEM01, p2011WELC01],
+  [2005REYN01, 2008CLEM01, 2011WELC01],
   Length(RegisteredEvents())
 )
 ```
@@ -94,7 +106,7 @@ Define(
 
 This says that the first argument should be of type `Array<Person>`.
 
-Note that `Define` causes a mutation; see below for more details.
+UDFs are only available for the duration of a request.
 
 ## Binary operators
 
