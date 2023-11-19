@@ -18,5 +18,9 @@ mixin groups(data)
             td
               a(href='https://wca.link/' + assignment.person.wcaId)= assignment.person.wcaId
             td= assignment.person.countryIso2
-            td= fn.personalBest(assignment.person, data.round).toString()
+            - var pb = fn.personalBest(assignment.person, data.round)
+            if pb
+              td= pb.toString()
+            else
+              td= ""
             td= assignment.set
