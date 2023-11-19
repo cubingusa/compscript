@@ -69,6 +69,7 @@ async function parse(text, req, res, ctx, allowParams) {
         }
       })
     }
+    out.outputs.push({ type: 'CompetitionWCIF', data: ctx.competition })
   } catch (e) {
     out.outputs.splice(0, 0, {type: 'Exception', data: e.stack})
     out.mutations = []
