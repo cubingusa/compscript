@@ -58,7 +58,7 @@ function wcaUrl(path) {
   var host = process.env.WCA_HOST
   if (process.env.USE_CDN) {
     host = (path.startsWith('api/v0') || path.startsWith('/api/v0')) ? process.env.WCA_CDN_HOST : process.env.WCA_HOST
-    path = resourceUrl.replace('api/v0', '')
+    path = path.replace('api/v0', '')
   }
   return `${host}/${path}`
 }
