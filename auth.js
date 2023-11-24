@@ -54,19 +54,24 @@ async function getWcif(competitionId, req, res) {
   }
 }
 
+function wcaUrl(path) {
+  var host = process.env.WCA_HOST
+  if (process.env.USE_CDN) {
+    host = (path.startsWith('api/v0') || path.startsWith('/api/v0')) ? process.env.WCA_CDN_HOST : process.env.WCA_HOST
+    path = resourceUrl.replace('api/v0', '')
+  }
+  return `${host}/${path}`
+}
+
 async function getWcaApi(resourceUrl, req, res) {
   if (!req.session.refreshToken) {
     return Promise.resolve(null)
   }
   var tokenSet = await client.refresh(req.session.refreshToken)
   req.session.refreshToken = tokenSet.refresh_token
-  var host = process.env.WCA_HOST
-  if (process.env.USE_CDN) {
-    host = (resourceUrl.startsWith('api/v0') || resourceUrl.startsWith('/api/v0')) ? process.env.WCA_CDN_HOST : process.env.WCA_HOST
-    resourceUrl = resourceUrl.replace('api/v0', '')
-  }
-  console.log(`starting call ${host}/${resourceUrl}`)
-  var out = await client.requestResource(`${host}/${resourceUrl}`, tokenSet.access_token)
+  var url = wcaUrl(resourceUrl)
+  console.log(`starting call ${url}`)
+  var out = await client.requestResource(url, tokenSet.access_token)
   console.log('ending call')
   return JSON.parse(out.body.toString());
 }
@@ -78,10 +83,9 @@ async function patchWcif(obj, keys, req, res) {
   keys.forEach((key) => {
     toPatch[key] = obj[key]
   })
-  // TODO: Fix this -- we should use api/v0 unless it's on api.worldcubeassociation.org.
   var out =
     await client.requestResource(
-        `${process.env.WCA_CDN_HOST}/competitions/${obj.id}/wcif`,
+        wcaUrl(`/api/v0/competitions/${obj.id}/wcif`),
         tokenSet.access_token,
         {method: 'PATCH',
          body: JSON.stringify(toPatch),

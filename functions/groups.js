@@ -435,16 +435,16 @@ const GroupForActivityId = {
   implementation: (ctx, id) => lib.groupForActivityId(ctx.competition, id),
 }
 
-const CreateGroup = {
-  name: 'CreateGroup',
-  docs: 'Inserts a group into the schudle.',
+const CreateGroups = {
+  name: 'CreateGroups',
+  docs: 'Inserts groups into the schudle.',
   args: [
     {
       name: 'round',
       type: 'Round',
     },
     {
-      name: 'number',
+      name: 'count',
       type: 'Number',
     },
     {
@@ -460,10 +460,10 @@ const CreateGroup = {
       type: 'DateTime',
     }
   ],
-  outputType: 'String',
+  outputType: 'Array<String>',
   usesContext: true,
   mutations: ['schedule'],
-  implementation: (ctx, round, number, stage, start, end) => {
+  implementation: (ctx, round, count, stage, start, end) => {
     var maxActivityId = 0
     ctx.competition.schedule.venues.forEach((venue) => {
       venue.rooms.forEach((room) => {
@@ -478,9 +478,12 @@ const CreateGroup = {
     })
 
     var venue = ctx.competition.schedule.venues[0]
+    var roomsWithRound = venue.rooms.filter((room) => {
+      return room.activities.some((activity) => activity.activityCode === round.id())
+    })
     var matchingRooms = venue.rooms.filter((room) => room.name === stage)
     if (matchingRooms.length === 0) {
-      return 'Stage ' + stage + ' not found.'
+      return ['Could not find room named ' + stage]
     }
     var matchingActivities = matchingRooms[0].activities.filter((activity) => {
       return activity.activityCode === round.id() &&
@@ -503,17 +506,24 @@ const CreateGroup = {
     } else {
       activity = matchingActivities[0]
     }
-    activity.childActivities.push({
-      id: ++maxActivityId,
-      activityCode: round.group(number).id(),
-      childActivities: [],
-      scrambleSetId: null,
-      extensions: [],
-      startTime: start.toISO(),
-      endTime: end.toISO(),
-      name: stage.split(' ')[0] + ' ' + number
-    })
-    return 'Successfully added group.'
+    var length = end.diff(start, 'minutes').as('minutes') / count
+    var out = []
+    for (var i = 0; i < count; i++) {
+      var groupName = round.toString() + ' ' + (roomsWithRound.length == 1 ? ('Group ' + (i + 1)) : (stage.split(' ')[0] + ' ' + (i + 1)))
+      var next = {
+        id: ++maxActivityId,
+        activityCode: round.group(i + 1).id(),
+        childActivities: [],
+        scrambleSetId: null,
+        extensions: [],
+        startTime: start.plus({ minutes: length * i }).toISO(),
+        endTime: start.plus({ minutes: length * (i + 1) }).toISO(),
+        name: groupName
+      }
+      activity.childActivities.push(next)
+      out.push('Added group ' + groupName + ' from ' + next.startTime + ' to ' + next.endTime)
+    }
+    return out
   }
 }
 
@@ -642,5 +652,5 @@ module.exports = {
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups,
-              CreateGroup, ManuallyAssign, FixGroupNames, CheckForMissingGroups, FixGroupNumbers],
+              CreateGroups, ManuallyAssign, FixGroupNames, CheckForMissingGroups, FixGroupNumbers],
 }
