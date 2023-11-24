@@ -52,6 +52,7 @@ router.use('/:competitionId', async (req, res, next) => {
 
 router.get('/:competitionId', async (req, res) => {
   var script = ''
+  var filename = ''
   if (req.query.script) {
     req.session.script = req.query.script
     req.session.filename = req.query.filename
