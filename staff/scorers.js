@@ -1,16 +1,41 @@
 const extension = require('./../extension')
 const lib = require('./../lib')
 
-class JobCountScorer {
-  constructor(weight) {
-    this.weight = weight
+class PriorAssignmentScorer {
+  constructor(staffingWeight, competingWeight) {
+    this.staffingWeight = staffingWeight
+    this.competingWeight = competingWeight
     this.caresAboutStations = false
     this.caresAboutJobs = false
-    this.name = 'JobCountScorer'
+    this.name = 'PriorAssignmentScorer'
   }
 
   Score(competition, person, group) {
-    return this.weight * person.assignments.filter((assignment) => assignment.assignmentCode.startsWith('staff-')).length
+    var groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.id, g]))
+    var staffingHours = 0
+    var competingHours = 0
+    var startTime = lib.startTime(group, competition)
+    for (const assignment of person.assignments) {
+      var otherGroup = null
+      if (assignment.activityId in groupsById) {
+        otherGroup = groupsById[assignment.activityId]
+      } else {
+        otherGroup = miscActivityForId(assignment.activityId)
+      }
+      if (otherGroup !== null) {
+        var otherStart = lib.startTime(otherGroup, competition)
+        var otherEnd = lib.endTime(otherGroup, competition)
+        if (otherStart < startTime) {
+          var hours = otherEnd.diff(otherStart, 'hours').as('hours')
+          if (assignment.assignmentCode.startsWith('staff-')) {
+            staffingHours += hours
+          } else {
+            competingHours += hours
+          }
+        }
+      }
+    }
+    return this.staffingWeight * staffingHours + this.competingHours * competingHours
   }
 }
 
@@ -179,7 +204,7 @@ class FollowingGroupScorer {
 }
 
 module.exports = {
-  JobCountScorer: JobCountScorer,
+  PriorAssignmentScorer: PriorAssignmentScorer,
   PreferenceScorer: PreferenceScorer,
   PrecedingAssignmentsScorer: PrecedingAssignmentsScorer,
   MismatchedStationScorer: MismatchedStationScorer,
