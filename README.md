@@ -10,10 +10,10 @@ Node must be installed on your machine.
 
 ```
 $ npm install
-$ ENV=DEV npx nodemon .
+$ npm run dev-server
 ```
 
-`ENV=DEV` uses a dev WCA environment running on the same machine. If you would like to use the production WCA site, you need to:
+Running the development server will use uses a dev WCA environment running on the same machine. If you would like to use the production WCA site, you need to:
 
 1. Make an OAuth application [here](https://www.worldcubeassociation.org/oauth/applications). For "Scopes", use `public manage_competitions`; for "Callback Urls" use `http://localhost:3033/auth/oauth_response`.
 2. Make a copy of the `.env.DEV` file, such as `.env.PROD`. This file should not be committed; `.gitignore` should automatically ignore it.

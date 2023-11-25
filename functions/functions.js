@@ -17,5 +17,6 @@ module.exports = {
           require('./tuple').functions,
           require('./udf').functions,
           require('./util').functions,
+          require('./wcif').functions,
       )
 }
