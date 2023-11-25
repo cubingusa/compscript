@@ -1,6 +1,48 @@
 const fs = require('fs')
 const fse = require('fs-extra')
 
+const ClearWCIF = {
+  name: 'ClearWCIF',
+  docs: 'Remove all childActivities keeping only the main schedule, remove all assignments, cleanup roles, cleanup NatsHelper extension data.',
+  args: [
+    {
+      name: 'clearExternalExtensions',
+      type: 'Boolean',
+      docs: 'Also cleanup external tools extensions.',
+      defaultValue: false,
+    },
+  ],
+  outputType: 'Void',
+  usesContext: true,
+  mutations: ['schedule', 'persons'],
+  implementation: (ctx, clearExternalExtensions) => {
+    const cleanupExtensions = (object) => {
+      if (clearExternalExtensions) {
+        object.extensions = []
+      } else {
+        object.extensions = object.extensions.filter(({ id }) => !id.startsWith("org.cubingusa.natshelper"))
+      }
+    }
+    cleanupExtensions(competition)
+    ctx.competition.persons.forEach((person) => {
+      // Cleanup roles which are user-defined.
+      const immutableRoles = ['delegate', 'organizer', 'trainee-delegate']
+      person.roles = person.roles.filter((r) => immutableRoles.includes(r))
+      person.assignments = []
+      cleanupExtensions(person)
+    })
+    ctx.competition.schedule.venues.forEach((venue) => {
+      venue.rooms.forEach((room) => {
+        cleanupExtensions(room)
+        room.activities.forEach((activity) => {
+          cleanupExtensions(activity)
+          activity.childActivities = []
+        })
+      })
+    })
+  }
+}
+
 const ExportWCIF = {
   name: 'ExportWCIF',
   docs: 'Export the WCIF to a json file',
@@ -27,5 +69,5 @@ const ExportWCIF = {
 }
 
 module.exports = {
-  functions: [ExportWCIF],
+  functions: [ClearWCIF, ExportWCIF],
 }
