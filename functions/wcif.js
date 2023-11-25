@@ -43,6 +43,29 @@ const ClearWCIF = {
   }
 }
 
+const ImportWCIF = {
+  name: 'ImportWCIF',
+  docs: 'Import the WCIF from a json file',
+  args: [
+    {
+      name: 'filename',
+      type: 'String',
+      docs: 'WCIF filename (relative to WCIF_DATA_FOLDER/competitionId)',
+    },
+  ],
+  outputType: 'String',
+  usesContext: true,
+  implementation: (ctx, filename) => {
+    var fullPath = `${process.env.WCIF_DATA_FOLDER || '.'}/${ctx.competition.id}/${filename}`
+    var wcif = JSON.parse(fs.readFileSync(fullPath))
+    if (wcif.id !== ctx.competition.id) {
+      throw new Error(`The WCIF is not for the correct competition (expected "${ctx.competition.id}", but got "${wcif.id})"`)
+    }
+    ctx.competition = wcif
+    return `Imported WCIF from '${fullPath}'.`
+  }
+}
+
 const ExportWCIF = {
   name: 'ExportWCIF',
   docs: 'Export the WCIF to a json file',
@@ -69,5 +92,5 @@ const ExportWCIF = {
 }
 
 module.exports = {
-  functions: [ClearWCIF, ExportWCIF],
+  functions: [ClearWCIF, ExportWCIF, ImportWCIF],
 }
