@@ -64,3 +64,6 @@ mixin dispatch(value)
           +dispatch(data)
     if value.type == 'ListScriptsOutput'
       +list_scripts(value.data)
+    if value.type == 'CompetitionWCIF'
+      a(href=`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(value.data))}`, target='_blank').
+        Open WCIF as JSON in a new tab

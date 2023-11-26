@@ -29,8 +29,11 @@ function listFiles() {
     for (const f of files) {
       if (f.endsWith('.cs')) {
         out.push((dir + '/' + f).substring(2))
-      } else if (fs.lstatSync(process.env.SCRIPT_BASE + '/' + dir + '/' + f)) {
-        dirs.push(dir + '/' + f)
+      } else {
+        stats = fs.lstatSync(process.env.SCRIPT_BASE + '/' + dir + '/' + f);
+        if (stats.isDirectory()) {
+          dirs.push(dir + '/' + f)
+        }
       }
     }
   }
