@@ -2,6 +2,7 @@ google-credentials.json
 .env.*
 !.env.DEV
 .wcif_cache
+wcif_data
 
 # Logs
 logs
