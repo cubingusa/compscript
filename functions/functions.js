@@ -1,22 +1,24 @@
+const categories = [
+  { name: 'array' },
+  { name: 'boolean' },
+  { name: 'cluster' },
+  { name: 'display' },
+  { name: 'events' },
+  { name: 'groups' },
+  { name: 'help' },
+  { name: 'math' },
+  { name: 'persons' },
+  { name: 'sheets' },
+  { name: 'staff' },
+  { name: 'table' },
+  { name: 'time' },
+  { name: 'tuple' },
+  { name: 'udf' },
+  { name: 'util' },
+  { name: 'wcif', docs: 'This category gathers all functions regarding high level WCIF manipulation' },
+]
+
 module.exports = {
-  allFunctions:
-      [].concat(
-          require('./array').functions,
-          require('./boolean').functions,
-          require('./cluster').functions,
-          require('./display').functions,
-          require('./events').functions,
-          require('./groups').functions,
-          require('./help').functions,
-          require('./math').functions,
-          require('./persons').functions,
-          require('./sheets').functions,
-          require('./staff').functions,
-          require('./table').functions,
-          require('./time').functions,
-          require('./tuple').functions,
-          require('./udf').functions,
-          require('./util').functions,
-          require('./wcif').functions,
-      )
+  categories,
+  allFunctions: categories.flatMap(c => require(`./${c.name}`).functions)
 }
