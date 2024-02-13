@@ -29,13 +29,13 @@ Some examples:
 The Luke psych sheet
 ```
 Table(
-  Persons(And(Registered(), (FirstName() == "Luke"))),
+  Sort(Persons(And(Registered(), (FirstName() == "Luke"))),
+       PersonalBest(_333, "average")),
   [Column("Name", Name()),
    Column("WCA ID", WcaId(), WcaLink()),
    Column("Average", PersonalBest(_333)),
    Column("Single", PersonalBest(_333, "single")),
-   Column("psych sheet ranking", PsychSheetPosition(_333))],
-  PersonalBest(_333, "average"))
+   Column("psych sheet ranking", PsychSheetPosition(_333))])
 ```
 
 Defining a custom function
