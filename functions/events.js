@@ -286,6 +286,9 @@ const AddResults = {
           return 5
       }
     })(rd)
+    if (rd.results.length > 0) {
+      return `There are already results for ${round.id()}, not adding fake results.`
+    }
     rd.results = persons.map((person) => {
                    var res = result({'Person': person})
                    if (res.value != 0) {
