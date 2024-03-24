@@ -35,6 +35,12 @@ function miscActivityForId(competition, activityId) {
   return null
 }
 
+function allActivitiesForRoundId(competition, roundId) {
+  return competition.schedule.venues.map((venue) => venue.rooms).flat()
+    .map((room) => room.activities.map((activity) => new groupLib.Group(activity, room, competition))).flat()
+    .filter(activity => activity.wcif.activityCode === roundId)
+}
+
 function allGroups(competition) {
   return competition.schedule.venues.map((venue) => venue.rooms).flat()
     .map((room) => {
@@ -69,6 +75,7 @@ module.exports = {
   getWcifRound: getWcifRound,
   personalBest: personalBest,
   allGroups: allGroups,
+  allActivitiesForRoundId: allActivitiesForRoundId,
   groupForActivityId: groupForActivityId,
   groupsForRoundCode: groupsForRoundCode,
   startTime: startTime,
