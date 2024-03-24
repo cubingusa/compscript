@@ -283,6 +283,48 @@ const StartTime = {
   }
 }
 
+const RoundStartTime = {
+  name: 'RoundStartTime',
+  docs: 'The start time of a round. If a round exists multiple times, return the min of the start times',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'DateTime',
+  usesContext: true,
+  implementation: (ctx, round) => {
+    let min = Math.min(
+      ...lib.allActivitiesForRoundId(ctx.competition, round.id())
+            .map(round => lib.startTime(round, ctx.competition).ts)
+    )
+    return min ? DateTime.fromMillis(min).setZone(ctx.competition.schedule.venues[0].timezone) : null
+  }
+}
+
+const RoundEndTime = {
+  name: 'RoundEndTime',
+  docs: 'The end time of a round. If a round exists multiple times, return the max of the end times',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'DateTime',
+  usesContext: true,
+  implementation: (ctx, round) => {
+    let max = Math.max(
+      ...lib.allActivitiesForRoundId(ctx.competition, round.id())
+            .map(round => lib.endTime(round, ctx.competition).ts)
+    )
+    return max ? DateTime.fromMillis(max).setZone(ctx.competition.schedule.venues[0].timezone) : null
+  }
+}
+
 const EndTime = {
   name: 'EndTime',
   docs: 'The end time of a group',
@@ -651,6 +693,7 @@ module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
+              RoundStartTime, RoundEndTime,
               AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups,
               CreateGroups, ManuallyAssign, FixGroupNames, CheckForMissingGroups, FixGroupNumbers],
 }
