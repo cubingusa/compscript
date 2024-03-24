@@ -492,17 +492,7 @@ const CreateGroups = {
     })
     var activity = null
     if (matchingActivities.length === 0) {
-      activity = {
-        id: ++maxActivityId,
-        activityCode: round.id(),
-        childActivities: [],
-        scrambleSetId: null,
-        extensions: [],
-        startTime: start.toISO(),
-        endTime: end.toISO(),
-        name: round.id()
-      }
-      matchingRooms[0].activities.push(activity)
+      return ['Could not find matching activity for times']
     } else {
       activity = matchingActivities[0]
     }
