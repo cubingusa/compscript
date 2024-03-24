@@ -99,7 +99,10 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
       }
     })
     var totalToAssign = queue.length
+    var previousLength = -1;
     while (queue.length > preAssignedTotal) {
+      var potentialInfinite = queue.length === previousLength;
+      previousLength = queue.length;
       console.log(queue.length + ' left')
       // Don't assign any more to groups with enough people pre-assigned.
       var groupsToUse = eligibleGroups.filter((group) => currentByGroup[group.wcif.id].length + preAssignedByGroup[group.wcif.id] <= groupSizeLimit)
@@ -135,6 +138,10 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
           }
         })
       })
+      if (!solution.feasible && potentialInfinite) {
+        console.log("The group assignment is not feasible, the function will break out to prevent an infinite loop.")
+        break;
+      }
       queue = queue.filter((item, idx) => !indicesToErase.includes(idx))
       newlyAssigned.forEach((assn) => {
         currentByPerson[assn.person.wcaUserId] = assn.group
