@@ -285,20 +285,48 @@ const DeleteProperty = {
 
 const AddPerson = {
   name: 'AddPerson',
-  docs: 'Adds the given person as a staff member',
+  docs: 'Adds the given person as a - non-competing - staff member to the WCIF, if it is not present. The person is first added with basic data (and a possibly fake name) to the WCIF. The real data will be fetched when PATCH-ing the competition WCIF, and thus creating a non-competing registration on the WCA website',
   args: [
     {
       name: 'wcaUserId',
       type: 'Number',
+      docs: 'The user id of the person on the WCA website.',
+    },
+    {
+      name: 'name',
+      type: 'String',
+      defaultValue: 'Fake name for <wcaUserId>',
+      docs: 'The name to use until the registration is created on the WCA website',
     },
   ],
   usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (ctx, wcaUserId) => {
+  implementation: (ctx, wcaUserId, name) => {
+    // Given 'AddPerson' is primarly aimed at PATCH-ing the WCA website,
+    // we fill the persons array with very basic data, iff they do not
+    // exist already in the persons array.
+    const existingPerson =
+      ctx.competition.persons.filter(p => p.wcaUserId == wcaUserId)[0];
+    if (existingPerson) {
+      if (existingPerson.registration) {
+        return `Person with userId ${wcaUserId} (${existingPerson.name}) already exists.`
+      } else {
+        existingPerson.registration = {
+          eventIds: [],
+          isCompeting: false,
+        }
+        return `Added registration to person ${wcaUserId} (${existingPerson.name})`
+      }
+    }
     ctx.competition.persons.push({
+      assignments: [],
+      name: name.replace('<wcaUserId>', wcaUserId),
       wcaUserId: wcaUserId,
+      personalBests: [],
+      roles: [],
       registration: {
+        eventIds: [],
         isCompeting: false,
       }
     })
