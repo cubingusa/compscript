@@ -23,7 +23,7 @@ const ClearWCIF = {
         object.extensions = object.extensions.filter(({ id }) => !id.startsWith("org.cubingusa.natshelper"))
       }
     }
-    cleanupExtensions(competition)
+    cleanupExtensions(ctx.competition)
     ctx.competition.persons.forEach((person) => {
       // Cleanup roles which are user-defined.
       const immutableRoles = ['delegate', 'organizer', 'trainee-delegate']
