@@ -5,6 +5,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "fs-extra": "^11.1.1",
+    "google-auth-library": "^9.7",
     "google-spreadsheet": "^4.1.1",
     "javascript-lp-solver": "^0.4.24",
     "luxon": "^3.1.0",
