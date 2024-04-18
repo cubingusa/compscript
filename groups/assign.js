@@ -139,7 +139,9 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
         })
       })
       if (!solution.feasible && potentialInfinite) {
-        console.log("The group assignment is not feasible, the function will break out to prevent an infinite loop.")
+        var unfeasibleWarning = `The group assignment '${set.name}' is not feasible, the function has broken out to prevent an infinite loop.`
+        warnings.push(unfeasibleWarning)
+        console.log(unfeasibleWarning)
         break;
       }
       queue = queue.filter((item, idx) => !indicesToErase.includes(idx))
