@@ -1,4 +1,5 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet')
+const { JWT } = require('google-auth-library')
 
 const extension = require('./../extension')
 
@@ -14,21 +15,19 @@ class Header {
     this.name = suffix[1]
   }
 
-  parse(val) {
+  parse(value) {
+    let val = value || ''
     if (this.type == 'number') {
       return +val
     }
     if (this.type == 'list') {
-      return val.split(', ')
+      return val.split(',').map(s => s.trim())
     }
-    if (val === null) {
-      return ''
-    }
-    return val
+    return val.trim()
   }
 
   get(row) {
-    return this.parse(row[this.value])
+    return this.parse(row.get(this.value))
   }
 
   getIdentifier(person) {
@@ -36,11 +35,15 @@ class Header {
   }
 }
 
-readSpreadsheetImpl = async function(competition, spreadsheetId) {
+readSpreadsheetImpl = async function(competition, spreadsheetId, offset) {
   out = { warnings: [], loaded: 0 }
   const creds = require('./../google-credentials.json')
-  const doc = new GoogleSpreadsheet(spreadsheetId)
-  await doc.useServiceAccountAuth(creds)
+  const serviceAccountAuth = new JWT({
+    email: creds.client_email,
+    key: creds.private_key,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  })
+  const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth)
   await doc.loadInfo()
   const sheet = doc.sheetsByIndex[0]
   await sheet.loadHeaderRow(1)
@@ -59,7 +62,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
     })
   })
 
-  const rows = await sheet.getRows({offset: 1})
+  const rows = await sheet.getRows({ offset })
   rows.forEach((row) => {
     // First use the identifiers provided to find the person.
     var bestMatch = 0
@@ -73,10 +76,17 @@ readSpreadsheetImpl = async function(competition, spreadsheetId) {
           return
         }
         var identifierVal = header.get(row)
+        if (!identifierVal) {
+          return
+        }
+        identifierVal = identifierVal instanceof String ? identifierVal.toUpperCase() : identifierVal
+
         if (firstIdentifier === '') {
           firstIdentifier = identifierVal
         }
-        if (header.getIdentifier(person).toUpperCase() === identifierVal.toUpperCase()) {
+        var personIdentifierVal = header.getIdentifier(person)
+        personIdentifierVal = personIdentifierVal instanceof String ? personIdentifierVal.toUpperCase() : personIdentifierVal
+        if (personIdentifierVal === identifierVal) {
           matching++
         }
       })
@@ -117,12 +127,18 @@ const ReadSpreadsheet = {
       name: 'spreadsheetId',
       type: 'String',
     },
+    {
+      name: 'offset',
+      type: 'Number',
+      docs: 'Skip the first `offset` rows of the spreadsheet.',
+      defaultValue: 0,
+    },
   ],
   outputType: 'ReadSpreadsheetResult',
   usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, spreadsheetId) => {
-    return readSpreadsheetImpl(ctx.competition, spreadsheetId)
+  implementation: (ctx, spreadsheetId, offset) => {
+    return readSpreadsheetImpl(ctx.competition, spreadsheetId, offset)
   }
 }
 
