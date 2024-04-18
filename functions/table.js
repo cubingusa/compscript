@@ -1,6 +1,6 @@
 const Table = {
   name: 'Table',
-  genericParams: ['ArgType', 'SortType'],
+  genericParams: ['ArgType'],
   args: [
     {
       name: 'keys',
