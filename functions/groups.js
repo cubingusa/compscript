@@ -605,41 +605,6 @@ const ManuallyAssign = {
   }
 }
 
-const FixGroupNames = {
-  name: 'FixGroupNames',
-  args: [],
-  outputType: 'Array<String>',
-  usesContext: true,
-  mutations: ['schedule'],
-  implementation: (ctx) => {
-    return lib.allGroups(ctx.competition).map((group) => {
-      const activityCodeObj = activityCode.parse(group.wcif.activityCode)
-      group.wcif.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + group.room.name.split(' ')[0] + ' ' + activityCodeObj.groupNumber
-      return group.wcif.name
-    })
-  }
-}
-
-const FixGroupNumbers = {
-  name: 'FixGroupNumbers',
-  args: [],
-  outputType: 'Array<String>',
-  usesContext: true,
-  mutations: ['schedule'],
-  implementation: (ctx) => {
-    return lib.allGroups(ctx.competition).map((group) => {
-      const activityCodeObj = activityCode.parse(group.wcif.activityCode)
-      if (activityCodeObj.groupNumber === 0) {
-        group.wcif.activityCode = activityCodeObj.group(20).id()
-        group.wcif.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + group.room.name.split(' ')[0] + ' ' + 20
-        return group.wcif.name
-      } else {
-        return null
-      }
-    })
-  }
-}
-
 const CheckForMissingGroups = {
   name: 'CheckForMissingGroups',
   args: [],
@@ -685,5 +650,5 @@ module.exports = {
               GroupName, StartTime, EndTime, Date,
               RoundStartTime, RoundEndTime,
               AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups,
-              CreateGroups, ManuallyAssign, FixGroupNames, CheckForMissingGroups, FixGroupNumbers],
+              CreateGroups, ManuallyAssign, CheckForMissingGroups],
 }
