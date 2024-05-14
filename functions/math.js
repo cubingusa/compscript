@@ -189,6 +189,39 @@ const If = {
   }
 }
 
+const Switch = {
+  name: 'Switch',
+  docs: 'Returns the first matching value',
+  genericParams: ['T', 'U'],
+  args: [
+    {
+      name: 'value',
+      type: '$T',
+      canBeExternal: true,
+    },
+    {
+      name: 'options',
+      type: 'Tuple<$T, $U>',
+      repeated: true,
+    },
+    {
+      name: 'defaultValue',
+      type: '$U',
+      defaultValue: null,
+      nullable: true,
+    },
+  ],
+  outputType: '$U',
+  implementation: (value, options, defaultValue) => {
+    for (const option of options) {
+      if (option[0] === value) {
+        return option[1]
+      }
+    }
+    return defaultValue
+  }
+}
+
 const Even = {
   name: 'Even',
   docs: 'Returns true if the number is even',
@@ -219,6 +252,6 @@ const Odd = {
 
 module.exports = {
   functions: [GreaterThan, GreaterThanOrEqualTo,
-              EqualTo, EqualTo_Date, If, Add, ConcatStrings, ConcatArrays, Subtract,
+              EqualTo, EqualTo_Date, If, Switch, Add, ConcatStrings, ConcatArrays, Subtract,
               Even, Odd],
 }
