@@ -516,6 +516,8 @@ const CreateGroups = {
     } else {
       activity = matchingActivities[0]
     }
+    var firstStartTime = null;
+    var lastEndTime = null;
     var length = end.diff(start, 'minutes').as('minutes') / count
     for (var i = 0; i < count; i++) {
       if (skipGroups.includes(i + 1)) {
@@ -534,7 +536,15 @@ const CreateGroups = {
       }
       activity.childActivities.push(next)
       out.push('Added group ' + groupName + ' from ' + next.startTime + ' to ' + next.endTime)
+      if (firstStartTime === null || next.startTime < firstStartTime) {
+        firstStartTime = next.startTime
+      }
+      if (lastEndTime === null || next.endTime > lastEndTime) {
+        lastEndTime = next.endTime
+      }
     }
+    activity.startTime = firstStartTime
+    activity.endTime = lastEndTime
     return out
   }
 }
