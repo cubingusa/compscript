@@ -469,12 +469,17 @@ const CreateGroups = {
       name: 'useStageName',
       type: 'Boolean',
       defaultValue: true,
+    },
+    {
+      name: 'createParentIfNotPresent',
+      type: 'Boolean',
+      defaultValue: true,
     }
   ],
   outputType: 'Array<String>',
   usesContext: true,
   mutations: ['schedule'],
-  implementation: (ctx, round, count, stage, start, end, skipGroups, useStageName) => {
+  implementation: (ctx, round, count, stage, start, end, skipGroups, useStageName, createParentIfNotPresent) => {
     var maxActivityId = 0
     ctx.competition.schedule.venues.forEach((venue) => {
       venue.rooms.forEach((room) => {
@@ -501,6 +506,9 @@ const CreateGroups = {
     var out = []
     var activity = null
     if (matchingActivities.length === 0) {
+      if (!createParentIfNotPresent) {
+        return ['Could not find matching activity on schedule.']
+      }
       activity = {
         id: ++maxActivityId,
         activityCode: round.id(),
