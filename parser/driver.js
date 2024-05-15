@@ -11,6 +11,14 @@ function parseType(type) {
   }
 }
 
+function parseGenerics(type) {
+  var parsed = type.match(/([\$a-zA-Z][a-zA-Z0-9]*)<(.*)>/)
+  return {
+    type: parsed ? parsed[1] : type,
+    generics: parsed ? parsed[2].split(',').map((x) => { return { type: x.trim() } } ) : [],
+  }
+}
+
 function assembleType(type) {
   if (type.params.length > 0) {
     return type.type + '(' + type.params.join(',') + ')'
@@ -20,8 +28,18 @@ function assembleType(type) {
 }
 
 function typesMatch(typeA, typeB) {
-  if (typeA.type !== typeB.type && typeA.type !== 'Any' && typeB.type !== 'Any') {
+  var ttA = parseGenerics(typeA.type)
+  var ttB = parseGenerics(typeB.type)
+  if (ttA.type !== ttB.type && ttA.type !== 'Any' && ttB.type !== 'Any') {
     return false
+  }
+  if (ttA.generics.length !== ttB.generics.length) {
+    return false
+  }
+  for (let i = 0; i < ttA.generics.length; i++) {
+    if (!typesMatch(ttA.generics[i], ttB.generics[i])) {
+      return false
+    }
   }
   return true
 }
@@ -153,7 +171,7 @@ function substituteGenerics(typeWithGenerics, matchType, fn, generics, errors) {
     substituteExisting(typeWithGenerics, { [newGeneric.generic]: newGeneric.value })
     generics[newGeneric.generic] = newGeneric.value
   }
-  if (typeWithGenerics.type !== matchType.type) {
+  if (!typesMatch(typeWithGenerics, matchType)) {
     errors.push({ errorType: 'UNEXPECTED_TYPE',
                   expectedType: matchType,
                   gotType: typeWithGenerics })

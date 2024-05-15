@@ -283,6 +283,48 @@ const StartTime = {
   }
 }
 
+const RoundStartTime = {
+  name: 'RoundStartTime',
+  docs: 'The start time of the first group of a round.',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'DateTime',
+  usesContext: true,
+  implementation: (ctx, round) => {
+    let min = Math.min(
+      ...lib.allActivitiesForRoundId(ctx.competition, round.id())
+            .map(round => lib.startTime(round, ctx.competition).ts)
+    )
+    return min ? DateTime.fromMillis(min).setZone(ctx.competition.schedule.venues[0].timezone) : null
+  }
+}
+
+const RoundEndTime = {
+  name: 'RoundEndTime',
+  docs: 'The end time of the last group of a round.',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+      canBeExternal: true,
+    },
+  ],
+  outputType: 'DateTime',
+  usesContext: true,
+  implementation: (ctx, round) => {
+    let max = Math.max(
+      ...lib.allActivitiesForRoundId(ctx.competition, round.id())
+            .map(round => lib.endTime(round, ctx.competition).ts)
+    )
+    return max ? DateTime.fromMillis(max).setZone(ctx.competition.schedule.venues[0].timezone) : null
+  }
+}
+
 const EndTime = {
   name: 'EndTime',
   docs: 'The end time of a group',
@@ -605,41 +647,6 @@ const ManuallyAssign = {
   }
 }
 
-const FixGroupNames = {
-  name: 'FixGroupNames',
-  args: [],
-  outputType: 'Array<String>',
-  usesContext: true,
-  mutations: ['schedule'],
-  implementation: (ctx) => {
-    return lib.allGroups(ctx.competition).map((group) => {
-      const activityCodeObj = activityCode.parse(group.wcif.activityCode)
-      group.wcif.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + group.room.name.split(' ')[0] + ' ' + activityCodeObj.groupNumber
-      return group.wcif.name
-    })
-  }
-}
-
-const FixGroupNumbers = {
-  name: 'FixGroupNumbers',
-  args: [],
-  outputType: 'Array<String>',
-  usesContext: true,
-  mutations: ['schedule'],
-  implementation: (ctx) => {
-    return lib.allGroups(ctx.competition).map((group) => {
-      const activityCodeObj = activityCode.parse(group.wcif.activityCode)
-      if (activityCodeObj.groupNumber === 0) {
-        group.wcif.activityCode = activityCodeObj.group(20).id()
-        group.wcif.name = events.idToName[activityCodeObj.eventId] + ' Round ' + activityCodeObj.roundNumber + ' ' + group.room.name.split(' ')[0] + ' ' + 20
-        return group.wcif.name
-      } else {
-        return null
-      }
-    })
-  }
-}
-
 const CheckForMissingGroups = {
   name: 'CheckForMissingGroups',
   args: [],
@@ -683,7 +690,8 @@ module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
+              RoundStartTime, RoundEndTime,
               AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups,
-              CreateGroups('Round'), CreateGroups('Attempt'), ManuallyAssign, FixGroupNames,
-              CheckForMissingGroups, FixGroupNumbers],
+              CreateGroups('Round'), CreateGroups('Attempt'), ManuallyAssign,
+              CheckForMissingGroups],
 }
