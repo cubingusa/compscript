@@ -479,7 +479,7 @@ const GroupForActivityId = {
 
 const CreateGroups = {
   name: 'CreateGroups',
-  docs: 'Inserts groups into the schudle.',
+  docs: 'Inserts groups into the schedule.',
   args: [
     {
       name: 'round',
@@ -492,6 +492,7 @@ const CreateGroups = {
     {
       name: 'stage',
       type: 'String',
+      canBeExternal: true,
     },
     {
       name: 'start',
@@ -500,12 +501,27 @@ const CreateGroups = {
     {
       name: 'end',
       type: 'DateTime',
+    },
+    {
+      name: 'skipGroups',
+      type: 'Array<Number>',
+      defaultValue: [],
+    },
+    {
+      name: 'useStageName',
+      type: 'Boolean',
+      defaultValue: true,
+    },
+    {
+      name: 'createParentIfNotPresent',
+      type: 'Boolean',
+      defaultValue: true,
     }
   ],
   outputType: 'Array<String>',
   usesContext: true,
   mutations: ['schedule'],
-  implementation: (ctx, round, count, stage, start, end) => {
+  implementation: (ctx, round, count, stage, start, end, skipGroups, useStageName, createParentIfNotPresent) => {
     var maxActivityId = 0
     ctx.competition.schedule.venues.forEach((venue) => {
       venue.rooms.forEach((room) => {
@@ -520,9 +536,6 @@ const CreateGroups = {
     })
 
     var venue = ctx.competition.schedule.venues[0]
-    var roomsWithRound = venue.rooms.filter((room) => {
-      return room.activities.some((activity) => activity.activityCode === round.id())
-    })
     var matchingRooms = venue.rooms.filter((room) => room.name === stage)
     if (matchingRooms.length === 0) {
       return ['Could not find room named ' + stage]
@@ -532,16 +545,35 @@ const CreateGroups = {
         start >= DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venues[0].timezone) &&
         end <= DateTime.fromISO(activity.endTime).setZone(ctx.competition.schedule.venues[0].timezone)
     })
+    var out = []
     var activity = null
     if (matchingActivities.length === 0) {
-      return ['Could not find matching activity for times']
+      if (!createParentIfNotPresent) {
+        return ['Could not find matching activity on schedule.']
+      }
+      activity = {
+        id: ++maxActivityId,
+        activityCode: round.id(),
+        childActivities: [],
+        scrambleSetId: null,
+        extensions: [],
+        startTime: start.toISO(),
+        endTime: end.toISO(),
+        name: round.toString()
+      }
+      matchingRooms[0].activities.push(activity)
+      out.push('Added activity ' + activity.name)
     } else {
       activity = matchingActivities[0]
     }
+    var firstStartTime = null;
+    var lastEndTime = null;
     var length = end.diff(start, 'minutes').as('minutes') / count
-    var out = []
     for (var i = 0; i < count; i++) {
-      var groupName = round.toString() + ' ' + (roomsWithRound.length == 1 ? ('Group ' + (i + 1)) : (stage.split(' ')[0] + ' ' + (i + 1)))
+      if (skipGroups.includes(i + 1)) {
+        continue
+      }
+      var groupName = round.toString() + ' ' + (useStageName ? (stage.split(' ')[0] + ' ' + (i + 1)) : ('Group ' + (i + 1)))
       var next = {
         id: ++maxActivityId,
         activityCode: round.group(i + 1).id(),
@@ -554,7 +586,15 @@ const CreateGroups = {
       }
       activity.childActivities.push(next)
       out.push('Added group ' + groupName + ' from ' + next.startTime + ' to ' + next.endTime)
+      if (firstStartTime === null || next.startTime < firstStartTime) {
+        firstStartTime = next.startTime
+      }
+      if (lastEndTime === null || next.endTime > lastEndTime) {
+        lastEndTime = next.endTime
+      }
     }
+    activity.startTime = firstStartTime
+    activity.endTime = lastEndTime
     return out
   }
 }

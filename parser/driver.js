@@ -71,7 +71,7 @@ function literalNode(type, value) {
 function dateTimeNode(type, valueStr) {
   return {
     type: { type, params: [] },
-    value: (inParams, ctx) => DateTime.fromISO(valueStr).setZone(ctx.competition.schedule.venues[0].timezone),
+    value: (inParams, ctx) => DateTime.fromISO(valueStr).setZone(ctx.competition.schedule.venues[0].timezone, { keepLocalTime: true }),
     serialize: () => { return { type: type, value: valueStr } },
     mutations: [],
   }
