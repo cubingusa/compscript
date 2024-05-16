@@ -35,7 +35,7 @@ class Header {
   }
 }
 
-readSpreadsheetImpl = async function(competition, spreadsheetId, offset) {
+readSpreadsheetImpl = async function(competition, spreadsheetId, offset, sheetTitle) {
   out = { warnings: [], loaded: 0 }
   const creds = require('./../google-credentials.json')
   const serviceAccountAuth = new JWT({
@@ -45,7 +45,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId, offset) {
   })
   const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth)
   await doc.loadInfo()
-  const sheet = doc.sheetsByIndex[0]
+  const sheet = sheetTitle == '' ? doc.sheetsByIndex[0] : doc.sheetsByTitle[sheetTitle]
   await sheet.loadHeaderRow(1)
   var headers = sheet.headerValues.map((val) => new Header(val))
 
@@ -133,12 +133,18 @@ const ReadSpreadsheet = {
       docs: 'Skip the first `offset` rows of the spreadsheet.',
       defaultValue: 0,
     },
+    {
+      name: 'sheetTitle',
+      type: 'String',
+      docs: 'Select the sheet with this name.',
+      defaultValue: '',
+    }
   ],
   outputType: 'ReadSpreadsheetResult',
   usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, spreadsheetId, offset) => {
-    return readSpreadsheetImpl(ctx.competition, spreadsheetId, offset)
+  implementation: (ctx, spreadsheetId, offset, sheetTitle) => {
+    return readSpreadsheetImpl(ctx.competition, spreadsheetId, offset, sheetTitle)
   }
 }
 
