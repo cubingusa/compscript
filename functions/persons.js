@@ -521,7 +521,7 @@ module.exports = {
   functions:
       [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Email, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
-       SetProperty, DeleteProperty, AddPerson, Persons,
+       SetProperty, DeleteProperty, HasProperty, AddPerson, Persons,
        AddRole, DeleteRole, HasRole, RegistrationStatus,
        ClearAssignments, HasResults, IsPossibleNoShow, Gender],
 }
