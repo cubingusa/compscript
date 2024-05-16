@@ -162,6 +162,7 @@ function extractOne(typeString, expectedString, fn, generics, errors) {
 
 function substituteGenerics(typeWithGenerics, matchType, fn, generics, errors) {
   substituteExisting(typeWithGenerics, generics)
+  substituteExisting(matchType, generics)
 
   while (typeWithGenerics.type.indexOf('$') >= 0) {
     var newGeneric = extractOne(typeWithGenerics.type, matchType.type, fn, generics, errors)
