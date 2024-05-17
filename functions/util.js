@@ -22,6 +22,21 @@ const Type = {
   implementation: (generics, arg) => generics.T
 }
 
+const Arg = {
+  name: 'Arg',
+  docs: 'A function to capture arguments that are passed in, for example in a user-defined function or Map().'
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'arg',
+      type: '$T',
+      canBeExternal: true,
+    },
+  ],
+  outputType: '$T',
+  implementation: (arg) => arg
+}
+
 const ToString = {
   name: 'ToString',
   genericParams: ['T'],
@@ -362,5 +377,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
+  functions: [Type, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
 }
