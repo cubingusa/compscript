@@ -446,7 +446,7 @@ function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
 function activityNode(activityId) {
   var code = activityCode.parse(activityId)
   if (code) {
-    var type = code.roundNumber ? 'Round' : 'Event';
+    var type = code.attemptNumber ? 'Attempt' : (code.roundNumber ? 'Round' : 'Event')
     return {
       type: { type, params: [] },
       value: (inParams, ctx) => code,
