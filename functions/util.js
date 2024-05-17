@@ -24,7 +24,7 @@ const Type = {
 
 const Arg = {
   name: 'Arg',
-  docs: 'A function to capture arguments that are passed in, for example in a user-defined function or Map().'
+  docs: 'A function to capture arguments that are passed in, for example in a user-defined function or Map().',
   genericParams: ['T'],
   args: [
     {
