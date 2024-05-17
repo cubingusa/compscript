@@ -201,8 +201,7 @@ const Switch = {
     },
     {
       name: 'options',
-      type: 'Tuple<$T, $U>',
-      repeated: true,
+      type: 'Array<Tuple<$T, $U>>',
     },
     {
       name: 'defaultValue',
@@ -215,6 +214,38 @@ const Switch = {
   implementation: (value, options, defaultValue) => {
     for (const option of options) {
       if (option[0] === value) {
+        return option[1]
+      }
+    }
+    return defaultValue
+  }
+}
+
+const Switch_Events = {
+  name: 'Switch',
+  docs: 'Returns the first matching value',
+  genericParams: ['U'],
+  args: [
+    {
+      name: 'value',
+      type: 'Event',
+      canBeExternal: true,
+    },
+    {
+      name: 'options',
+      type: 'Array<Tuple<Event, $U>>',
+    },
+    {
+      name: 'defaultValue',
+      type: '$U',
+      defaultValue: null,
+      nullable: true,
+    },
+  ],
+  outputType: '$U',
+  implementation: (value, options, defaultValue) => {
+    for (const option of options) {
+      if (option[0].id() === value.id()) {
         return option[1]
       }
     }
@@ -252,6 +283,6 @@ const Odd = {
 
 module.exports = {
   functions: [GreaterThan, GreaterThanOrEqualTo,
-              EqualTo, EqualTo_Date, If, Switch, Add, ConcatStrings, ConcatArrays, Subtract,
+              EqualTo, EqualTo_Date, If, Switch, Switch_Events, Add, ConcatStrings, ConcatArrays, Subtract,
               Even, Odd],
 }
