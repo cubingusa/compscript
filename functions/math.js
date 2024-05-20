@@ -281,8 +281,24 @@ const Odd = {
   implementation: (val) => val !== null && val % 2 == 1,
 }
 
+const Mod = {
+  name: 'Mod',
+  args: [
+    {
+      name: 'val',
+      type: 'Number',
+    },
+    {
+      name: 'modulus',
+      type: 'Number',
+    }
+  ],
+  outputType: 'Number',
+  implementation: (val, modulus) => val % modulus,
+}
+
 module.exports = {
   functions: [GreaterThan, GreaterThanOrEqualTo,
               EqualTo, EqualTo_Date, If, Switch, Switch_Events, Add, ConcatStrings, ConcatArrays, Subtract,
-              Even, Odd],
+              Even, Odd, Mod],
 }
