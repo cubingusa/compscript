@@ -176,16 +176,18 @@ const If = {
       name: 'ifTrue',
       type: '$T',
       nullable: true,
+      lazy: true,
     },
     {
       name: 'ifFalse',
       type: '$T',
       nullable: true,
+      lazy: true,
     },
   ],
   outputType: '$T',
   implementation: (condition, ifTrue, ifFalse) => {
-    return condition ? ifTrue : ifFalse
+    return condition ? ifTrue() : ifFalse()
   }
 }
 
