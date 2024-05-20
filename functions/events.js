@@ -190,7 +190,8 @@ const PsychSheetPosition = {
   outputType: 'Number',
   usesContext: true,
   implementation: (ctx, evt, type, person) => {
-    if (person.registration.status !== 'accepted' ||
+    if (person.registration == null ||
+        person.registration.status !== 'accepted' ||
         !person.registration.eventIds.includes(evt.eventId)) {
       return null
     }
