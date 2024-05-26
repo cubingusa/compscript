@@ -29,6 +29,18 @@ const Hour = {
   implementation: (time) => time.hour,
 }
 
+const Day = {
+  name: 'Day',
+  args: [
+    {
+      name: 'time',
+      type: 'Date',
+    }
+  ],
+  outputType: 'Number',
+  implementation: (time) => time.day,
+}
+
 module.exports = {
-  functions: [Time, Hour],
+  functions: [Time, Hour, Day],
 }

@@ -22,6 +22,20 @@ const Type = {
   implementation: (generics, arg) => generics.T
 }
 
+const IsNull = {
+  name: 'IsNull',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'arg',
+      type: '$T',
+      nullable: true,
+    }
+  ],
+  outputType: 'Boolean',
+  implementation: (arg) => arg == null,
+}
+
 const Arg = {
   name: 'Arg',
   docs: 'A function to capture arguments that are passed in, for example in a user-defined function or Map().',
@@ -377,5 +391,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
 }

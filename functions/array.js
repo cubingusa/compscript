@@ -16,6 +16,29 @@ const MakeArray = {
   },
 }
 
+const At = {
+  name: 'At',
+  genericParams: ['T'],
+  docs: 'Selects the 0-indexed element from the provided array.',
+  args: [
+    {
+      name: 'array',
+      type: 'Array<$T>',
+    },
+    {
+      name: 'index',
+      type: 'Number',
+    }
+  ],
+  outputType: '$T',
+  implementation: (array, index) => {
+    if (array.length <= index) {
+      return null
+    }
+    return array[index]
+  }
+}
+
 const MakeEmptyArray = {
   name: 'MakeEmptyArray',
   docs: 'Constructs an array containing zero elements. Can be invoked as a literal expression via [].',
@@ -215,7 +238,26 @@ const Sort = {
   }
 }
 
+const RandomChoice = {
+  name: 'RandomChoice',
+  genericParams: 'T',
+  args: [
+    {
+      name: 'array',
+      type: 'Array<$T>'
+    },
+  ],
+  outputType: '$T',
+  implementation: (array) => {
+    if (array.length == 0) {
+      return null
+    }
+    var idx = Math.floor(Math.random() * array.length)
+    return array[idx]
+  }
+}
+
 module.exports = {
-  functions: [MakeArray, MakeEmptyArray, In, InActivityCode('Event'), InActivityCode('Round'), InDateTime,
-              Length, Map, Filter, Flatten, Concat, Sort],
+  functions: [MakeArray, MakeEmptyArray, At, In, InActivityCode('Event'), InActivityCode('Round'), InDateTime,
+              Length, Map, Filter, Flatten, Concat, Sort, RandomChoice],
 }
