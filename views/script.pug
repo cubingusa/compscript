@@ -27,6 +27,9 @@ html
       label
         input(type='checkbox' name='dryrun' checked=dryrun)
         = "Dry Run"
+      label
+        input(type='checkbox' name='clearCache' checked=clearCache)
+        = "Clear Cache"
       br
       input(type='submit')
     if dryrunWarning

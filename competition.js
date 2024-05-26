@@ -68,14 +68,14 @@ router.get('/:competitionId', async (req, res) => {
     delete req.session.script
     delete req.session.filename
   }
-  await runScript(req, res, script || req.query.script, filename || req.query.filename, true)
+  await runScript(req, res, script || req.query.script, filename || req.query.filename, true, req.query.clearCache)
 })
 
 router.post('/:competitionId', async (req, res) => {
-  await runScript(req, res, req.body.script, req.body.filename, req.body.dryrun)
+  await runScript(req, res, req.body.script, req.body.filename, req.body.dryrun, req.body.clearCache)
 })
 
-async function runScript(req, res, script, filename, dryrun) {
+async function runScript(req, res, script, filename, dryrun, clearCache) {
   var logger = req.logger
   var params = {
     comp: req.competition,
@@ -84,13 +84,16 @@ async function runScript(req, res, script, filename, dryrun) {
     outputs: [],
     dryrun: dryrun,
     dryrunWarning: false,
+    clearCache: clearCache,
     files: listFiles(),
     selectedFile: filename,
   }
   if (filename) {
     script = `#include "${filename}"
-    ${script}
-    ListScripts()`
+    ${script}`
+  }
+  if (clearCache) {
+    fs.unlinkSync(auth.cachePath(req.params.competitionId))
   }
   if (script) {
     compiler.compile(script, {
