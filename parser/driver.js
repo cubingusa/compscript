@@ -79,7 +79,7 @@ function dateTimeNode(type, valueStr) {
 
 function recursivelySubstituteUdfArgs(udf, impl, udfArgs) {
   if (impl.type === 'UdfArg' || impl.type === 'SavedUdfArg') {
-    if (udfArgs.length <= impl.argNum) {
+    if (udfArgs.length < impl.argNum) {
       throw new Error('Not enough arguments provided to ' + udf.name)
     }
     return udfArgs[impl.argNum - 1]
