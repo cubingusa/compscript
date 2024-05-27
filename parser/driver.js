@@ -77,17 +77,20 @@ function dateTimeNode(type, valueStr) {
   }
 }
 
+function recursivelySubstituteUdfArgs(impl, udfArgs) {
+  if (impl.type === 'UdfArg' || impl.type === 'SavedUdfArg') {
+    return udfArgs[impl.argNum - 1]
+  }
+  if (impl.args !== undefined) {
+    impl.args = impl.args.map((arg) => recursivelySubstituteUdfArgs(arg, udfArgs))
+  }
+  return impl
+}
+
 function udfNode(udf, ctx, args, allowParams) {
   // TODO: check the arguments.
-  var oldUdfArgs = ctx.udfArgs;
-  ctx.udfArgs = {}
-  for (const [idx, arg] of args.entries()) {
-    ctx.udfArgs[idx + 1] = arg
-    if (arg.type == 'UdfArg') {
-      ctx.udfArgs[idx + 1] = oldUdfArgs[arg.argNum]
-    }
-  }
-  var out = parseNode(udf.impl, ctx, allowParams)
+  var impl = JSON.parse(JSON.stringify(udf.impl))
+  var out = parseNode(recursivelySubstituteUdfArgs(impl, args), ctx, allowParams)
   out.serialize = () => {
     return {
       type: 'Function',
@@ -95,7 +98,6 @@ function udfNode(udf, ctx, args, allowParams) {
       args: args,
     }
   }
-  ctx.udfArgs = oldUdfArgs
   return out
 }
 
@@ -462,7 +464,7 @@ function activityNode(activityId) {
 }
 
 function savedUdfArgNode(argNum, argType, ctx) {
-  return parseNode(ctx.udfArgs[argNum], ctx, true)
+  throw new Error("Error substituting UDF.")
 }
 
 function udfArgNode(argNum, argType, ctx) {
