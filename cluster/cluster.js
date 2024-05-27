@@ -79,7 +79,7 @@ function Cluster(name, numClusters, persons, preCluster, constraints) {
       if (!ext.properties) {
         ext.properties = {}
       }
-      ext.properties[name] = cluster
+      ext.properties[name] = +cluster
       out.clusters[cluster].persons.push(personOut)
     }
   }
