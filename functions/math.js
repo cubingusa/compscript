@@ -163,6 +163,40 @@ const Subtract = {
   implementation: (val1, val2) => val1 - val2,
 }
 
+const Multiply = {
+  name: 'Multiply',
+  docs: 'Multiplies two numbers (may be invoked with "*")',
+  args: [
+    {
+      name: 'val1',
+      type: 'Number',
+    },
+    {
+      name: 'val2',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Number',
+  implementation: (val1, val2) => val1 * val2,
+}
+
+const Divide = {
+  name: 'Divide',
+  docs: 'Divides two numbers (may be invoked with "/")',
+  args: [
+    {
+      name: 'val1',
+      type: 'Number',
+    },
+    {
+      name: 'val2',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Number',
+  implementation: (val1, val2) => val1 / val2,
+}
+
 const If = {
   name: 'If',
   docs: 'If the condition is true, return the first value, else the second value',
@@ -302,5 +336,5 @@ const Mod = {
 module.exports = {
   functions: [GreaterThan, GreaterThanOrEqualTo,
               EqualTo, EqualTo_Date, If, Switch, Switch_Events, Add, ConcatStrings, ConcatArrays, Subtract,
-              Even, Odd, Mod],
+              Multiply, Divide, Even, Odd, Mod],
 }

@@ -76,6 +76,8 @@ BinaryOperation
   / "(" left:Expression _ "==" _ right:Expression ")" { return { type: 'Function', name: 'EqualTo', args: [left, right] } }
   / "(" left:Expression _ "+" _ right:Expression ")" { return { type: 'Function', name: 'Add', args: [left, right] } }
   / "(" left:Expression _ "-" _ right:Expression ")" { return { type: 'Function', name: 'Subtract', args: [left, right] } }
+  / "(" left:Expression _ "*" _ right:Expression ")" { return { type: 'Function', name: 'Multiply', args: [left, right] } }
+  / "(" left:Expression _ "/" _ right:Expression ")" { return { type: 'Function', name: 'Divide', args: [left, right] } }
 
 Array
   = "[" vals:ExpressionList "]" { return { type: 'Function', name: 'MakeArray', args: vals } }
