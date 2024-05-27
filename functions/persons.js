@@ -14,6 +14,19 @@ const Name = {
   implementation: (person) => person.name
 }
 
+const Birthdate = {
+  name: 'Birthdate',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'Date',
+  implementation: (person) => person.birthdate
+}
+
 const WcaId = {
   name: 'WcaId',
   docs: 'Returns the person\'s WCA ID',
@@ -519,7 +532,7 @@ const Gender = {
 
 module.exports = {
   functions:
-      [Name, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Email, Country, FirstName, LastName,
+      [Name, Birthdate, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Email, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, DeleteProperty, HasProperty, AddPerson, Persons,
        AddRole, DeleteRole, HasRole, RegistrationStatus,
