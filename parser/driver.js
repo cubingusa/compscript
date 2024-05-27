@@ -77,20 +77,22 @@ function dateTimeNode(type, valueStr) {
   }
 }
 
-function recursivelySubstituteUdfArgs(impl, udfArgs) {
+function recursivelySubstituteUdfArgs(udf, impl, udfArgs) {
   if (impl.type === 'UdfArg' || impl.type === 'SavedUdfArg') {
+    if (udfArgs.length <= impl.argNum) {
+      throw new Error('Not enough arguments provided to ' + udf.name)
+    }
     return udfArgs[impl.argNum - 1]
   }
   if (impl.args !== undefined) {
-    impl.args = impl.args.map((arg) => recursivelySubstituteUdfArgs(arg, udfArgs))
+    impl.args = impl.args.map((arg) => recursivelySubstituteUdfArgs(udf, arg, udfArgs))
   }
   return impl
 }
 
 function udfNode(udf, ctx, args, allowParams) {
-  // TODO: check the arguments.
   var impl = JSON.parse(JSON.stringify(udf.impl))
-  var out = parseNode(recursivelySubstituteUdfArgs(impl, args), ctx, allowParams)
+  var out = parseNode(recursivelySubstituteUdfArgs(udf, impl, args), ctx, allowParams)
   out.serialize = () => {
     return {
       type: 'Function',
