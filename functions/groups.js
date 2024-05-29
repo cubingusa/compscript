@@ -193,7 +193,7 @@ const Stage = {
     }
   ],
   outputType: 'String',
-  implementation: (group) => group.room.name.split(' ')[0]
+  implementation: (group) => group.room.name
 }
 
 const AssignedGroup = {
