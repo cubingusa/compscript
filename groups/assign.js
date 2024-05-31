@@ -5,6 +5,7 @@ const lib = require('./../lib')
 
 function Assign(competition, round, assignmentSets, scorers, stationRules, attemptNumber, override) {
   var groups = lib.groupsForRoundCode(competition, round)
+  groups.sort((g1, g2) => g1.activityCode.groupNumber - g2.activityCode.groupNumber)
   if (attemptNumber !== null) {
     groups = groups.filter((group) => group.activityCode.attemptNumber === attemptNumber)
   }
