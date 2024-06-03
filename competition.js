@@ -124,7 +124,7 @@ async function runScript(req, res, script, filename, dryrun, clearCache) {
             params.dryrunWarning = true
           } else {
             ctx.logger.start('patch')
-            await auth.patchWcif(ctx.competition, scriptResult.mutations, req, res)
+            await auth.patchWcifWithRetries(ctx.competition, scriptResult.mutations, req, res)
             ctx.logger.stop('patch')
           }
         }

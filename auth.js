@@ -102,6 +102,24 @@ async function patchWcif(obj, keys, req, res) {
   return JSON.parse(out.body.toString());
 }
 
+async function patchWcifWithRetries(obj, keys, req, res) {
+  var i = 0
+  while (i < 10) {
+    try {
+      return await patchWcif(obj, keys, req, res)
+    } catch (e) {
+      if (i == 9) {
+        throw e
+      }
+      if (e.code == 'ECONNRESET') {
+        i += 1
+        continue
+      }
+      throw e
+    }
+  }
+}
+
 router.get('/login', function(req, res) {
   const uri = client.authorizationUrl({
     scope: 'public manage_competitions'
@@ -171,5 +189,6 @@ module.exports = {
   getWcif: getWcif,
   redirectIfNotLoggedIn: redirectIfNotLoggedIn,
   patchWcif: patchWcif,
+  patchWcifWithRetries: patchWcifWithRetries,
   cachePath: cachePath,
 }
