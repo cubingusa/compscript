@@ -36,12 +36,17 @@ const AssignStaff = {
       type: 'Boolean',
       defaultValue: true,
     },
+    {
+      name: 'unavailable',
+      type: 'Array<StaffUnavailability>(Person)',
+      lazy: true,
+    }
   ],
   outputType: 'StaffAssignmentResult',
   usesContext: true,
   mutations: ['persons'],
-  implementation: (ctx, round, groupFilter, persons, jobs, scorers, overwrite, avoidConflicts) => {
-    return assign.Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun, avoidConflicts)
+  implementation: (ctx, round, groupFilter, persons, jobs, scorers, overwrite, avoidConflicts, unavailable) => {
+    return assign.Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite || ctx.dryrun, avoidConflicts, unavailable)
   }
 }
 
@@ -273,31 +278,6 @@ const FollowingGroupScorer = {
   }
 }
 
-const SetStaffUnavailable = {
-  name: 'SetStaffUnavailable',
-  docs: 'Marks the provided staff members as unavailable at the given time',
-  args: [
-    {
-      name: 'persons',
-      type: 'Array<Person>',
-    },
-    {
-      name: 'times',
-      type: 'Array<StaffUnavailability>',
-      serialized: true,
-    }
-  ],
-  outputType: 'String',
-  mutations: ['persons'],
-  implementation: (persons, times) => {
-    persons.forEach((person) => {
-      const ext = extension.getOrInsertExtension(person, 'Person')
-      ext.staffUnavailable = { implementation: times }
-    })
-    return 'Set unavailable for ' + persons.map((person) => person.name).join(', ')
-  }
-}
-
 const UnavailableBetween = {
   name: 'UnavailableBetween',
   docs: 'Indicates that the staff member is unavailable at the given time',
@@ -395,6 +375,6 @@ module.exports = {
               JobCountScorer, PreferenceScorer,
               SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
               ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
-              SetStaffUnavailable, UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
+              UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
               NumJobs],
 }

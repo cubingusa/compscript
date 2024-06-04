@@ -4,7 +4,7 @@ const extension = require('./../extension')
 const lib = require('./../lib')
 const driver = require('./../parser/driver')
 
-function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, avoidConflicts) {
+function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, avoidConflicts, unavailable) {
   var competition = ctx.competition
   var allGroups = lib.allGroups(competition)
   var groupIds = activities.map((group) => group.wcif.id)
@@ -54,6 +54,11 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
     }
   })
 
+  var unavailableByPerson = {}
+  persons.forEach((person) => {
+    unavailableByPerson[person.wcaUserId] = unavailable({Person: person})
+  })
+
   activities.forEach((activity, idx) => {
     var conflictingGroupIds = allGroups.filter((otherGroup) => {
       return activity.startTime < otherGroup.endTime && otherGroup.startTime < activity.endTime
@@ -63,12 +68,7 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
           !person.assignments.every((assignment) => !conflictingGroupIds.includes(assignment.activityId))) {
         return false
       }
-      var ext = extension.getExtension(person, 'Person')
-      if (!ext || !('staffUnavailable' in ext)) {
-        return true
-      }
-      var unavailables = driver.parseNode(ext.staffUnavailable.implementation, ctx, true).value({}, ctx)
-      return !unavailables.some((unavail) => unavail(activity))
+      return !unavailableByPerson[person.wcaUserId].some((unavail) => unavail(activity))
     })
     var neededPeople = jobs.map((job) => job.count).reduce((a, v) => a+v)
     if (eligiblePeople.length < neededPeople) {
@@ -142,6 +142,10 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
     var end = Date.now()
     if (!solution.feasible) {
       out.warnings.push('Failed to find a solution for activity ' + activity.name())
+      console.log('No solution for ' + activity.name())
+      eligiblePeople.forEach((person) => {
+        console.log(person.name)
+      })
       return
     }
     Object.keys(solution).forEach((key) => {
@@ -189,12 +193,12 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
   return out
 }
 
-function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite, avoidConflicts) {
+function Assign(ctx, round, groupFilter, persons, jobs, scorers, overwrite, avoidConflicts, unavailable) {
   var competition = ctx.competition
   var groups = lib.groupsForRoundCode(competition, round).filter((group) => {
     return groupFilter({Group: group})
   })
-  return AssignImpl(ctx, groups, persons, jobs, scorers, overwrite, round.toString(), avoidConflicts)
+  return AssignImpl(ctx, groups, persons, jobs, scorers, overwrite, round.toString(), avoidConflicts, unavailable)
 }
 
 function AssignMisc(ctx, activityId, persons, jobs, scorers, overwrite, avoidConflicts) {
