@@ -142,10 +142,6 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
     var end = Date.now()
     if (!solution.feasible) {
       out.warnings.push('Failed to find a solution for activity ' + activity.name())
-      console.log('No solution for ' + activity.name())
-      eligiblePeople.forEach((person) => {
-        console.log(person.name)
-      })
       return
     }
     Object.keys(solution).forEach((key) => {
