@@ -40,6 +40,7 @@ const AssignStaff = {
       name: 'unavailable',
       type: 'Array<StaffUnavailability>(Person)',
       lazy: true,
+      defaultValue: [],
     }
   ],
   outputType: 'StaffAssignmentResult',
