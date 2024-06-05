@@ -51,9 +51,15 @@ function allGroups(competition) {
 }
 
 function groupForActivityId(competition, activityId) {
-  var matching = allGroups(competition).filter((group) => group.wcif.id == activityId)
+  var matching = competition.schedule.venues.map((venue) => venue.rooms).flat()
+     .map((room) => {
+       return room.activities
+                .map((activity) => activity.childActivities).flat()
+                .filter((activity) => activity.id == activityId)
+                .map((activity) => [activity, room])
+     }).flat()
   if (matching.length) {
-    return matching[0]
+    return new groupLib.Group(matching[0][0], matching[0][1], competition)
   }
   return null
 }
