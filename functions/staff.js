@@ -153,8 +153,9 @@ const PriorAssignmentScorer = {
     },
   ],
   outputType: 'AssignmentScorer',
-  implementation: (staffingWeight, competingWeight, startTime) => {
-    return new scorers.PriorAssignmentScorer(staffingWeight, competingWeight, startTime)
+  usesContext: true,
+  implementation: (ctx, staffingWeight, competingWeight, startTime) => {
+    return new scorers.PriorAssignmentScorer(ctx.competition, staffingWeight, competingWeight, startTime)
   }
 }
 

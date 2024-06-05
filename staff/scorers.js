@@ -15,24 +15,24 @@ class JobCountScorer {
 }
 
 class PriorAssignmentScorer {
-  constructor(staffingWeight, competingWeight, startTime) {
+  constructor(competition, staffingWeight, competingWeight, startTime) {
     this.staffingWeight = staffingWeight
     this.competingWeight = competingWeight
     this.startTime = startTime
     this.name = 'PriorAssignmentScorer'
+    this.groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.wcif.id, g]))
   }
 
   Score(competition, person, group) {
-    var groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.id, g]))
     var staffingHours = 0
     var competingHours = 0
     var startTime = lib.startTime(group, competition)
     for (const assignment of person.assignments) {
       var otherGroup = null
-      if (assignment.activityId in groupsById) {
-        otherGroup = groupsById[assignment.activityId]
+      if (assignment.activityId in this.groupsById) {
+        otherGroup = this.groupsById[assignment.activityId]
       } else {
-        otherGroup = miscActivityForId(assignment.activityId)
+        otherGroup = lib.miscActivityForId(competition, assignment.activityId)
       }
       if (otherGroup !== null) {
         var otherStart = lib.startTime(otherGroup, competition)
@@ -47,7 +47,7 @@ class PriorAssignmentScorer {
         }
       }
     }
-    return this.staffingWeight * staffingHours + this.competingHours * competingHours
+    return this.staffingWeight * staffingHours + this.competingWeight * competingHours
   }
 }
 
