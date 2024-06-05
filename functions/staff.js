@@ -391,7 +391,6 @@ const LengthOfJobs = {
   outputType: 'Number',
   usesContext: true,
   implementation: (ctx, person, type) => {
-    console.log('LengthOfJobs for ' + person.name)
     return person.assignments.filter((assignment) => {
       if (type !== null) {
         return assignment.assignmentCode === 'staff-' + type
