@@ -14,6 +14,43 @@ class JobCountScorer {
   }
 }
 
+class PriorAssignmentScorer {
+  constructor(competition, staffingWeight, competingWeight, startTime) {
+    this.staffingWeight = staffingWeight
+    this.competingWeight = competingWeight
+    this.startTime = startTime
+    this.name = 'PriorAssignmentScorer'
+    this.groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.wcif.id, g]))
+  }
+
+  Score(competition, person, group) {
+    var staffingHours = 0
+    var competingHours = 0
+    var startTime = lib.startTime(group, competition)
+    for (const assignment of person.assignments) {
+      var otherGroup = null
+      if (assignment.activityId in this.groupsById) {
+        otherGroup = this.groupsById[assignment.activityId]
+      } else {
+        otherGroup = lib.miscActivityForId(competition, assignment.activityId)
+      }
+      if (otherGroup !== null) {
+        var otherStart = lib.startTime(otherGroup, competition)
+        var otherEnd = lib.endTime(otherGroup, competition)
+        if (otherStart < startTime && (this.startTime === null || otherStart > this.startTime)) {
+          var hours = otherEnd.diff(otherStart, 'hours').as('hours')
+          if (assignment.assignmentCode.startsWith('staff-')) {
+            staffingHours += hours
+          } else {
+            competingHours += hours
+          }
+        }
+      }
+    }
+    return this.staffingWeight * staffingHours + this.competingWeight * competingHours
+  }
+}
+
 class PreferenceScorer {
   constructor(weight, prefix, prior, allJobs) {
     this.weight = weight
@@ -88,12 +125,9 @@ class PrecedingAssignmentsScorer {
       assignment = PrecedingAssignment(person, nextGroup, this.groupsById)
     }
     var totalTime = endTime.diff(startTime, 'minutes').minutes
-    //console.log('For person ' + person.name + ' ' + group.activityCode + ' ' + job + ' totalTime: ' + totalTime + ' center: ' + this.center)
     if (totalTime > this.center) {
-      //console.log('over-score ' + (totalTime - this.center) / this.center * this.posWeight)
       return (totalTime - this.center) / this.center * this.posWeight
     } else {
-      //console.log('under-score ' + (this.center - totalTime) / this.center * this.negWeight)
       return (this.center - totalTime) / this.center * this.negWeight
     }
   }
@@ -180,6 +214,7 @@ class FollowingGroupScorer {
 
 module.exports = {
   JobCountScorer: JobCountScorer,
+  PriorAssignmentScorer: PriorAssignmentScorer,
   PreferenceScorer: PreferenceScorer,
   PrecedingAssignmentsScorer: PrecedingAssignmentsScorer,
   MismatchedStationScorer: MismatchedStationScorer,

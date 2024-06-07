@@ -132,6 +132,33 @@ const JobCountScorer = {
   },
 }
 
+const PriorAssignmentScorer = {
+  name: 'PriorAssignmentScorer',
+  args: [
+    {
+      name: 'staffingWeight',
+      type: 'Number',
+      description: 'Weight added per hour previously spent staffing.',
+    },
+    {
+      name: 'competingWeight',
+      type: 'Number',
+      description: 'Weight added per hour previously spent competing.',
+    },
+    {
+      name: 'startTime',
+      type: 'DateTime',
+      defaultValue: null,
+      nullable: true,
+    },
+  ],
+  outputType: 'AssignmentScorer',
+  usesContext: true,
+  implementation: (ctx, staffingWeight, competingWeight, startTime) => {
+    return new scorers.PriorAssignmentScorer(ctx.competition, staffingWeight, competingWeight, startTime)
+  }
+}
+
 const PreferenceScorer = {
   name: 'PreferenceScorer',
   args: [
@@ -373,7 +400,7 @@ const NumJobs = {
 
 module.exports = {
   functions: [AssignStaff, AssignMisc, Job,
-              JobCountScorer, PreferenceScorer,
+              JobCountScorer, PriorAssignmentScorer, PreferenceScorer,
               SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
               ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
               UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
