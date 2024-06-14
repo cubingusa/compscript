@@ -41,6 +41,18 @@ const Day = {
   implementation: (date) => date.day,
 }
 
+const Weekday = {
+  name: 'Weekday',
+  args: [
+    {
+      name: 'arg',
+      type: 'Date',
+    },
+  ],
+  outputType: 'String',
+  implementation: (arg) => arg.toFormat('cccc'),
+}
+
 const Midnight = {
   name: 'Midnight',
   args: [
@@ -54,5 +66,5 @@ const Midnight = {
 }
 
 module.exports = {
-  functions: [Time, Hour, Day, Midnight],
+  functions: [Time, Hour, Day, Weekday, Midnight],
 }
