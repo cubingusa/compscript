@@ -64,6 +64,18 @@ const ToString = {
   implementation: (arg) => arg.toString(),
 }
 
+const ToString_Date = {
+  name: 'ToString',
+  args: [
+    {
+      name: 'arg',
+      type: 'Date',
+    },
+  ],
+  outputType: 'String',
+  implementation: (arg) => arg.toLocaleString(DateTime.DATE_SHORT),
+}
+
 const ClearCache = {
   name: 'ClearCache',
   args: [],
@@ -450,5 +462,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
 }
