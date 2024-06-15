@@ -303,6 +303,65 @@ const CreateAssignments = {
   }
 }
 
+const CreateCompetitionGroupsAssignments = {
+  name: 'CreateCompetitionGroupsAssignments',
+  docs: 'Create an assignment using CompetitionGroups\' extension.',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+    {
+      name: 'jobName',
+      type: 'String',
+    },
+    {
+      name: 'startTime',
+      type: 'DateTime',
+    },
+    {
+      name: 'endTime',
+      type: 'DateTime',
+    },
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (persons, jobName, startTime, endTime) => {
+    persons.forEach((person) => {
+      ext = extension.getOrInsertExtension(person, 'worldsassignments', namespace='com.competitiongroups')
+      if (ext.assignments === undefined) {
+        ext.assignments = []
+      }
+      ext.assignments.push({
+        staff: jobName,
+        startTime: startTime.toISO(),
+        endTime: endTime.toISO(),
+      })
+    })
+    return 'ok'
+  }
+}
+
+const ClearCompetitionGroupsAssignments = {
+  name: 'ClearCompetitionGroupsAssignments',
+  docs: 'Delete all assignments using CompetitionGroups\' extension.',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    },
+  ],
+  outputType: 'String',
+  mutations: ['persons'],
+  implementation: (persons) => {
+    persons.forEach((person) => {
+      ext = extension.getOrInsertExtension(person, 'worldsassignments', namespace='com.competitiongroups')
+      ext.assignments = []
+    })
+    return 'ok'
+  }
+}
+
 const AssignmentReport = {
   name: 'AssignmentReport',
   args: [
@@ -391,5 +450,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, SwapAssignments, DeleteAssignments],
 }
