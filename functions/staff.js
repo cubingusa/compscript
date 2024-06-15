@@ -1,6 +1,7 @@
 const assign = require('./../staff/assign')
 const scorers = require('./../staff/scorers')
 const extension = require('./../extension')
+const lib = require('./../lib')
 
 const AssignStaff = {
   name: 'AssignStaff',
@@ -398,11 +399,43 @@ const NumJobs = {
   }
 }
 
+const LengthOfJobs = {
+  name: 'LengthOfJobs',
+  docs: 'The number of hours a given person spends working. If type is not provided, all jobs are included.',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+    {
+      name: 'type',
+      type: 'String',
+      defaultValue: null,
+      nullable: true,
+    }
+  ],
+  outputType: 'Number',
+  usesContext: true,
+  implementation: (ctx, person, type) => {
+    return person.assignments.filter((assignment) => {
+      if (type !== null) {
+        return assignment.assignmentCode === 'staff-' + type
+      } else {
+        return assignment.assignmentCode.startsWith('staff-')
+      }
+    }).map((assignment) => {
+      var group = lib.groupForActivityId(ctx.competition, assignment.activityId)
+      return group.endTime.diff(group.startTime, 'hours').hours
+    }).reduce((total, current) => total + current, 0)
+  }
+}
+
 module.exports = {
   functions: [AssignStaff, AssignMisc, Job,
               JobCountScorer, PriorAssignmentScorer, PreferenceScorer,
               SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
               ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
               UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
-              NumJobs],
+              NumJobs, LengthOfJobs],
 }
