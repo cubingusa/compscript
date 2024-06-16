@@ -20,6 +20,7 @@
   "main": "main.js",
   "scripts": {
     "dev-server": "ENV=DEV npx nodemon -i wcif_data .",
+    "gen-docs-api": "node ./gen_docs_api.js > docs/api.md",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
