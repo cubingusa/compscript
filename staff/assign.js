@@ -142,6 +142,12 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
     var end = Date.now()
     if (!solution.feasible) {
       out.warnings.push('Failed to find a solution for activity ' + activity.name())
+      jobs.forEach((job) => {
+        var jobEligiblePeople = eligiblePeople.filter((person) => {
+          return job.eligibility({Person: person})
+        }).map((person) => person.name)
+        out.warnings.push('Eligible people for ' + job.name + ': ' + jobEligiblePeople.toString())
+      })
       return
     }
     Object.keys(solution).forEach((key) => {
