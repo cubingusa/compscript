@@ -101,7 +101,7 @@ function PrecedingAssignment(person, group, groupsById) {
 }
 
 class PrecedingAssignmentsScorer {
-  constructor(competition, center, posWeight, negWeight, assignmentFilter) {
+  constructor(competition, center, posWeight, negWeight, assignmentFilter, jobs) {
     this.center = center
     this.posWeight = posWeight
     this.negWeight = negWeight
@@ -109,9 +109,13 @@ class PrecedingAssignmentsScorer {
     this.groupsById = Object.fromEntries(lib.allGroups(competition).map((g) => [g.wcif.id, g]))
     this.caresAboutStations = false
     this.caresAboutJobs = true
+    this.jobs = jobs
   }
 
   Score(competition, person, group, job, stationNumber) {
+    if (!(this.jobs || []).includes(job)) {
+      return 0
+    }
     var assignment = PrecedingAssignment(person, group, this.groupsById)
     if (assignment === null || !this.assignmentFilter(assignment, job)) {
       return 0
@@ -152,25 +156,26 @@ class MismatchedStationScorer {
   }
 }
 
-class ScrambleSpeedScorer {
-  constructor(event, maxTime, weight) {
+class SolvingSpeedScorer {
+  constructor(event, maxTime, weight, jobs) {
     this.event = event
     this.maxTime = maxTime
     this.weight = weight
+    this.jobs = jobs
     this.caresAboutStations = false
     this.caresAboutJobs = true
-    this.name = 'ScrambleSpeedScorer'
+    this.name = 'SolvingSpeedScorer'
   }
 
   Score(competition, person, group, job) {
-    if (job !== 'scrambler') {
+    if (!(this.jobs || []).includes(job)) {
       return 0
     }
     var pr = lib.personalBest(person, this.event)
     if (pr > this.maxTime || pr == null) {
       return 0
     }
-    return -1 * this.weight * pr.value / this.maxTime
+    return this.weight * (1 - pr.value / this.maxTime)
   }
 }
 
@@ -218,7 +223,7 @@ module.exports = {
   PreferenceScorer: PreferenceScorer,
   PrecedingAssignmentsScorer: PrecedingAssignmentsScorer,
   MismatchedStationScorer: MismatchedStationScorer,
-  ScrambleSpeedScorer: ScrambleSpeedScorer,
+  SolvingSpeedScorer: SolvingSpeedScorer,
   GroupScorer: GroupScorer,
   FollowingGroupScorer: FollowingGroupScorer,
 }

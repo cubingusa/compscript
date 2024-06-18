@@ -201,13 +201,19 @@ const SameJobScorer = {
       name: 'negWeight',
       type: 'Number',
     },
+    {
+      name: 'jobs',
+      type: 'Array<String>',
+      nullable: true,
+      defaultValue: null,
+    }
   ],
   outputType: 'AssignmentScorer',
   usesContext: true,
-  implementation: (ctx, center, posWeight, negWeight) => {
+  implementation: (ctx, center, posWeight, negWeight, jobs) => {
     return new scorers.PrecedingAssignmentsScorer(
         ctx.competition, center, posWeight, negWeight,
-        (assignment, job) => assignment.assignmentCode === 'staff-' + job)
+        (assignment, job) => assignment.assignmentCode === 'staff-' + job, jobs)
   },
 }
 
@@ -226,13 +232,19 @@ const ConsecutiveJobScorer = {
       name: 'negWeight',
       type: 'Number',
     },
+    {
+      name: 'jobs',
+      type: 'Array<String>',
+      nullable: true,
+      defaultValue: null,
+    }
   ],
   outputType: 'AssignmentScorer',
   usesContext: true,
-  implementation: (ctx, center, posWeight, negWeight) => {
+  implementation: (ctx, center, posWeight, negWeight, jobs) => {
     return new scorers.PrecedingAssignmentsScorer(
         ctx.competition, center, posWeight, negWeight,
-        (assignment, job) => assignment.assignmentCode !== 'competitor')
+        (assignment, job) => assignment.assignmentCode !== 'competitor', jobs)
   },
 }
 
@@ -251,8 +263,8 @@ const MismatchedStationScorer = {
   },
 }
 
-const ScrambleSpeedScorer = {
-  name: 'ScrambleSpeedScorer',
+const SolvingSpeedScorer = {
+  name: 'SolvingSpeedScorer',
   args: [
     {
       name: 'event',
@@ -265,11 +277,15 @@ const ScrambleSpeedScorer = {
     {
       name: 'weight',
       type: 'Number',
+    },
+    {
+      name: 'jobs',
+      type: 'Array<String>',
     }
   ],
   outputType: 'AssignmentScorer',
-  implementation: (event, maxTime, weight) => {
-    return new scorers.ScrambleSpeedScorer(event, maxTime, weight)
+  implementation: (event, maxTime, weight, jobs) => {
+    return new scorers.SolvingSpeedScorer(event, maxTime, weight, jobs)
   }
 }
 
@@ -435,7 +451,7 @@ module.exports = {
   functions: [AssignStaff, AssignMisc, Job,
               JobCountScorer, PriorAssignmentScorer, PreferenceScorer,
               SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
-              ScrambleSpeedScorer, GroupScorer, FollowingGroupScorer,
+              SolvingSpeedScorer, GroupScorer, FollowingGroupScorer,
               UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
               NumJobs, LengthOfJobs],
 }
