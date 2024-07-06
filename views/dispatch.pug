@@ -37,6 +37,8 @@ mixin dispatch(value)
       +spreadsheet(value.data)
     if value.type == 'StaffAssignmentResult'
       +staff(value.data)
+    if value.type == 'AttemptResult'
+      div= value.data.toString()
     if value.type == 'Multi'
       each data in value.data
         +dispatch(data)
