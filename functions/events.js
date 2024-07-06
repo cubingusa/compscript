@@ -153,18 +153,18 @@ const PersonalBest = {
       canBeExternal: true,
     },
     {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+    {
       name: 'type',
       type: 'String',  // 'single', 'average', or 'default'
       defaultValue: 'default',
     },
-    {
-      name: 'person',
-      type: 'Person',
-      canBeExternal: true,
-    }
   ],
   outputType: 'AttemptResult',
-  implementation: (evt, type, person) => lib.personalBest(person, evt, type),
+  implementation: (evt, person, type) => lib.personalBest(person, evt, type),
 }
 
 const PsychSheetPosition = {
