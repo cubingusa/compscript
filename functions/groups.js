@@ -620,12 +620,17 @@ const ManuallyAssign = {
     {
       name: 'number',
       type: 'Number',
+    },
+    {
+      name: 'assignmentCode',
+      type: 'String',
+      defaultValue: 'competitor',
     }
   ],
   usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (ctx, persons, round, stage, number) => {
+  implementation: (ctx, persons, round, stage, number, assignmentCode) => {
     var groupsForRound = lib.groupsForRoundCode(ctx.competition, round)
     var groups = groupsForRound.filter((group) => {
       return group.room.name === stage && group.activityCode.groupNumber === number
@@ -635,12 +640,12 @@ const ManuallyAssign = {
     }
     persons.forEach((person) => {
       person.assignments = person.assignments.filter((assignment) => {
-        return assignment.assignmentCode !== 'competitor' ||
-          !groupsForRound.map((group) => group.wcif.id).includes(assignment.activityId)
+        return !groupsForRound.map((group) => group.wcif.id).includes(assignment.activityId)
       })
       person.assignments.push({
         activityId: groups[0].wcif.id,
-        assignmentCode: 'competitor',
+        stationNumber: null,
+        assignmentCode: assignmentCode,
       })
     })
     return 'Assigned ' + persons.length + ' people.'
