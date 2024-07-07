@@ -395,24 +395,22 @@ const AssignmentReport = {
   implementation: (ctx, persons, groups, label) => {
     var allGroupsKeyed = Object.fromEntries(lib.allGroups(ctx.competition).map((group) => [group.wcif.id, group]))
     var groupsByRound = {}
+    var maxGroupCount = 0;
     for (const group of groups) {
       var round = group.activityCode.group(null).id()
       if (groupsByRound[round] === undefined) {
         groupsByRound[round] = Array()
       }
       groupsByRound[round].push(group)
+      if (group.activityCode.groupNumber > maxGroupCount) {
+        maxGroupCount = group.activityCode.groupNumber;
+      }
     }
     var roundsSorted = Object.keys(groupsByRound).sort((roundA, roundB) => {
       var timeA = groupsByRound[roundA][0].startTime;
       var timeB = groupsByRound[roundB][0].startTime;
       return timeA - timeB;
     })
-    var maxGroupCount = 0;
-    for (const [round, groups] of Object.entries(groupsByRound)) {
-      if (groups.length > maxGroupCount) {
-        maxGroupCount = groups.length;
-      }
-    }
     return persons.map((person) => {
       var out = roundsSorted.map((round) => {
         return [
@@ -420,10 +418,10 @@ const AssignmentReport = {
           {value: groupsByRound[round][0].startTime.toLocaleString(DateTime.TIME_SIMPLE)}
         ].concat(
             [...Array(maxGroupCount).keys()].map((groupNumber) => {
-              if (groupNumber >= groupsByRound[round].length) {
+              var group = groupsByRound[round].find((group) => group.activityCode.groupNumber == groupNumber + 1)
+              if (group === undefined) {
                 return {value: null}
               }
-              var group = groupsByRound[round][groupNumber]
               for (const assignment of person.assignments) {
                 var assignmentGroup = allGroupsKeyed[assignment.activityId]
                 if (!!assignmentGroup && assignmentGroup.startTime <= group.startTime && assignmentGroup.endTime > group.startTime) {
