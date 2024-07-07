@@ -389,9 +389,21 @@ const EventForRound = {
   implementation: (round) => round.round(null),
 }
 
+const PreviousRound = {
+  name: 'PreviousRound',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    }
+  ],
+  outputType: 'Round',
+  implementation: (round) => round.round(round.roundNumber - 1),
+}
+
 module.exports = {
   functions: [Events, Rounds, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, PositionInRound,
               RegisteredEvents, PersonalBest,
               PsychSheetPosition, RoundPosition, AddResults,
-              IsFinal, RoundNumber, RoundForEvent, EventForRound],
+              IsFinal, RoundNumber, RoundForEvent, EventForRound, PreviousRound],
 }
