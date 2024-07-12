@@ -12,6 +12,7 @@ module.exports = {
           require('./persons').functions,
           require('./sheets').functions,
           require('./staff').functions,
+          require('./stream').functions,
           require('./table').functions,
           require('./time').functions,
           require('./tuple').functions,
