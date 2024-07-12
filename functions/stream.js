@@ -63,7 +63,7 @@ const AddFeaturedCompetitors = {
         activity.childActivities.forEach((childActivity) => {
           const code = activityCode.parse(childActivity.activityCode)
           if (round.contains(code)) {
-            ext = extension.getExtension(childActivity, 'ActivityConfig', 'groupifier')
+            ext = extension.getOrInsertExtension(childActivity, 'ActivityConfig', 'groupifier')
             if (ext.featuredCompetitorWcaUserIds === undefined) {
               ext.featuredCompetitorWcaUserIds = []
             }
