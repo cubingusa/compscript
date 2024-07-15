@@ -1,4 +1,5 @@
 const extension = require('./../extension')
+const { DateTime } = require('luxon')
 
 const Name = {
   name: 'Name',
@@ -24,7 +25,26 @@ const Birthdate = {
     }
   ],
   outputType: 'Date',
-  implementation: (person) => person.birthdate
+  implementation: (person) => DateTime.fromISO(person.birthdate)
+}
+
+const Age = {
+  name: 'Age',
+  docs: 'Returns the person\'s age on the first day of the competition, rounded down',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true
+    }
+  ],
+  outputType: 'Number',
+  usesContext: true,
+  implementation: (ctx, person) => {
+    const birthdate = DateTime.fromISO(person.birthdate)
+    const start = DateTime.fromISO(ctx.competition.schedule.startDate)
+    return start.diff(birthdate, ['years', 'months', 'days']).years
+  }
 }
 
 const WcaId = {
@@ -532,7 +552,7 @@ const Gender = {
 
 module.exports = {
   functions:
-      [Name, Birthdate, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Email, Country, FirstName, LastName,
+      [Name, Birthdate, Age, WcaId, WcaLink, CompetitionGroupsLink, Registered, WcaIdYear, Email, Country, FirstName, LastName,
        Property('Boolean'), Property('String'), Property('Number'), Property('Array<String>'),
        SetProperty, DeleteProperty, HasProperty, AddPerson, Persons,
        AddRole, DeleteRole, HasRole, RegistrationStatus,
