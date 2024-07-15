@@ -587,6 +587,9 @@ const CreateGroups = function(activityCodeType) {
         }
         activity.childActivities.push(next)
         out.push('Added group ' + groupName + ' from ' + next.startTime + ' to ' + next.endTime)
+        if (next.startTime > next.endTime) {
+          out.push('Error! Start time before end time.')
+        }
         if (firstStartTime === null || next.startTime < firstStartTime) {
           firstStartTime = next.startTime
         }

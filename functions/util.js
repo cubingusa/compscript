@@ -286,6 +286,106 @@ const AssignmentsBeforeCompeting = {
   }
 }
 
+const CreateRoom = {
+  name: 'CreateRoom',
+  args: [
+    {
+      name: 'name',
+      type: 'String',
+    },
+    {
+      name: 'colorHex',
+      type: 'String',
+    },
+  ],
+  outputType: 'String',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx, name, colorHex) => {
+    let nextId = 0
+    ctx.competition.schedule.venues.forEach((venue) => {
+      venue.rooms.forEach((room) => {
+        if (room.id <= nextId) {
+          nextId = room.id + 1
+        }
+      })
+    })
+    ctx.competition.schedule.venues[0].rooms.push({
+      id: nextId,
+      name: name,
+      color: colorHex,
+      activities: [],
+      extensions: [],
+    })
+    return 'Added ' + name
+  },
+}
+
+const CreateMiscActivity = {
+  name: 'CreateMiscActivity',
+  args: [
+    {
+      name: 'name',
+      type: 'String',
+    },
+    {
+      name: 'activityCode',
+      type: 'String',
+    },
+    {
+      name: 'stage',
+      type: 'String',
+    },
+    {
+      name: 'startTime',
+      type: 'DateTime',
+    },
+    {
+      name: 'endTime',
+      type: 'DateTime',
+    }
+  ],
+  outputType: 'String',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx, name, activityCode, stage, startTime, endTime) => {
+    var maxActivityId = 0
+    ctx.competition.schedule.venues.forEach((venue) => {
+      venue.rooms.forEach((room) => {
+        room.activities.forEach((activity) => {
+          if (activity.id > maxActivityId) {
+            maxActivityId = activity.id
+          }
+          activity.childActivities.forEach((child) => {
+            if (child.id > maxActivityId) {
+              maxActivityId = child.id
+            }
+          })
+        })
+      })
+    })
+    for (const venue of ctx.competition.schedule.venues) {
+      for (const room of venue.rooms) {
+        if (room.name !== stage) {
+          continue
+        }
+        room.activities.push({
+          id: maxActivityId + 1,
+          name: name,
+          activityCode: activityCode,
+          startTime: startTime.toISO(),
+          endTime: endTime.toISO(),
+          extensions: [],
+          childActivities: [],
+          scrambleSetId: null,
+        })
+        return 'Added ' + name
+      }
+    }
+    return 'Stage ' + stage + ' not found.'
+  }
+}
+
 const CreateAssignments = {
   name: 'CreateAssignments',
   args: [
@@ -460,5 +560,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateRoom, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
 }
