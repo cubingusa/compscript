@@ -323,6 +323,44 @@ const FollowingGroupScorer = {
   }
 }
 
+const PersonPropertyScorer = {
+  name: 'PersonPropertyScorer',
+  args: [
+    {
+      name: 'personFilter',
+      type: 'Boolean(Person)',
+      lazy: true,
+    },
+    {
+      name: 'weight',
+      type: 'Number',
+    }
+  ],
+  outputType: 'AssignmentScorer',
+  implementation: (personFilter, weight) => {
+    return new scorers.PersonPropertyScorer(personFilter, weight)
+  }
+}
+
+const ComputedWeightScorer = {
+  name: 'ComputedWeightScorer',
+  args: [
+    {
+      name: 'weightFn',
+      type: 'Number(Person)',
+      lazy: true,
+    },
+    {
+      name: 'jobs',
+      type: 'Array<String>',
+    }
+  ],
+  outputType: 'AssignmentScorer',
+  implementation: (weightFn, jobs) => {
+    return new scorers.ComputedWeightScorer(weightFn, jobs)
+  }
+}
+
 const UnavailableBetween = {
   name: 'UnavailableBetween',
   docs: 'Indicates that the staff member is unavailable at the given time',
@@ -452,6 +490,7 @@ module.exports = {
               JobCountScorer, PriorAssignmentScorer, PreferenceScorer,
               SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
               SolvingSpeedScorer, GroupScorer, FollowingGroupScorer,
+              PersonPropertyScorer, ComputedWeightScorer,
               UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
               NumJobs, LengthOfJobs],
 }
