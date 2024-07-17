@@ -217,6 +217,36 @@ class FollowingGroupScorer {
   }
 }
 
+class PersonPropertyScorer {
+  constructor(personFilter, weight) {
+    this.personFilter = personFilter
+    this.weight = weight
+  }
+
+  Score(competition, person, group) {
+    if (this.personFilter({Person: person})) {
+      return this.weight
+    } else {
+      return 0
+    }
+  }
+}
+
+class ComputedWeightScorer {
+  constructor(weightFn, jobs) {
+    this.weightFn = weightFn
+    this.caresAboutJobs = true
+    this.jobs = jobs
+  }
+
+  Score(competition, person, group, job) {
+    if (!this.jobs.includes(job)) {
+      return 0
+    }
+    return this.weightFn({Person: person})
+  }
+}
+
 module.exports = {
   JobCountScorer: JobCountScorer,
   PriorAssignmentScorer: PriorAssignmentScorer,
@@ -226,4 +256,6 @@ module.exports = {
   SolvingSpeedScorer: SolvingSpeedScorer,
   GroupScorer: GroupScorer,
   FollowingGroupScorer: FollowingGroupScorer,
+  PersonPropertyScorer,
+  ComputedWeightScorer,
 }
