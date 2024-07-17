@@ -23,6 +23,10 @@ class Group {
       return this.activityCode.toString()
     }
   }
+
+  fullName() {
+    return this.activityCode.toString()
+  }
 }
 
 module.exports = {

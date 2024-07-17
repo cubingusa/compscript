@@ -38,7 +38,29 @@ const Header = {
   implementation: (value) => value,
 }
 
+const NoPageBreak = {
+  name: 'NoPageBreak',
+  docs: 'Renders without a page break',
+  genericParams: ['T'],
+  args: [
+    {
+      name: 'arg',
+      type: '$T',
+    },
+  ],
+  outputType: 'NoPageBreak',
+  usesGenericTypes: true,
+  implementation: (generics, value) => {
+    return [
+      {
+        type: generics.T,
+        data: value,
+      }
+    ]
+  }
+}
+
 module.exports = {
   functions: [All(0), All(1), All(2), All(3), All(4), All(5), All(6), All(7), All(8), All(9),
-              Header],
+              Header, NoPageBreak],
 }

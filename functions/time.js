@@ -77,6 +77,18 @@ const Midnight = {
   implementation: (date) => date,
 }
 
+const FormatTime = {
+  name: 'FormatTime',
+  args: [
+    {
+      name: 'time',
+      type: 'DateTime',
+    }
+  ],
+  outputType: 'String',
+  implementation: (time) => time.toLocaleString(DateTime.TIME_SIMPLE)
+}
+
 module.exports = {
-  functions: [Time, Hour, Day, Date, Weekday, Midnight],
+  functions: [Time, Hour, Day, Date, Weekday, Midnight, FormatTime],
 }

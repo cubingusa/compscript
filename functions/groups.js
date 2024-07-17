@@ -263,7 +263,7 @@ const GroupName = {
     },
   ],
   outputType: 'String',
-  implementation: (group) => group.name()
+  implementation: (group) => group.fullName()
 }
 
 const StartTime = {
@@ -461,6 +461,15 @@ const Groups = {
   outputType: 'Array<Group>',
   usesContext: true,
   implementation: (ctx, round) => lib.groupsForRoundCode(ctx.competition, round),
+}
+
+const AllGroups = {
+  name: 'AllGroups',
+  docs: 'All groups',
+  args: [],
+  outputType: 'Array<Group>',
+  usesContext: true,
+  implementation: (ctx, round) => lib.allGroups(ctx.competition),
 }
 
 const GroupForActivityId = {
@@ -699,7 +708,7 @@ module.exports = {
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               RoundStartTime, RoundEndTime,
-              AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups,
+              AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups, AllGroups,
               CreateGroups('Round'), CreateGroups('Attempt'), ManuallyAssign,
               CheckForMissingGroups],
 }
