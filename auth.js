@@ -44,6 +44,9 @@ async function getWcif(competitionId, req, res) {
   if (shouldFetch) {
     console.log('fetching WCIF')
     var wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif', req, res)
+    if (wcif.error) {
+      wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif/public', req, res)
+    }
     fs.writeFileSync(cachePath(competitionId), JSON.stringify(wcif))
     console.log('fetched WCIF')
     return wcif
