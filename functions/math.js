@@ -333,8 +333,56 @@ const Mod = {
   implementation: (val, modulus) => val % modulus,
 }
 
+const Min = {
+  name: 'Min',
+  genericParams: 'T',
+  args: [
+    {
+      name: 'vals',
+      type: 'Array<$T>',
+    }
+  ],
+  outputType: '$T',
+  implementation: (vals) => {
+    if (vals.length == 0) {
+      return null
+    }
+    var out = vals[0]
+    for (const val of vals) {
+      if (val < out) {
+        out = val
+      }
+    }
+    return out
+  }
+}
+
+const Max = {
+  name: 'Max',
+  genericParams: 'T',
+  args: [
+    {
+      name: 'vals',
+      type: 'Array<$T>',
+    }
+  ],
+  outputType: '$T',
+  implementation: (vals) => {
+    if (vals.length == 0) {
+      return null
+    }
+    var out = vals[0]
+    for (const val of vals) {
+      if (val > out) {
+        out = val
+      }
+    }
+    return out
+  }
+}
+
 module.exports = {
   functions: [GreaterThan, GreaterThanOrEqualTo,
               EqualTo, EqualTo_Date, If, Switch, Switch_Events, Add, ConcatStrings, ConcatArrays, Subtract,
-              Multiply, Divide, Even, Odd, Mod],
+              Multiply, Divide, Even, Odd, Mod, Min, Max],
 }

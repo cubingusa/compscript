@@ -167,6 +167,46 @@ const PersonalBest = {
   implementation: (evt, person, type) => lib.personalBest(person, evt, type),
 }
 
+const Result = {
+  name: 'Result',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+    },
+    {
+      name: 'round',
+      type: 'Round',
+    },
+    {
+      name: 'number',
+      type: 'Number',
+    },
+  ],
+  outputType: 'AttemptResult',
+  usesContext: true,
+  implementation: (ctx, person, round, number) => {
+    for (const evt of ctx.competition.events) {
+      for (const rd of evt.rounds) {
+        if (rd.id !== round.id()) {
+          continue
+        }
+        for (const result of rd.results) {
+          if (result.personId !== person.registrantId) {
+            continue
+          }
+          if (result.attempts.length < number) {
+            return null
+          }
+          return new attemptResult.AttemptResult(result.attempts[number - 1].result, round.eventId)
+        }
+      }
+    }
+    return null
+  }
+}
+
+
 const PsychSheetPosition = {
   name: 'PsychSheetPosition',
   docs: 'Returns this person\'s position on the psych sheet for an event',
@@ -403,7 +443,7 @@ const PreviousRound = {
 
 module.exports = {
   functions: [Events, Rounds, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, PositionInRound,
-              RegisteredEvents, PersonalBest,
+              RegisteredEvents, PersonalBest, Result,
               PsychSheetPosition, RoundPosition, AddResults,
               IsFinal, RoundNumber, RoundForEvent, EventForRound, PreviousRound],
 }

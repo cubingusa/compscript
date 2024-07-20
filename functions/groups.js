@@ -53,6 +53,9 @@ const AssignGroups = {
     if (stationRules == "") {
       stationRules = []
     }
+    if (scorers == "") {
+      scorers = []
+    }
     return assign.Assign(ctx.competition, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite)
   }
 }
