@@ -110,7 +110,7 @@ const PositionInRound = {
       canBeExternal: true,
     }
   ],
-  outputType: 'Integer',
+  outputType: 'Number',
   usesContext: true,
   implementation: (ctx, round, person) => {
     var rd = lib.getWcifRound(ctx.competition, round)
