@@ -50,12 +50,6 @@ const AssignGroups = {
   usesContext: true,
   mutations: ['persons', 'schedule'],
   implementation: (ctx, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite) => {
-    if (stationRules == "") {
-      stationRules = []
-    }
-    if (scorers == "") {
-      scorers = []
-    }
     return assign.Assign(ctx.competition, round, assignmentSets, scorers, stationRules, attemptNumber, overwrite)
   }
 }
