@@ -56,7 +56,7 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
 
   var unavailableByPerson = {}
   persons.forEach((person) => {
-    unavailableByPerson[person.wcaUserId] = unavailable({Person: person})
+    unavailableByPerson[person.wcaUserId] = unavailable({Person: person}) || []
   })
 
   activities.forEach((activity, idx) => {
