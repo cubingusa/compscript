@@ -651,9 +651,11 @@ const ManuallyAssign = {
       return 'No matching groups found'
     }
     persons.forEach((person) => {
-      person.assignments = person.assignments.filter((assignment) => {
-        return !groupsForRound.map((group) => group.wcif.id).includes(assignment.activityId)
-      })
+      if (assignmentCode == "competitor") {
+        person.assignments = person.assignments.filter((assignment) => {
+          return !groupsForRound.map((group) => group.wcif.id).includes(assignment.activityId)
+        })
+      }
       person.assignments.push({
         activityId: groups[0].wcif.id,
         stationNumber: null,
