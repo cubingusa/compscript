@@ -262,7 +262,7 @@ function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
           matchType.params.forEach((param) => {
             if (!argType.params.map(p => p.type).includes(param.type) &&
                 !extraParams.map(p => p.type).includes(param.type)) {
-              var requestedBy = (param.requestedBy !== undefined) ? param.requestedBy : functionName
+              var requestedBy = (param.requestedBy !== undefined) ? [...param.requestedBy, functionName] : [functionName]
               extraParams.push({ type: param.type, requestedBy: requestedBy })
             }
           })
@@ -303,7 +303,7 @@ function functionNode(functionName, ctx, args, genericsIn, allowParams=true) {
             substituteExisting(type, generics)
             extraParams.push({
               type: assembleType(type),
-              requestedBy: functionName
+              requestedBy: [functionName]
             })
           }
           isExternal = true
