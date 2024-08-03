@@ -327,8 +327,8 @@ const PersonPropertyScorer = {
   name: 'PersonPropertyScorer',
   args: [
     {
-      name: 'personFilter',
-      type: 'Boolean(Person)',
+      name: 'filter',
+      type: 'Boolean(Person, Group)',
       lazy: true,
     },
     {
@@ -337,8 +337,8 @@ const PersonPropertyScorer = {
     }
   ],
   outputType: 'AssignmentScorer',
-  implementation: (personFilter, weight) => {
-    return new scorers.PersonPropertyScorer(personFilter, weight)
+  implementation: (filter, weight) => {
+    return new scorers.PersonPropertyScorer(filter, weight)
   }
 }
 
@@ -453,6 +453,42 @@ const NumJobs = {
   }
 }
 
+const NumJobsInRound = {
+  name: 'NumJobsInRound',
+  docs: 'The number of jobs for a given person. If type is not provided, all jobs are included.',
+  args: [
+    {
+      name: 'person',
+      type: 'Person',
+      canBeExternal: true,
+    },
+    {
+      name: 'round',
+      type: 'Round',
+    },
+    {
+      name: 'type',
+      type: 'String',
+      defaultValue: null,
+      nullable: true,
+    }
+  ],
+  outputType: 'Number',
+  usesContext: true,
+  implementation: (ctx, person, round, type) => {
+    const activityIds = lib.allActivitiesForRoundId(ctx.competition, round.id()).map((activity) => activity.id)
+    return person.assignments.filter((assignment) => {
+      if (!activityIds.includes(assignment.activityId)) {
+        return false
+      }
+      if (type !== null) {
+        return assignment.assignmentCode === 'staff-' + type
+      } else {
+        return assignment.assignmentCode.startsWith('staff-')
+      }
+    }).length
+  }
+}
 const LengthOfJobs = {
   name: 'LengthOfJobs',
   docs: 'The number of hours a given person spends working. If type is not provided, all jobs are included.',
@@ -492,5 +528,5 @@ module.exports = {
               SolvingSpeedScorer, GroupScorer, FollowingGroupScorer,
               PersonPropertyScorer, ComputedWeightScorer,
               UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
-              NumJobs, LengthOfJobs],
+              NumJobs, NumJobsInRound, LengthOfJobs],
 }

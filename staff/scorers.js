@@ -218,13 +218,13 @@ class FollowingGroupScorer {
 }
 
 class PersonPropertyScorer {
-  constructor(personFilter, weight) {
-    this.personFilter = personFilter
+  constructor(filter, weight) {
+    this.filter = filter
     this.weight = weight
   }
 
   Score(competition, person, group) {
-    if (this.personFilter({Person: person})) {
+    if (this.filter({Person: person, Group: group})) {
       return this.weight
     } else {
       return 0
