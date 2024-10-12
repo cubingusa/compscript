@@ -330,7 +330,12 @@ const Mod = {
     }
   ],
   outputType: 'Number',
-  implementation: (val, modulus) => val % modulus,
+  implementation: (val, modulus) => {
+    while (val < 0) {
+      val += modulus
+    }
+    return val % modulus
+  }
 }
 
 const Min = {
