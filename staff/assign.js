@@ -4,6 +4,17 @@ const extension = require('./../extension')
 const lib = require('./../lib')
 const driver = require('./../parser/driver')
 
+function shuffle(array) {
+  var cur = array.length;
+
+  while (cur != 0) {
+    var rnd = Math.floor(Math.random() * cur);
+    cur--;
+
+    [array[cur], array[rnd]] = [array[rnd], array[cur]];
+  }
+}
+
 function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, avoidConflicts, unavailable) {
   var competition = ctx.competition
   var allGroups = lib.allGroups(competition)
@@ -91,8 +102,9 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
         model.constraints['job-' + job.name] = {equal: job.count}
       }
     })
-    eligiblePeople.forEach((person) => {
-      model.constraints['person-' + person.wcaUserId] = {min: 0, max: 1}
+    shuffle(eligiblePeople)
+    eligiblePeople.forEach((person, idx) => {
+      model.constraints['person-' + idx] = {min: 0, max: 1}
       var personScore = 0
       scorers.forEach((scorer) => {
         if (!scorer.caresAboutJobs) {
@@ -127,9 +139,9 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
               score += subscore
             }
           })
-          var key = 'assignment-' + person.wcaUserId + '-' + job.name + numStr
+          var key = 'assignment-' + idx + '-' + job.name + numStr
           model.variables[key] = {score: score}
-          model.variables[key]['person-' + person.wcaUserId] = 1
+          model.variables[key]['person-' + idx] = 1
           model.variables[key]['job-' + job.name + numStr] = 1
           model.variables[key][key] = 1
           model.constraints[key] = {min: 0, max: 1}
@@ -155,40 +167,40 @@ function AssignImpl(ctx, activities, persons, jobs, scorers, overwrite, name, av
         return
       }
       var spl = key.split('-')
-      var wcaUserId = +spl[1]
+      var personIdx = +spl[1]
       var jobName = spl[2]
       var stationNumber = null
       if (spl.length > 3) {
         stationNumber = +spl[3]
       }
-      persons.filter((person) => person.wcaUserId == wcaUserId).forEach((person) => {
-        var totalScore = 0
-        var breakdown = {}
-        scorers.forEach((scorer) => {
-          var subscore = scorer.Score(competition, person, activity, jobName, stationNumber)
-          totalScore += subscore
-          breakdown[scorer.constructor.name] = subscore
-        })
-        var jobKey = jobName + (stationNumber ? '-' + stationNumber : '')
-        var activityKey = activity.wcif.id
-        if (!(activityKey in jobAssignments[jobKey])) {
-          jobAssignments[jobKey][activityKey] = []
+
+      const person = eligiblePeople[personIdx];
+      var totalScore = 0
+      var breakdown = {}
+      scorers.forEach((scorer, idx) => {
+        var subscore = scorer.Score(competition, person, activity, jobName, stationNumber)
+        totalScore += subscore
+        breakdown[scorer.constructor.name + idx] = subscore
+      })
+      var jobKey = jobName + (stationNumber ? '-' + stationNumber : '')
+      var activityKey = activity.wcif.id
+      if (!(activityKey in jobAssignments[jobKey])) {
+        jobAssignments[jobKey][activityKey] = []
+      }
+      jobAssignments[jobKey][activityKey].push({
+        person: person,
+        score: {
+          total: totalScore,
+          breakdown: breakdown,
         }
-        jobAssignments[jobKey][activityKey].push({
-          person: person,
-          score: {
-            total: totalScore,
-            breakdown: breakdown,
-          }
-        })
-        if (!person.assignments) {
-          person.assignments = []
-        }
-        person.assignments.push({
-          activityId: activity.wcif.id,
-          assignmentCode: 'staff-' + jobName,
-          stationNumber: stationNumber
-        })
+      })
+      if (!person.assignments) {
+        person.assignments = []
+      }
+      person.assignments.push({
+        activityId: activity.wcif.id,
+        assignmentCode: 'staff-' + jobName,
+        stationNumber: stationNumber
       })
     })
   })

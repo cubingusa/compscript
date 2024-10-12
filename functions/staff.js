@@ -476,7 +476,7 @@ const NumJobsInRound = {
   outputType: 'Number',
   usesContext: true,
   implementation: (ctx, person, round, type) => {
-    const activityIds = lib.allActivitiesForRoundId(ctx.competition, round.id()).map((activity) => activity.id)
+    const activityIds = lib.allActivitiesForRoundId(ctx.competition, round.id()).map((activity) => activity.wcif.id)
     return person.assignments.filter((assignment) => {
       if (!activityIds.includes(assignment.activityId)) {
         return false

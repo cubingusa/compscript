@@ -37,8 +37,10 @@ function miscActivityForId(competition, activityId) {
 
 function allActivitiesForRoundId(competition, roundId) {
   return competition.schedule.venues.map((venue) => venue.rooms).flat()
-    .map((room) => room.activities.map((activity) => new groupLib.Group(activity, room, competition))).flat()
-    .filter(activity => activity.wcif.activityCode === roundId)
+    .map((room) => room.activities
+                       .map((activity) => activity.childActivities).flat()
+                       .map((activity) => new groupLib.Group(activity, room, competition))).flat()
+    .filter(activity => activity.activityCode.group(null).id() === roundId)
 }
 
 function allGroups(competition) {
