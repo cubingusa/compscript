@@ -257,7 +257,28 @@ const RandomChoice = {
   }
 }
 
+const Slice = {
+  name: 'Slice',
+  genericParams: 'T',
+  args: [
+    {
+      name: 'array',
+      type: 'Array<$T>',
+    },
+    {
+      name: 'start',
+      type: 'Number',
+    },
+    {
+      name: 'end',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Array<$T>',
+  implementation: (array, start, end) => array.slice(start, end),
+}
+
 module.exports = {
   functions: [MakeArray, MakeEmptyArray, At, In, InActivityCode('Event'), InActivityCode('Round'), InDateTime,
-              Length, Map, Filter, Flatten, Concat, Sort, RandomChoice],
+              Length, Map, Filter, Flatten, Concat, Sort, RandomChoice, Slice],
 }
