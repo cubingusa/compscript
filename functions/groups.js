@@ -526,12 +526,17 @@ const CreateGroups = function(activityCodeType) {
         name: 'createParentIfNotPresent',
         type: 'Boolean',
         defaultValue: true,
-      }
+      },
+      {
+        name: 'extraMinutesByGroup',
+        type: 'Array<Tuple<Number, Number>>',
+        defaultValue: [],
+      },
     ],
     outputType: 'Array<String>',
     usesContext: true,
     mutations: ['schedule'],
-    implementation: (ctx, activityCode, count, stage, start, end, skipGroups, useStageName, createParentIfNotPresent) => {
+    implementation: (ctx, activityCode, count, stage, start, end, skipGroups, useStageName, createParentIfNotPresent, extraMinutesByGroup) => {
       var maxActivityId = 0
       ctx.competition.schedule.venues.forEach((venue) => {
         venue.rooms.forEach((room) => {
@@ -578,23 +583,31 @@ const CreateGroups = function(activityCodeType) {
       }
       var firstStartTime = null;
       var lastEndTime = null;
-      var length = end.diff(start, 'minutes').as('minutes') / count
+      var reservedTime = extraMinutesByGroup.reduce((accumulator, val) => accumulator += val[1], 0)
+      var length = (end.diff(start, 'minutes').as('minutes') - reservedTime) / count
+      var currentStart = start;
       for (var i = 0; i < count; i++) {
         if (skipGroups.includes(i + 1)) {
           continue
         }
         var groupName = activityCode.toString() + ' ' + (useStageName ? (stage.split(' ')[0] + ' ' + (i + 1)) : ('Group ' + (i + 1)))
+        var nextStart = currentStart.plus({ minutes: length });
+        var maybeExtra = extraMinutesByGroup.find((val) => val[0] == (i + 1))
+        if (maybeExtra !== undefined) {
+          nextStart = nextStart.plus({ minutes: maybeExtra[1] });
+        }
         var next = {
           id: ++maxActivityId,
           activityCode: activityCode.group(i + 1).id(),
           childActivities: [],
           scrambleSetId: null,
           extensions: [],
-          startTime: start.plus({ minutes: length * i }).toISO(),
-          endTime: start.plus({ minutes: length * (i + 1) }).toISO(),
+          startTime: currentStart.toISO(),
+          endTime: nextStart.toISO(),
           name: groupName
         }
         activity.childActivities.push(next)
+        currentStart = nextStart
         out.push('Added group ' + groupName + ' from ' + next.startTime + ' to ' + next.endTime)
         if (next.startTime > next.endTime) {
           out.push('Error! Start time before end time.')
