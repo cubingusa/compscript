@@ -297,11 +297,17 @@ const CreateRoom = {
       name: 'colorHex',
       type: 'String',
     },
+    {
+      name: 'groupNamePrefix',
+      type: 'String',
+      defaultValue: null,
+      nullable: true,
+    }
   ],
   outputType: 'String',
   usesContext: true,
   mutations: ['schedule'],
-  implementation: (ctx, name, colorHex) => {
+  implementation: (ctx, name, colorHex, groupNamePrefix) => {
     let nextId = 0
     ctx.competition.schedule.venues.forEach((venue) => {
       venue.rooms.forEach((room) => {
@@ -310,15 +316,46 @@ const CreateRoom = {
         }
       })
     })
-    ctx.competition.schedule.venues[0].rooms.push({
+    room = {
       id: nextId,
       name: name,
       color: colorHex,
       activities: [],
       extensions: [],
-    })
+    }
+    if (groupNamePrefix !== null) {
+      extension.getOrInsertExtension(room, 'Room').groupNamePrefix = groupNamePrefix
+    }
+    ctx.competition.schedule.venues[0].rooms.push(room)
+
     return 'Added ' + name
   },
+}
+
+const DeleteRooms = {
+  name: 'DeleteRooms',
+  args: [
+    {
+      name: 'names',
+      type: 'Array<String>',
+    }
+  ],
+  outputType: 'Array<String>',
+  mutations: ['schedule'],
+  usesContext: true,
+  implementation: (ctx, names) => {
+    var out = []
+    ctx.competition.schedule.venues.forEach((venue) => {
+      venue.rooms = venue.rooms.filter((room) => {
+        if (names.includes(room.name)) {
+          out.push('Deleted ' + room.name)
+          return false
+        }
+        return true
+      })
+    })
+    return out
+  }
 }
 
 const CreateMiscActivity = {
@@ -560,5 +597,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateRoom, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateRoom, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
 }

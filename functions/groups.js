@@ -3,6 +3,7 @@ const { DateTime } = require('luxon')
 const events = require('./../events')
 const activityCode = require('./../activity_code')
 const assign = require('./../groups/assign')
+const extension = require('./../extension')
 const scorers = require('./../groups/scorers')
 const lib = require('./../lib')
 
@@ -590,7 +591,16 @@ const CreateGroups = function(activityCodeType) {
         if (skipGroups.includes(i + 1)) {
           continue
         }
-        var groupName = activityCode.toString() + ' ' + (useStageName ? (stage.split(' ')[0] + ' ' + (i + 1)) : ('Group ' + (i + 1)))
+        var groupPrefix
+        var ext = extension.getExtension(matchingRooms[0], 'Room')
+        if (!useStageName) {
+          groupPrefix = 'Group'
+        } else if (ext !== null && ext.groupNamePrefix !== undefined) {
+          groupPrefix = ext.groupNamePrefix
+        } else {
+          groupPrefix = stage.split(' ')[0]
+        }
+        var groupName = activityCode.toString() + ' ' + groupPrefix + ' ' + (i + 1)
         var nextStart = currentStart.plus({ minutes: length });
         var maybeExtra = extraMinutesByGroup.find((val) => val[0] == (i + 1))
         if (maybeExtra !== undefined) {
@@ -615,9 +625,7 @@ const CreateGroups = function(activityCodeType) {
         if (firstStartTime === null || next.startTime < firstStartTime) {
           firstStartTime = next.startTime
         }
-        if (lastEndTime === null || next.endTime > lastEndTime) {
-          lastEndTime = next.endTime
-        }
+        lastEndTime = nextStart.toISO()
       }
       activity.startTime = firstStartTime
       activity.endTime = lastEndTime
