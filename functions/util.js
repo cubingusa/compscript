@@ -311,7 +311,7 @@ const CreateRoom = {
     let nextId = 0
     ctx.competition.schedule.venues.forEach((venue) => {
       venue.rooms.forEach((room) => {
-        if (room.id <= nextId) {
+        if (room.id >= nextId) {
           nextId = room.id + 1
         }
       })
@@ -327,6 +327,67 @@ const CreateRoom = {
       extension.getOrInsertExtension(room, 'Room').groupNamePrefix = groupNamePrefix
     }
     ctx.competition.schedule.venues[0].rooms.push(room)
+
+    return 'Added ' + name
+  },
+}
+
+const CreateStage = {
+  name: 'CreateStage',
+  args: [
+    {
+      name: 'name',
+      type: 'String',
+    },
+    {
+      name: 'roomName',
+      type: 'String',
+    },
+    {
+      name: 'colorHex',
+      type: 'String',
+    },
+    {
+      name: 'groupNamePrefix',
+      type: 'String',
+      defaultValue: null,
+      nullable: true,
+    }
+  ],
+  outputType: 'String',
+  usesContext: true,
+  mutations: ['schedule'],
+  implementation: (ctx, name, roomName, colorHex, groupNamePrefix) => {
+    let nextId = 0
+    ctx.competition.schedule.venues.forEach((venue) => {
+      venue.rooms.forEach((room) => {
+        var ext = extension.getExtension(room, 'Room')
+        if (ext !== null) {
+          (ext.stages || []).forEach((stage) => {
+            if (stage.id >= nextId) {
+              nextId = stage.id + 1
+            }
+          })
+        }
+      })
+    })
+    stage = {
+      id: nextId,
+      name: name,
+      color: colorHex,
+    }
+    if (groupNamePrefix !== null) {
+      stage.groupNamePrefix = groupNamePrefix
+    }
+    var room = ctx.competition.schedule.venues[0].rooms.find((room) => room.name == roomName)
+    if (room === undefined) {
+      return 'Could not find room named ' + roomName
+    }
+    var ext = extension.getOrInsertExtension(room, 'Room')
+    if (!ext.stages) {
+      ext.stages = []
+    }
+    ext.stages.push(stage)
 
     return 'Added ' + name
   },
@@ -370,7 +431,7 @@ const CreateMiscActivity = {
       type: 'String',
     },
     {
-      name: 'stage',
+      name: 'roomName',
       type: 'String',
     },
     {
@@ -385,7 +446,7 @@ const CreateMiscActivity = {
   outputType: 'String',
   usesContext: true,
   mutations: ['schedule'],
-  implementation: (ctx, name, activityCode, stage, startTime, endTime) => {
+  implementation: (ctx, name, activityCode, roomName, startTime, endTime) => {
     var maxActivityId = 0
     ctx.competition.schedule.venues.forEach((venue) => {
       venue.rooms.forEach((room) => {
@@ -403,7 +464,7 @@ const CreateMiscActivity = {
     })
     for (const venue of ctx.competition.schedule.venues) {
       for (const room of venue.rooms) {
-        if (room.name !== stage) {
+        if (room.name !== roomName) {
           continue
         }
         room.activities.push({
@@ -419,7 +480,7 @@ const CreateMiscActivity = {
         return 'Added ' + name
       }
     }
-    return 'Stage ' + stage + ' not found.'
+    return 'Room ' + roomName + ' not found.'
   }
 }
 
@@ -597,5 +658,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateRoom, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateRoom, CreateStage, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
 }
