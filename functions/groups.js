@@ -103,10 +103,17 @@ const ByMatchingValue = {
       type: 'Number',
       docs: 'The score to assign for each matching person',
     },
+    {
+      name: 'limit',
+      type: 'Number',
+      defaultValue: null,
+      nullable: true,
+      docs: 'If set, max number of matching people this can apply to.',
+    },
   ],
   outputType: 'AssignmentScorer',
-  implementation: (value, score) => {
-    return new scorers.ByMatchingValue(value, score)
+  implementation: (value, score, limit) => {
+    return new scorers.ByMatchingValue(value, score, limit)
   }
 }
 
