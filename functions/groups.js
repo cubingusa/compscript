@@ -3,6 +3,7 @@ const { DateTime } = require('luxon')
 const events = require('./../events')
 const activityCode = require('./../activity_code')
 const assign = require('./../groups/assign')
+const extension = require('./../extension')
 const scorers = require('./../groups/scorers')
 const lib = require('./../lib')
 
@@ -200,7 +201,20 @@ const Stage = {
     }
   ],
   outputType: 'String',
-  implementation: (group) => group.room.name
+  implementation: (group) => {
+    var ext = extension.getExtension(group.wcif, 'Group')
+    if (ext !== null && ext.stageId !== undefined) {
+      var room = group.room
+      var roomExt = extension.getExtension(room, 'Room')
+      if (roomExt !== null) {
+        var stage = (roomExt.stages || []).find((stage) => stage.id == ext.stageId)
+        if (stage !== undefined) {
+          return stage.name
+        }
+      }
+    }
+    return group.room.name
+  }
 }
 
 const AssignedGroup = {
@@ -507,7 +521,7 @@ const CreateGroups = function(activityCodeType) {
         type: 'Number',
       },
       {
-        name: 'stage',
+        name: 'roomOrStage',
         type: 'String',
         canBeExternal: true,
       },
@@ -533,12 +547,17 @@ const CreateGroups = function(activityCodeType) {
         name: 'createParentIfNotPresent',
         type: 'Boolean',
         defaultValue: true,
-      }
+      },
+      {
+        name: 'extraMinutesByGroup',
+        type: 'Array<Tuple<Number, Number>>',
+        defaultValue: [],
+      },
     ],
     outputType: 'Array<String>',
     usesContext: true,
     mutations: ['schedule'],
-    implementation: (ctx, activityCode, count, stage, start, end, skipGroups, useStageName, createParentIfNotPresent) => {
+    implementation: (ctx, activityCode, count, roomOrStage, start, end, skipGroups, useStageName, createParentIfNotPresent, extraMinutesByGroup) => {
       var maxActivityId = 0
       ctx.competition.schedule.venues.forEach((venue) => {
         venue.rooms.forEach((room) => {
@@ -553,14 +572,27 @@ const CreateGroups = function(activityCodeType) {
       })
 
       var venue = ctx.competition.schedule.venues[0]
-      var matchingRooms = venue.rooms.filter((room) => room.name === stage)
-      if (matchingRooms.length === 0) {
-        return ['Could not find room named ' + stage]
+      var room = venue.rooms.find((room) => room.name === roomOrStage)
+      var stage = null
+      if (room === undefined) {
+        room = venue.rooms.find((room) => {
+          var ext = extension.getExtension(room, 'Room')
+          if (ext === null) {
+            return false
+          }
+          var stage = (ext.stages || []).find((stage) => stage.name == roomOrStage)
+          return stage !== undefined
+        })
+        if (room === undefined) {
+          return ['Could not find room named ' + roomOrStage]
+        }
+        var ext = extension.getExtension(room, 'Room')
+        stage = (ext.stages || []).find((stage) => stage.name == roomOrStage)
       }
-      var matchingActivities = matchingRooms[0].activities.filter((activity) => {
+      var matchingActivities = room.activities.filter((activity) => {
         return activity.activityCode === activityCode.id() &&
-          start >= DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venues[0].timezone) &&
-          end <= DateTime.fromISO(activity.endTime).setZone(ctx.competition.schedule.venues[0].timezone)
+          end >= DateTime.fromISO(activity.startTime).setZone(ctx.competition.schedule.venues[0].timezone) &&
+          start <= DateTime.fromISO(activity.endTime).setZone(ctx.competition.schedule.venues[0].timezone)
       })
       var out = []
       var activity = null
@@ -578,30 +610,55 @@ const CreateGroups = function(activityCodeType) {
           endTime: end.toISO(),
           name: activityCode.toString()
         }
-        matchingRooms[0].activities.push(activity)
+        room.activities.push(activity)
         out.push('Added activity ' + activity.name)
       } else {
         activity = matchingActivities[0]
       }
       var firstStartTime = null;
       var lastEndTime = null;
-      var length = end.diff(start, 'minutes').as('minutes') / count
+      var reservedTime = extraMinutesByGroup.reduce((accumulator, val) => accumulator += val[1], 0)
+      var length = (end.diff(start, 'minutes').as('minutes') - reservedTime) / count
+      var currentStart = start;
       for (var i = 0; i < count; i++) {
         if (skipGroups.includes(i + 1)) {
           continue
         }
-        var groupName = activityCode.toString() + ' ' + (useStageName ? (stage.split(' ')[0] + ' ' + (i + 1)) : ('Group ' + (i + 1)))
+        var groupPrefix
+        var ext = extension.getExtension(room, 'Room')
+        if (!useStageName) {
+          groupPrefix = 'Group'
+        } else if (stage !== null && stage.groupNamePrefix !== undefined) {
+          groupPrefix = stage.groupNamePrefix
+        } else if (stage !== null) {
+          groupPrefix = stage.name.split(' ')[0]
+        } else if (ext !== null && ext.groupNamePrefix !== undefined) {
+          groupPrefix = ext.groupNamePrefix
+        } else {
+          groupPrefix = room.name.split(' ')[0]
+        }
+        var groupName = activityCode.toString() + ' ' + groupPrefix + ' ' + (i + 1)
+        var nextStart = currentStart.plus({ minutes: length });
+        var maybeExtra = extraMinutesByGroup.find((val) => val[0] == (i + 1))
+        if (maybeExtra !== undefined) {
+          nextStart = nextStart.plus({ minutes: maybeExtra[1] });
+        }
         var next = {
           id: ++maxActivityId,
           activityCode: activityCode.group(i + 1).id(),
           childActivities: [],
           scrambleSetId: null,
           extensions: [],
-          startTime: start.plus({ minutes: length * i }).toISO(),
-          endTime: start.plus({ minutes: length * (i + 1) }).toISO(),
+          startTime: currentStart.toISO(),
+          endTime: nextStart.toISO(),
           name: groupName
         }
+        if (stage !== null) {
+          var ext = extension.getOrInsertExtension(next, 'Group')
+          ext.stageId = stage.id
+        }
         activity.childActivities.push(next)
+        currentStart = nextStart
         out.push('Added group ' + groupName + ' from ' + next.startTime + ' to ' + next.endTime)
         if (next.startTime > next.endTime) {
           out.push('Error! Start time before end time.')
@@ -609,12 +666,14 @@ const CreateGroups = function(activityCodeType) {
         if (firstStartTime === null || next.startTime < firstStartTime) {
           firstStartTime = next.startTime
         }
-        if (lastEndTime === null || next.endTime > lastEndTime) {
-          lastEndTime = next.endTime
-        }
+        lastEndTime = nextStart.toISO()
       }
-      activity.startTime = firstStartTime
-      activity.endTime = lastEndTime
+      if (firstStartTime < activity.startTime) {
+        activity.startTime = firstStartTime
+      }
+      if (lastEndTime > activity.endTime) {
+        activity.endTime = lastEndTime
+      }
       return out
     }
   }
@@ -633,7 +692,7 @@ const ManuallyAssign = {
       type: 'Round',
     },
     {
-      name: 'stage',
+      name: 'room',
       type: 'String',
     },
     {
@@ -649,10 +708,10 @@ const ManuallyAssign = {
   usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (ctx, persons, round, stage, number, assignmentCode) => {
+  implementation: (ctx, persons, round, room, number, assignmentCode) => {
     var groupsForRound = lib.groupsForRoundCode(ctx.competition, round)
     var groups = groupsForRound.filter((group) => {
-      return group.room.name === stage && group.activityCode.groupNumber === number
+      return group.room.name === room && group.activityCode.groupNumber === number
     })
     if (groups.length === 0) {
       return 'No matching groups found'

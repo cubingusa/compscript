@@ -61,7 +61,8 @@ PersonLiteral
   / "p" wcaUserId:$([0-9]+) { return { type: 'Person', wcaUserId: wcaUserId } }
 
 DateTimeLiteral
-  = value:$([0-9][0-9][0-9][0-9] "-" [0-9][0-9] "-" [0-9][0-9] "T" [0-9][0-9] ":" [0-9][0-9]) { return { type: 'DateTime', value: value } }
+  = value:$([0-9][0-9][0-9][0-9] "-" [0-9][0-9] "-" [0-9][0-9] "T" [0-9][0-9] ":" [0-9][0-9] ":" [0-9][0-9]) { return { type: 'DateTime', value: value } }
+  / value:$([0-9][0-9][0-9][0-9] "-" [0-9][0-9] "-" [0-9][0-9] "T" [0-9][0-9] ":" [0-9][0-9]) { return { type: 'DateTime', value: value } }
 
 DateLiteral
   = value:$([0-9][0-9][0-9][0-9] "-" [0-9][0-9] "-" [0-9][0-9]) { return { type: 'Date', value: value } }
