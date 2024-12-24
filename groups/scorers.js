@@ -1,7 +1,8 @@
 class ByMatchingValue {
-  constructor(value, score) {
+  constructor(value, score, limit) {
     this.value = value
     this.score = score
+    this.limit = limit
     this.cachedValues = {}
   }
 
@@ -14,7 +15,11 @@ class ByMatchingValue {
 
   getScore(person, group, otherPeople) {
     var val = this.getValue(person)
-    return otherPeople.filter((p) => this.getValue(p) == val).length * this.score
+    var matching = otherPeople.filter((p) => this.getValue(p) == val).length
+    if (this.limit !== null && matching > this.limit) {
+      matching = this.limit
+    }
+    return matching * this.score
   }
 }
 
