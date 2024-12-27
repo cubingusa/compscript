@@ -441,9 +441,34 @@ const PreviousRound = {
   implementation: (round) => round.round(round.roundNumber - 1),
 }
 
+const NumberInRound = {
+  name: 'NumberInRound',
+  args: [
+    {
+      name: 'round',
+      type: 'Round',
+    }
+  ],
+  outputType: 'Number',
+  usesContext: true,
+  implementation: (ctx, round) => {
+    if (round.roundNumber == 1) {
+      return lib.getWcifRound(ctx.competition, round).results.length
+    } else {
+      var prev = lib.getWcifRound(ctx.competition, round.round(round.roundNumber - 1))
+      var adv = prev.advancementCondition
+      if (adv.type !== "ranking") {
+        // Unsupported.
+        return 0;
+      }
+      return adv.level
+    }
+  }
+}
+
 module.exports = {
   functions: [Events, Rounds, EventId, RoundId, CompetingIn_Event, CompetingIn_Round, PositionInRound,
               RegisteredEvents, PersonalBest, Result,
               PsychSheetPosition, RoundPosition, AddResults,
-              IsFinal, RoundNumber, RoundForEvent, EventForRound, PreviousRound],
+              IsFinal, RoundNumber, RoundForEvent, EventForRound, PreviousRound, NumberInRound],
 }
