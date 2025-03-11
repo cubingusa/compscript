@@ -75,6 +75,7 @@ BinaryOperation
   / "(" left:Expression _ ">=" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [left, right] } }
   / "(" left:Expression _ "<=" _ right:Expression ")" { return { type: 'Function', name: 'GreaterThanOrEqualTo', args: [right, left] } }
   / "(" left:Expression _ "==" _ right:Expression ")" { return { type: 'Function', name: 'EqualTo', args: [left, right] } }
+  / "(" left:Expression _ "!=" _ right:Expression ")" { return { type: 'Function', name: 'Not', args: [{ type: 'Function', name: 'EqualTo', args: [left, right] }] }}
   / "(" left:Expression _ "+" _ right:Expression ")" { return { type: 'Function', name: 'Add', args: [left, right] } }
   / "(" left:Expression _ "-" _ right:Expression ")" { return { type: 'Function', name: 'Subtract', args: [left, right] } }
   / "(" left:Expression _ "*" _ right:Expression ")" { return { type: 'Function', name: 'Multiply', args: [left, right] } }
