@@ -102,8 +102,37 @@ function LimitConstraint(argType) {
   }
 }
 
+const SpecificAssignmentScore = {
+  name: 'SpecificAssignmentScore',
+  args: [
+    {
+      name: 'name',
+      type: 'String',
+    },
+    {
+      name: 'personProperty',
+      type: 'Boolean(Person)',
+      lazy: true,
+    },
+    {
+      name: 'clusterProperty',
+      type: 'Boolean(Number)',
+      lazy: true,
+    },
+    {
+      name: 'score',
+      type: 'Number',
+    },
+  ],
+  outputType: 'Constraint',
+  implementation: (name, personProperty, clusterProperty, score) => {
+    return new constraint.SpecificAssignmentScore(name, personProperty, clusterProperty, score)
+  }
+}
+
 module.exports = {
   functions: [Cluster,
               BalanceConstraint('Number'), BalanceConstraint('Boolean'),
-              LimitConstraint('Number'), LimitConstraint('Boolean')]
+              LimitConstraint('Number'), LimitConstraint('Boolean'),
+              SpecificAssignmentScore]
 }

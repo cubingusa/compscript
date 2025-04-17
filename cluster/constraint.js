@@ -110,7 +110,59 @@ class LimitConstraint {
   }
 }
 
+class SpecificAssignmentScore {
+  constructor(name, personProperty, clusterProperty, score) {
+    this.name = name
+    this.personProperty = personProperty
+    this.clusterProperty = clusterProperty
+    this.scoreValue = score
+    this.personCache = {}
+    this.clusterCache = {}
+    this.personGroups = {}
+  }
+
+  loadPerson(person, key) {
+    if (!this.personGroups[key]) {
+      this.personGroups[key] = []
+    }
+    this.personGroups[key].push(person)
+    this.getPerson(person)
+  }
+
+  getPerson(person) {
+    if (!(person.wcaUserId in this.personCache)) {
+      this.personCache[person.wcaUserId] = this.personProperty({Person: person})
+    }
+    return this.personCache[person.wcaUserId]
+  }
+
+  getCluster(cluster) {
+    if (!(cluster in this.clusterCache)) {
+      this.clusterCache[cluster] = this.clusterProperty({Number: cluster})
+    }
+    return this.clusterCache[cluster]
+  }
+
+  valueFor(person) {
+    return this.getPerson(person)
+  }
+
+  score(assignments, cluster, key) {
+    if (!this.getCluster(cluster)) {
+      return 0
+    }
+    out = 0
+    for (const person of this.personGroups[key]) {
+      if (this.getPerson(person)) {
+        out += this.scoreValue
+      }
+    }
+    return out
+  }
+}
+
 module.exports = {
   BalanceConstraint: BalanceConstraint,
   LimitConstraint: LimitConstraint,
+  SpecificAssignmentScore: SpecificAssignmentScore,
 }
