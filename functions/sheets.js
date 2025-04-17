@@ -88,6 +88,9 @@ readSpreadsheetImpl = async function(competition, spreadsheetId, offset, sheetTi
         personIdentifierVal = personIdentifierVal instanceof String ? personIdentifierVal.toUpperCase() : personIdentifierVal
         if (personIdentifierVal === identifierVal) {
           matching++
+          if (header.name == 'wcaid') {
+            matching++
+          }
         }
       })
       if (matching > bestMatch) {
