@@ -23,6 +23,9 @@ class BalanceConstraint {
   }
 
   score(assignments, cluster, key) {
+    if (this.totalScore == 0) {
+      return 0
+    }
     var expectedTotal = this.totalScore / Object.keys(assignments).length
     var totals = {}
     for (const [clusterName, persons] of Object.entries(assignments)) {
