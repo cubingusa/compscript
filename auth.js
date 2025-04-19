@@ -6,7 +6,7 @@ const fse = require('fs-extra')
 fse.ensureDirSync('.wcif_cache/' + process.env.ENV)
 
 custom.setHttpOptionsDefaults({
-  timeout: 240000,
+  timeout: 600000,
 });
 
 var router = express.Router()
