@@ -692,7 +692,7 @@ const ManuallyAssign = {
       type: 'Round',
     },
     {
-      name: 'room',
+      name: 'roomOrStage',
       type: 'String',
     },
     {
@@ -708,13 +708,31 @@ const ManuallyAssign = {
   usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (ctx, persons, round, room, number, assignmentCode) => {
+  implementation: (ctx, persons, round, roomOrStage, number, assignmentCode) => {
     var groupsForRound = lib.groupsForRoundCode(ctx.competition, round)
     var groups = groupsForRound.filter((group) => {
-      return group.room.name === room && group.activityCode.groupNumber === number
+      return group.room.name === roomOrStage && group.activityCode.groupNumber === number
     })
     if (groups.length === 0) {
-      return 'No matching groups found'
+      groups = groupsForRound.filter((group) => {
+        var ext = extension.getExtension(group.wcif, 'Group')
+        if (ext === null) {
+          return false
+        }
+        if (ext !== null && ext.stageId !== undefined) {
+          var room = group.room
+          var roomExt = extension.getExtension(room, 'Room')
+          if (roomExt !== null) {
+            var stage = (roomExt.stages || []).find((stage) => stage.id == ext.stageId)
+            if (stage.name == roomOrStage) {
+              return true
+            }
+          }
+        }
+      })
+      if (groups.length === 0) {
+        return 'No matching groups found'
+      }
     }
     persons.forEach((person) => {
       if (assignmentCode == "competitor") {
