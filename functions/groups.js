@@ -171,7 +171,7 @@ const RecentlyCompeted = {
   ],
   usesContext: true,
   outputType: 'AssignmentScorer',
-  implementation: (groupFilter, otherGroupFilter, scoreFn) => {
+  implementation: (ctx, groupFilter, otherGroupFilter, scoreFn) => {
     return new scorers.RecentlyCompeted(ctx.competition, groupFilter, otherGroupFilter, scoreFn)
   }
 }

@@ -1,4 +1,4 @@
-const lib = require('./lib')
+const lib = require('./../lib')
 
 class ByMatchingValue {
   constructor(value, score, limit) {
