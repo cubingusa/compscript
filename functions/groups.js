@@ -146,6 +146,36 @@ const ByFilters = {
   }
 }
 
+const RecentlyCompeted = {
+  name: 'RecentlyCompeted',
+  docs: 'Score a person\'s assignment based on how recently they competed',
+  args: [
+    {
+      name: 'groupFilter',
+      type: 'Boolean(Group)',
+      lazy: true,
+      docs: 'Which groups this applies to',
+    },
+    {
+      name: 'otherGroupFilter',
+      type: 'Boolean(Group)',
+      lazy: true,
+      docs: 'Which other groups should be considered',
+    },
+    {
+      name: 'scoreFn',
+      type: 'Number(Number)',
+      lazy: true,
+      docs: 'Scoring function based on the number of minutes since most recent group',
+    },
+  ],
+  usesContext: true,
+  outputType: 'AssignmentScorer',
+  implementation: (groupFilter, otherGroupFilter, scoreFn) => {
+    return new scorers.RecentlyCompeted(ctx.competition, groupFilter, otherGroupFilter, scoreFn)
+  }
+}
+
 const StationAssignmentRule = {
   name: 'StationAssignmentRule',
   docs: 'A rule to assign people to stations',
@@ -790,7 +820,7 @@ const CheckForMissingGroups = {
 }
 
 module.exports = {
-  functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, StationAssignmentRule,
+  functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, RecentlyCompeted, StationAssignmentRule,
               GroupNumber, Stage, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
               RoundStartTime, RoundEndTime,
