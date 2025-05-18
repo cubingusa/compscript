@@ -609,6 +609,8 @@ const AssignmentReport = {
       var timeB = groupsByRound[roundB][0].startTime;
       return timeA - timeB;
     })
+    var activityIdsWithAssignments = Set(persons.map((person) => person.assignments).flat()
+                                                .map((assignment) => assignment.activityId))
     return persons.map((person) => {
       var out = roundsSorted.map((round) => {
         return [
@@ -619,6 +621,9 @@ const AssignmentReport = {
               var group = groupsByRound[round].find((group) => group.activityCode.groupNumber == groupNumber + 1)
               if (group === undefined) {
                 return {value: null}
+              }
+              if (!activityIdsWithAssignments.has(group.wcif.id)) {
+                return {value: '?'}
               }
               for (const assignment of person.assignments) {
                 var assignmentGroup = allGroupsKeyed[assignment.activityId]
