@@ -609,8 +609,8 @@ const AssignmentReport = {
       var timeB = groupsByRound[roundB][0].startTime;
       return timeA - timeB;
     })
-    var activityIdsWithAssignments = Set(persons.map((person) => person.assignments).flat()
-                                                .map((assignment) => assignment.activityId))
+    var activityIdsWithAssignments = new Set(persons.map((person) => person.assignments).flat()
+                                                    .map((assignment) => assignment.activityId))
     return persons.map((person) => {
       var out = roundsSorted.map((round) => {
         return [
