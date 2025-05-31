@@ -68,7 +68,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId, offset, sheetTi
     var bestMatch = 0
     var countBestMatch = 0
     var matchingPerson = null
-    var firstIdentifier = ''
+    var bestIdentifier = ''
     competition.persons.forEach((person) => {
       var matching = 0
       headers.forEach((header) => {
@@ -81,8 +81,8 @@ readSpreadsheetImpl = async function(competition, spreadsheetId, offset, sheetTi
         }
         identifierVal = identifierVal instanceof String ? identifierVal.toUpperCase() : identifierVal
 
-        if (firstIdentifier === '') {
-          firstIdentifier = identifierVal
+        if (bestIdentifier === '' || header.name == 'name') {
+          bestIdentifier = identifierVal
         }
         var personIdentifierVal = header.getIdentifier(person)
         personIdentifierVal = personIdentifierVal instanceof String ? personIdentifierVal.toUpperCase() : personIdentifierVal
@@ -102,7 +102,7 @@ readSpreadsheetImpl = async function(competition, spreadsheetId, offset, sheetTi
       }
     })
     if (countBestMatch > 1 || matchingPerson === null) {
-      out.warnings.push('Ambiguous row for ' + firstIdentifier)
+      out.warnings.push('Ambiguous row for ' + bestIdentifier)
       return
     }
     var ext = extension.getOrInsertExtension(matchingPerson, 'Person')
