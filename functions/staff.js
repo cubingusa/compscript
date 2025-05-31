@@ -361,6 +361,40 @@ const ComputedWeightScorer = {
   }
 }
 
+const ConditionalScorer = {
+  name: 'ConditionalScorer',
+  args: [
+    {
+      name: 'personCondition',
+      type: 'Boolean(Person)',
+      lazy: true,
+    },
+    {
+      name: 'groupCondition',
+      type: 'Boolean(Group)',
+      lazy: true,
+    },
+    {
+      name: 'jobCondition',
+      type: 'Boolean(String)',
+      lazy: true,
+    },
+    {
+      name: 'stationCondition',
+      type: 'Boolean(Number)',
+      lazy: true,
+    },
+    {
+      name: 'score',
+      type: 'Number',
+    },
+  ],
+  outputType: 'AssignmentScorer',
+  implementation: (personCondition, groupCondition, jobCondition, stationCondition, score) => {
+    return new scorers.ConditionalScorer(personCondition, groupCondition, jobCondition, stationCondition, score)
+  }
+}
+
 const UnavailableBetween = {
   name: 'UnavailableBetween',
   docs: 'Indicates that the staff member is unavailable at the given time',
@@ -526,7 +560,7 @@ module.exports = {
               JobCountScorer, PriorAssignmentScorer, PreferenceScorer,
               SameJobScorer, ConsecutiveJobScorer, MismatchedStationScorer,
               SolvingSpeedScorer, GroupScorer, FollowingGroupScorer,
-              PersonPropertyScorer, ComputedWeightScorer,
+              PersonPropertyScorer, ComputedWeightScorer, ConditionalScorer,
               UnavailableBetween, UnavailableForDate, BeforeTimes, DuringTimes,
               NumJobs, NumJobsInRound, LengthOfJobs],
 }

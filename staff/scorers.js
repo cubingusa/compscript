@@ -247,6 +247,28 @@ class ComputedWeightScorer {
   }
 }
 
+class ConditionalScorer {
+  constructor(personCondition, groupCondition, jobCondition, stationCondition, score) {
+    this.personCondition = personCondition
+    this.groupCondition = groupCondition
+    this.jobCondition = jobCondition
+    this.stationCondition = stationCondition
+    this.score = score
+    this.caresAboutJobs = true
+    this.caresAboutStations = true
+  }
+
+  Score(competition, person, group, job, stationNumber) {
+    if (this.personCondition({Person: person}) &&
+        this.groupCondition({Group: group}) &&
+        this.jobCondition({String: job}) &&
+        this.stationCondition({Number: stationNumber})) {
+      return this.score
+    }
+    return 0
+  }
+}
+
 module.exports = {
   JobCountScorer: JobCountScorer,
   PriorAssignmentScorer: PriorAssignmentScorer,
@@ -258,4 +280,5 @@ module.exports = {
   FollowingGroupScorer: FollowingGroupScorer,
   PersonPropertyScorer,
   ComputedWeightScorer,
+  ConditionalScorer,
 }
