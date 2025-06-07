@@ -63,6 +63,10 @@ class PreferenceScorer {
   }
 
   Score(competition, person, group, job) {
+    if (!(job.name in this.allJobs)) {
+      return 0
+    }
+
     var ext = extension.getExtension(person, 'Person') || {}
     var prefs = Object.entries((ext.properties || {}))
                       .filter((e) => e[0].startsWith(this.prefix))
