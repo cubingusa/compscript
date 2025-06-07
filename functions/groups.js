@@ -247,6 +247,20 @@ const Stage = {
   }
 }
 
+const Room = {
+  name: 'Room',
+  docs: 'The room name for a group',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    }
+  ],
+  outputType: 'String',
+  implementation: (group) => group.room.name
+}
+
 const AssignedGroup = {
   name: 'AssignedGroup',
   docs: 'A person\'s assigned group for a round',
@@ -390,6 +404,33 @@ const EndTime = {
   usesContext: true,
   implementation: (ctx, group) => {
     return lib.endTime(group, ctx.competition)
+  }
+}
+
+const Overlaps = {
+  name: 'Overlaps',
+  docs: 'Whether a group overlaps a window of time',
+  args: [
+    {
+      name: 'group',
+      type: 'Group',
+      canBeExternal: true,
+    },
+    {
+      name: 'startTime',
+      type: 'DateTime',
+    },
+    {
+      name: 'endTime',
+      type: 'DateTime',
+    },
+  ],
+  outputType: 'Boolean',
+  usesContext: true,
+  implementation: (ctx, group, startTime, endTime) => {
+    var groupStart = lib.startTime(group, ctx.competition)
+    var groupEnd = lib.endTime(group, ctx.competition)
+    return groupStart <= endTime && groupEnd >= startTime
   }
 }
 
@@ -821,9 +862,9 @@ const CheckForMissingGroups = {
 
 module.exports = {
   functions: [AssignGroups, AssignmentSet, ByMatchingValue, ByFilters, RecentlyCompeted, StationAssignmentRule,
-              GroupNumber, Stage, AssignedGroup, AssignedGroups,
+              GroupNumber, Stage, Room, AssignedGroup, AssignedGroups,
               GroupName, StartTime, EndTime, Date,
-              RoundStartTime, RoundEndTime,
+              RoundStartTime, RoundEndTime, Overlaps,
               AssignmentAtTime, Code, Group, GroupForActivityId, Round, Event, Groups, AllGroups,
               CreateGroups('Round'), CreateGroups('Attempt'), ManuallyAssign,
               CheckForMissingGroups],
