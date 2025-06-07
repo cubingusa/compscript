@@ -186,7 +186,7 @@ const LastName = {
     }
   ],
   outputType: 'String',
-  implementation: (person) => person.name.split(' ').at(-1),
+  implementation: (person) => person.name.replace(/ \(.*\)/i).split(' ').at(-1),
 }
 
 const Property = (type) => {
