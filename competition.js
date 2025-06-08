@@ -92,6 +92,10 @@ async function runScript(req, res, script, filename, dryrun, clearCache) {
     script = `#include "${filename}"
     ${script}`
   }
+  if (process.env.AUTO_IMPORT) {
+    script = `#include "${process.env.AUTO_IMPORT}"
+    ${script}`
+  }
   if (clearCache) {
     fs.unlinkSync(auth.cachePath(req.params.competitionId))
   }
