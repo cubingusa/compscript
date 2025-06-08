@@ -202,10 +202,11 @@ class GroupScorer {
 }
 
 class FollowingGroupScorer {
-  constructor(competition, weight) {
+  constructor(competition, weight, maxMinutes) {
     this.groupToTime = Object.fromEntries(
         lib.allGroups(competition).map((group) => [group.wcif.id, group.startTime.toSeconds()]))
     this.weight = weight
+    this.maxMinutes = maxMinutes
     this.caresAboutStations = false
     this.caresAboutJobs = false
   }
@@ -213,6 +214,7 @@ class FollowingGroupScorer {
   Score(competition, person, group) {
     if (person.assignments.filter((assignment) => assignment.assignmentCode === 'competitor')
         .map((assignment) => this.groupToTime[assignment.activityId])
+        .any((startTime) => startTime >= group.endTime.toSeconds() && startTime <= group.endTime.toSeconds() + this.maxMinutes * 60)
         .includes(group.endTime.toSeconds())) {
       return this.weight
     } else {

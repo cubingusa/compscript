@@ -314,12 +314,17 @@ const FollowingGroupScorer = {
     {
       name: 'weight',
       type: 'Number',
-    }
+    },
+    {
+      name: 'maxMinutes',
+      type: 'Number',
+      defaultValue: 0,
+    },
   ],
   usesContext: true,
   outputType: 'AssignmentScorer',
-  implementation: (ctx, weight) => {
-    return new scorers.FollowingGroupScorer(ctx.competition, weight)
+  implementation: (ctx, weight, maxMinutes) => {
+    return new scorers.FollowingGroupScorer(ctx.competition, weight, maxMinutes)
   }
 }
 
