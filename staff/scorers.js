@@ -214,8 +214,7 @@ class FollowingGroupScorer {
   Score(competition, person, group) {
     if (person.assignments.filter((assignment) => assignment.assignmentCode === 'competitor')
         .map((assignment) => this.groupToTime[assignment.activityId])
-        .any((startTime) => startTime >= group.endTime.toSeconds() && startTime <= group.endTime.toSeconds() + this.maxMinutes * 60)
-        .includes(group.endTime.toSeconds())) {
+        .some((startTime) => startTime >= group.endTime.toSeconds() && startTime <= group.endTime.toSeconds() + this.maxMinutes * 60)) {
       return this.weight
     } else {
       return 0
