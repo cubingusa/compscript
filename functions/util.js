@@ -286,6 +286,60 @@ const AssignmentsBeforeCompeting = {
   }
 }
 
+const LongScrambleBlockAnalysis = {
+  name: 'LongScrambleBlockAnalysis',
+  args: [
+    {
+      name: 'persons',
+      type: 'Array<Person>',
+    }
+  ],
+  outputType: 'Array<String>',
+  usesContext: true,
+  implementation: (ctx, persons) => {
+    var groups = lib.allGroups(ctx.competition)
+    var groupsById = Object.fromEntries(groups.map((group) => [group.wcif.id, group]))
+    var recorded = []
+    persons.forEach((person) => {
+      var started = null
+      var ended = null
+      var groupCount = 0
+      var assignments = person.assignments.filter((assignment) => assignment.assignmentCode == 'staff-scrambler')
+      assignments.sort((a, b) => groupsById[b.activityId].startTime.diff(groupsById[a.activityId].startTime, 'seconds').seconds)
+      person.assignments.filter((assignment) => assignment.assignmentCode == 'staff-scrambler')
+        .forEach((assignment) => {
+          var group = groupsById[assignment.activityId]
+          if (ended == null) {
+            started = group.startTime
+            ended = group.endTime
+            groupCount = 1
+          } else if (group.startTime > ended) {
+            totalLength = ended.diff(started, 'minutes')
+            if (totalLength.minutes > 40 && groupCount > 2) {
+              recorded.push({person, started, ended, totalLength, groupCount})
+            }
+            started = group.startTime
+            ended = group.endTime
+            groupCount = 1
+          } else {
+            ended = group.endTime
+            groupCount += 1
+          }
+        })
+      if (ended !== null) {
+        totalLength = ended.diff(started, 'minutes')
+        if (totalLength.minutes > 40 && groupCount > 2) {
+          recorded.push({person, started, ended, totalLength, groupCount})
+        }
+      }
+    })
+    recorded.sort((a, b) => b.totalLength - a.totalLength)
+    return recorded.map((rec) => {
+      return `${rec.person.name} ${rec.totalLength.minutes} ${rec.groupCount} (${rec.started.toFormat('ccc HH:mm')} - ${rec.ended.toFormat('ccc HH:mm')})`
+    })
+  }
+}
+
 const CreateRoom = {
   name: 'CreateRoom',
   args: [
@@ -663,5 +717,5 @@ const AssignmentReport = {
 }
 
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, CreateRoom, CreateStage, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, LongScrambleBlockAnalysis, CreateRoom, CreateStage, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
 }
