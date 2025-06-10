@@ -63,7 +63,7 @@ class PreferenceScorer {
   }
 
   Score(competition, person, group, job) {
-    if (!(job.name in this.allJobs)) {
+    if (!this.allJobs.includes(job)) {
       return 0
     }
 
