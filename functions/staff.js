@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const assign = require('./../staff/assign')
 const scorers = require('./../staff/scorers')
 const extension = require('./../extension')
@@ -516,6 +518,8 @@ const NumJobsInRound = {
   usesContext: true,
   implementation: (ctx, person, round, type) => {
     const activityIds = lib.allActivitiesForRoundId(ctx.competition, round.id()).map((activity) => activity.wcif.id)
+    const ext = extension.getExtension(person, 'worldsassignments', namespace='com.competitiongroups')
+
     return person.assignments.filter((assignment) => {
       if (!activityIds.includes(assignment.activityId)) {
         return false
@@ -525,7 +529,7 @@ const NumJobsInRound = {
       } else {
         return assignment.assignmentCode.startsWith('staff-')
       }
-    }).length
+    }).length + (ext?.assignments || []).filter((assignment) => assignment.isVolunteering).length
   }
 }
 const LengthOfJobs = {
@@ -547,6 +551,8 @@ const LengthOfJobs = {
   outputType: 'Number',
   usesContext: true,
   implementation: (ctx, person, type) => {
+    const ext = extension.getExtension(person, 'worldsassignments', namespace='com.competitiongroups')
+
     return person.assignments.filter((assignment) => {
       if (type !== null) {
         return assignment.assignmentCode === 'staff-' + type
@@ -556,6 +562,10 @@ const LengthOfJobs = {
     }).map((assignment) => {
       var group = lib.groupForActivityId(ctx.competition, assignment.activityId)
       return group.endTime.diff(group.startTime, 'hours').hours
+    }).reduce((total, current) => total + current, 0) + (ext?.assignments || []).filter((assignment) => {
+      return assignment.isVolunteering
+    }).map((assignment) => {
+      return DateTime.fromISO(assignment.endTime).diff(DateTime.fromISO(assignment.startTime), 'hours').hours
     }).reduce((total, current) => total + current, 0)
   }
 }

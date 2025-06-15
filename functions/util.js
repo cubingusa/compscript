@@ -587,10 +587,15 @@ const CreateCompetitionGroupsAssignments = {
       name: 'endTime',
       type: 'DateTime',
     },
+    {
+      name: 'isVolunteering',
+      type: 'Boolean',
+      defaultValue: false,
+    }
   ],
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (persons, jobName, startTime, endTime) => {
+  implementation: (persons, jobName, startTime, endTime, isVolunteering) => {
     persons.forEach((person) => {
       ext = extension.getOrInsertExtension(person, 'worldsassignments', namespace='com.competitiongroups')
       if (ext.assignments === undefined) {
@@ -600,6 +605,7 @@ const CreateCompetitionGroupsAssignments = {
         staff: jobName,
         startTime: startTime.toISO(),
         endTime: endTime.toISO(),
+        isVolunteering
       })
     })
     return 'ok'

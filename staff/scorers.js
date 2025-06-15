@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon')
+
 const extension = require('./../extension')
 const lib = require('./../lib')
 
@@ -44,6 +46,16 @@ class PriorAssignmentScorer {
           } else {
             competingHours += hours
           }
+        }
+      }
+    }
+    const ext = extension.getOrInsertExtension(person, 'worldsassignments', namespace='com.competitiongroups')
+    for (const assignment of (ext?.assignments || [])) {
+      if (assignment.isVolunteering) {
+        var otherStart = lib.startTime(assignment, competition)
+        var otherEnd = lib.endTime(assignment, competition)
+        if (otherStart < startTime) {
+          staffingHours += otherEnd.diff(otherStart, 'hours')
         }
       }
     }
