@@ -49,13 +49,13 @@ class PriorAssignmentScorer {
         }
       }
     }
-    const ext = extension.getOrInsertExtension(person, 'worldsassignments', namespace='com.competitiongroups')
+    const ext = extension.getExtension(person, 'worldsassignments', 'com.competitiongroups')
     for (const assignment of (ext?.assignments || [])) {
       if (assignment.isVolunteering) {
-        var otherStart = lib.startTime(assignment, competition)
-        var otherEnd = lib.endTime(assignment, competition)
+        var otherStart = DateTime.fromISO(assignment.startTime).setZone(competition.schedule.venues[0].timezone)
+        var otherEnd = DateTime.fromISO(assignment.endTime).setZone(competition.schedule.venues[0].timezone)
         if (otherStart < startTime) {
-          staffingHours += otherEnd.diff(otherStart, 'hours')
+          staffingHours += otherEnd.diff(otherStart, 'hours').as('hours')
         }
       }
     }
@@ -126,6 +126,7 @@ class PrecedingAssignmentsScorer {
     this.caresAboutStations = false
     this.caresAboutJobs = true
     this.jobs = jobs
+    this.name = 'PrecedingAssignmentScorer'
   }
 
   Score(competition, person, group, job, stationNumber) {
@@ -159,6 +160,7 @@ class MismatchedStationScorer {
     this.caresAboutStations = true
     this.caresAboutJobs = true
     this.weight = weight
+    this.name = 'MismatchedStationScorer'
   }
   Score(competition, person, group, job, stationNumber) {
     var previousAssignment = PrecedingAssignment(person, group, this.groupsById)
@@ -214,16 +216,25 @@ class GroupScorer {
 }
 
 class FollowingGroupScorer {
-  constructor(competition, weight, maxMinutes) {
+  constructor(competition, weight, maxMinutes, personFilter) {
     this.groupToTime = Object.fromEntries(
         lib.allGroups(competition).map((group) => [group.wcif.id, group.startTime.toSeconds()]))
     this.weight = weight
     this.maxMinutes = maxMinutes
     this.caresAboutStations = false
     this.caresAboutJobs = false
+    this.personFilter = personFilter
+    this.personCache = {}
+    this.name = 'FollowingGroupScorer'
   }
 
   Score(competition, person, group) {
+    if (!(person.wcaUserId in this.personCache)) {
+      this.personCache[person.wcaUserId] = this.personFilter({Person: person})
+    }
+    if (!this.personCache[person.wcaUserId]) {
+      return 0
+    }
     if (person.assignments.filter((assignment) => assignment.assignmentCode === 'competitor')
         .map((assignment) => this.groupToTime[assignment.activityId])
         .some((startTime) => startTime >= group.endTime.toSeconds() && startTime <= group.endTime.toSeconds() + this.maxMinutes * 60)) {
@@ -238,6 +249,7 @@ class PersonPropertyScorer {
   constructor(filter, weight) {
     this.filter = filter
     this.weight = weight
+    this.name = 'PersonPropertyScorer'
   }
 
   Score(competition, person, group) {
@@ -254,6 +266,7 @@ class ComputedWeightScorer {
     this.weightFn = weightFn
     this.caresAboutJobs = true
     this.jobs = jobs
+    this.name = 'ComputedWeightScorer'
   }
 
   Score(competition, person, group, job) {
@@ -273,6 +286,7 @@ class ConditionalScorer {
     this.score = score
     this.caresAboutJobs = true
     this.caresAboutStations = true
+    this.name = 'ConditionalScorer'
   }
 
   Score(competition, person, group, job, stationNumber) {

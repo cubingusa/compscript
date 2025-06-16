@@ -322,11 +322,17 @@ const FollowingGroupScorer = {
       type: 'Number',
       defaultValue: 0,
     },
+    {
+      name: 'personFilter',
+      type: 'Boolean(Person)',
+      lazy: true,
+      defaultValue: true,
+    },
   ],
   usesContext: true,
   outputType: 'AssignmentScorer',
-  implementation: (ctx, weight, maxMinutes) => {
-    return new scorers.FollowingGroupScorer(ctx.competition, weight, maxMinutes)
+  implementation: (ctx, weight, maxMinutes, personFilter) => {
+    return new scorers.FollowingGroupScorer(ctx.competition, weight, maxMinutes, personFilter)
   }
 }
 
