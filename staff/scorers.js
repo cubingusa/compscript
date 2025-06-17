@@ -54,7 +54,7 @@ class PriorAssignmentScorer {
       if (assignment.isVolunteering) {
         var otherStart = DateTime.fromISO(assignment.startTime).setZone(competition.schedule.venues[0].timezone)
         var otherEnd = DateTime.fromISO(assignment.endTime).setZone(competition.schedule.venues[0].timezone)
-        if (otherStart < startTime) {
+        if (otherStart < startTime && (this.startTime === null || otherStart > this.startTime)) {
           staffingHours += otherEnd.diff(otherStart, 'hours').as('hours')
         }
       }
