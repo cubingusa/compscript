@@ -608,7 +608,7 @@ const CreateCompetitionGroupsAssignments = {
         isVolunteering
       })
     })
-    return 'ok'
+    return 'Created assignment for ' + persons.map((p) => p.name).join(', ')
   }
 }
 
