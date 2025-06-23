@@ -646,11 +646,16 @@ const AssignmentReport = {
     {
       name: 'label',
       type: 'String',
+    },
+    {
+      name: 'ignoreStage',
+      type: 'String',
+      defaultValue: '',
     }
   ],
   outputType: 'Multi',
   usesContext: true,
-  implementation: (ctx, persons, groups, label) => {
+  implementation: (ctx, persons, groups, label, ignoreStage) => {
     var allGroupsKeyed = Object.fromEntries(lib.allGroups(ctx.competition).map((group) => [group.wcif.id, group]))
     var groupsByRound = {}
     var maxGroupCount = 0;
@@ -689,7 +694,16 @@ const AssignmentReport = {
                 var assignmentGroup = allGroupsKeyed[assignment.activityId]
                 if (!!assignmentGroup && assignmentGroup.startTime <= group.startTime && assignmentGroup.endTime > group.startTime) {
                   var assignmentCode = assignment.assignmentCode.replace("staff-", "")
-                  var code = assignmentCode.toUpperCase()[0] + " " + assignmentGroup.room.name[0]
+                  var code = assignmentCode.toUpperCase()[0]
+                  var stageToAdd = ''
+                  if (assignmentGroup.stage !== null) {
+                    stageToAdd = assignmentGroup.stage.name.replace(ignoreStage, "")
+                    if (stageToAdd !== "") {
+                      code += " " + stageToAdd.match(/\b(\w)/g).join("")
+                    }
+                  } else {
+                    code += " L"
+                  }
                   if (assignment.stationNumber > 0) {
                     return {value: code + assignment.stationNumber}
                   } else {
