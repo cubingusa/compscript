@@ -1,4 +1,5 @@
 const activityCode = require('./activity_code')
+const extension = require('./extension')
 const { DateTime } = require('luxon')
 
 class Group {
@@ -8,6 +9,18 @@ class Group {
     this.room = room
     this.startTime = DateTime.fromISO(activity.startTime).setZone(competition.schedule.venues[0].timezone)
     this.endTime = DateTime.fromISO(activity.endTime).setZone(competition.schedule.venues[0].timezone)
+
+    this.stage = null
+    var ext = extension.getExtension(activity, 'Group')
+    if (ext !== null && ext.stageId !== undefined) {
+      var roomExt = extension.getExtension(room, 'Room')
+      if (roomExt !== null) {
+        var stage = (roomExt.stages || []).find((stage) => stage.id == ext.stageId)
+        if (stage !== undefined) {
+          this.stage = stage
+        }
+      }
+    }
   }
 
   name() {

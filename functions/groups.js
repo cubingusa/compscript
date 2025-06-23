@@ -232,16 +232,8 @@ const Stage = {
   ],
   outputType: 'String',
   implementation: (group) => {
-    var ext = extension.getExtension(group.wcif, 'Group')
-    if (ext !== null && ext.stageId !== undefined) {
-      var room = group.room
-      var roomExt = extension.getExtension(room, 'Room')
-      if (roomExt !== null) {
-        var stage = (roomExt.stages || []).find((stage) => stage.id == ext.stageId)
-        if (stage !== undefined) {
-          return stage.name
-        }
-      }
+    if (group.stage !== null) {
+      return group.stage.name
     }
     return group.room.name
   }
@@ -786,21 +778,7 @@ const ManuallyAssign = {
     })
     if (groups.length === 0) {
       groups = groupsForRound.filter((group) => {
-        var ext = extension.getExtension(group.wcif, 'Group')
-        if (ext === null) {
-          return false
-        }
-        if (ext !== null && ext.stageId !== undefined) {
-          var room = group.room
-          var roomExt = extension.getExtension(room, 'Room')
-          if (roomExt !== null) {
-            var stage = (roomExt.stages || []).find((stage) => stage.id == ext.stageId)
-            if (stage.name == roomOrStage && group.activityCode.groupNumber === number) {
-              return true
-            }
-          }
-        }
-        return false
+        return (group.stage !== null && group.stage.name === roomOrStage && group.activityCode.groupNumber === number)
       })
       if (groups.length === 0) {
         return 'No matching groups found'
