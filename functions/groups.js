@@ -795,7 +795,7 @@ const ManuallyAssign = {
           var roomExt = extension.getExtension(room, 'Room')
           if (roomExt !== null) {
             var stage = (roomExt.stages || []).find((stage) => stage.id == ext.stageId)
-            if (stage.name == roomOrStage) {
+            if (stage.name == roomOrStage && group.activityCode.groupNumber === number) {
               return true
             }
           }
