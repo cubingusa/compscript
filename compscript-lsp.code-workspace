@@ -1,0 +1,44 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "./language-server/node_modules/typescript/lib"
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Client",
+        "type": "extensionHost",
+        "request": "launch",
+        "args": [
+          "--extensionDevelopmentPath=${workspaceFolder}/vscode-extension"
+        ],
+        "outFiles": ["${workspaceFolder}/vscode-extension/out/**/*.js"],
+        "preLaunchTask": {
+          "type": "npm",
+          "script": "watch",
+          "path": "vscode-extension/",
+          "isBackground": true
+        }
+      },
+      {
+        "name": "Attach to Server",
+        "type": "node",
+        "request": "attach",
+        "port": 6009,
+        "restart": true,
+        "outFiles": ["${workspaceFolder}/language-server/out/**/*.js"]
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Client + Server",
+        "configurations": ["Launch Client", "Attach to Server"]
+      }
+    ]
+  }
+}

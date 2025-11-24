@@ -1,0 +1,81 @@
+{
+  "name": "compscript-vscode",
+  "displayName": "CompScript Language Support",
+  "description": "Language support for CompScript - a domain-specific language for WCA competition management",
+  "version": "1.0.0",
+  "publisher": "compscript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coder13/compscript"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:compscript"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "compscript",
+        "aliases": [
+          "CompScript",
+          "compscript"
+        ],
+        "extensions": [
+          ".cs",
+          ".compscript"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "compscript",
+        "scopeName": "source.compscript",
+        "path": "./syntaxes/compscript.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "CompScript",
+      "properties": {
+        "compscript.maxNumberOfProblems": {
+          "scope": "resource",
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems produced by the server."
+        },
+        "compscript.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "postinstall": "cd ../language-server && npm install"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.75.0",
+    "typescript": "^5.3.0"
+  }
+}
