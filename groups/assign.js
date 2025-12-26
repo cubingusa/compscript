@@ -23,7 +23,7 @@ function Assign(competition, round, assignmentSets, scorers, stationRules, attem
     } else {
       competition.persons.forEach((person) => {
         person.assignments = person.assignments.filter(
-            (assignment) => !activityIds.includes(assignment.activityId))
+            (assignment) => !activityIds.includes(assignment.activityId) || assignment.code !== 'competitor')
       })
     }
   }
@@ -212,7 +212,7 @@ function constructModel(queue, groupsToUse, scorers, assignmentsByGroup, current
       if (personKey in preAssignedByPerson && preAssignedByPerson[personKey] != group.wcif.id) {
         return
       }
-      if (!queueItem.person.assignments.every((assignment) => !conflictingActivitiesByGroup[group.wcif.id].includes(assignment.activityId))) {
+      if (!queueItem.person.assignments.every((assignment) => assignment.code !== 'competitor' || !conflictingActivitiesByGroup[group.wcif.id].includes(assignment.activityId))) {
         return
       }
       var newScore = 0
