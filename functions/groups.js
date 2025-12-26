@@ -320,7 +320,7 @@ const GroupName = {
     },
   ],
   outputType: 'String',
-  implementation: (group) => group.fullName()
+  implementation: (group) => group.name()
 }
 
 const StartTime = {
@@ -766,12 +766,18 @@ const ManuallyAssign = {
       name: 'assignmentCode',
       type: 'String',
       defaultValue: 'competitor',
+    },
+    {
+      name: 'stationNumber',
+      type: 'Number',
+      nullable: true,
+      defaultValue: null,
     }
   ],
   usesContext: true,
   outputType: 'String',
   mutations: ['persons'],
-  implementation: (ctx, persons, round, roomOrStage, number, assignmentCode) => {
+  implementation: (ctx, persons, round, roomOrStage, number, assignmentCode, stationNumber) => {
     var groupsForRound = lib.groupsForRoundCode(ctx.competition, round)
     var groups = groupsForRound.filter((group) => {
       return group.room.name === roomOrStage && group.activityCode.groupNumber === number
@@ -792,7 +798,7 @@ const ManuallyAssign = {
       }
       person.assignments.push({
         activityId: groups[0].wcif.id,
-        stationNumber: null,
+        stationNumber: stationNumber,
         assignmentCode: assignmentCode,
       })
     })
