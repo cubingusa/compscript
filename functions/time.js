@@ -89,6 +89,23 @@ const FormatTime = {
   implementation: (time) => time.toLocaleString(DateTime.TIME_SIMPLE)
 }
 
+const Subtract = {
+  name: 'Subtract',
+  docs: 'Subtracts two times (may be invoked with "-")',
+  args: [
+    {
+      name: 'val1',
+      type: 'DateTime',
+    },
+    {
+      name: 'val2',
+      type: 'DateTime',
+    },
+  ],
+  outputType: 'Number',
+  implementation: (val1, val2) => val1.diff(val2, 'minutes').minutes,
+}
+
 module.exports = {
-  functions: [Time, Hour, Day, Date, Weekday, Midnight, FormatTime],
+  functions: [Time, Hour, Day, Date, Weekday, Midnight, FormatTime, Subtract],
 }
