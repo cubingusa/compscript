@@ -736,6 +736,63 @@ const AssignmentReport = {
   }
 }
 
+const WorldsRename = {
+  name: 'WorldsRename',
+  args: [],
+  usesContext: true,
+  mutations: ['schedule'],
+  outputType: 'Array<String>',
+  implementation: (ctx) => {
+    var out = []
+    ctx.competition.schedule.venues[0].rooms[1].activities.forEach((parentActivity) => {
+      parentActivity.childActivities.forEach((activity) => {
+        if (activity.name.includes('Ballroom')) {
+          var old = activity.name
+          activity.name = activity.name.replaceAll('Ballroom', 'Side')
+          out.push(`Replaced ${old} with ${activity.name}`)
+        }
+      })
+    })
+    var ext = extension.getExtension(ctx.competition.schedule.venues[0].rooms[1], 'Room')
+    ext.stages.forEach((stage) => {
+        if (stage.name.includes('Ballroom')) {
+          var old = stage.name
+          stage.name = stage.name.replaceAll('Ballroom', 'Side')
+          out.push(`Replaced ${old} with ${stage.name}`)
+        }
+    })
+    ctx.competition.schedule.venues[0].rooms[1].ext
+    return out
+
+  }
+}
+
+const DeleteGroup = {
+  name: 'DeleteGroup',
+  args: [
+    {
+      name: 'activityId',
+      type: 'Number',
+    },
+  ],
+  usesContext: true,
+  outputType: 'String',
+  mutations: ['schedule'],
+  implementation: (ctx, activityId) => {
+    var out = 'Could not find matching group.'
+    ctx.competition.schedule.venues[0].rooms.forEach((room) => {
+      room.activities.forEach((parentActivity) => {
+        if (parentActivity.childActivities.some((activity) => activity.id == activityId)) {
+          var activity = parentActivity.childActivities.find((activity) => activity.id == activityId)
+          out = 'Removed ' + activity.name
+          parentActivity.childActivities = parentActivity.childActivities.filter((activity) => activity.id !== activityId)
+        }
+      })
+    })
+    return out
+  }
+}
+
 module.exports = {
-  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, LongScrambleBlockAnalysis, CreateRoom, CreateStage, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments],
+  functions: [Type, IsNull, Arg, ClearCache, SetExtension, SetGroupExtension, RenameAssignments, AssignmentsBeforeCompeting, LongScrambleBlockAnalysis, CreateRoom, CreateStage, DeleteRooms, CreateMiscActivity, CreateAssignments, CreateCompetitionGroupsAssignments, ClearCompetitionGroupsAssignments, AssignmentReport, ToString, ToString_Date, SwapAssignments, DeleteAssignments, WorldsRename, DeleteGroup],
 }
