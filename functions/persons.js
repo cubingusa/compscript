@@ -113,7 +113,7 @@ const Registered = {
     }
   ],
   outputType: 'Boolean',
-  implementation: (person) => person.registration && person.registration.status == 'accepted'
+  implementation: (person) => person.registration && person.registration.status == 'accepted' && person.registration.isCompeting
 }
 
 const WcaIdYear = {
@@ -486,7 +486,6 @@ const ClearAssignments = {
   mutations: ['persons'],
   outputType: 'String',
   implementation: (persons, clearStaff, clearGroups) => {
-    clearGroups = false
     persons.forEach((person) => {
       person.assignments = person.assignments.filter((assignment) => {
         if (clearGroups && assignment.assignmentCode === 'competitor') {
@@ -532,7 +531,7 @@ const IsPossibleNoShow = {
   outputType: 'Boolean',
   usesContext: true,
   implementation: (ctx, person) => {
-    return person.registration && person.registration.status === 'accepted' &&
+    return person.registration && person.registration.status === 'accepted' && person.registration.isCompeting &&
       !ctx.competition.events.map((event) => event.rounds[0].results).flat().some((result) => result.personId === person.registrantId && result.attempts.length > 0) &&
       ctx.competition.events.some((event) => !event.rounds[0].results.map((result) => result.personId).includes(person.registrantId) && person.registration && person.registration.eventIds.includes(event.id))
   }
