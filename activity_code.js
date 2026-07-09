@@ -94,7 +94,7 @@ class OtherActivity {
 function parse(code) {
   var codeSplit = code.split('-')
   if (codeSplit[0] == 'other') {
-    return new OtherActivity(codeSplit[1])
+    return new OtherActivity(codeSplit.slice(1).join('-'))
   }
   var eventId = codeSplit[0]
   if (!events.idToName[eventId]) {

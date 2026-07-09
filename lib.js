@@ -40,7 +40,7 @@ function allActivitiesForRoundId(competition, roundId) {
     .map((room) => room.activities
                        .map((activity) => activity.childActivities).flat()
                        .map((activity) => new groupLib.Group(activity, room, competition))).flat()
-    .filter(activity => activity.activityCode.group(null).id() === roundId)
+    .filter(activity => activity.activityCode.isActivity() && activity.activityCode.group(null).id() === roundId)
 }
 
 function allGroups(competition) {
