@@ -818,7 +818,7 @@ const ManuallyAssign = {
     {
       name: 'featured',
       type: 'Boolean',
-      defaultValue: 'false',
+      defaultValue: false,
     }
   ],
   usesContext: true,
