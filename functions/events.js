@@ -198,7 +198,7 @@ const Result = {
           if (result.attempts.length < number) {
             return null
           }
-          return new attemptResult.AttemptResult(result.attempts[number - 1].result, round.eventId)
+          return new attemptResult.AttemptResult(result.attempts[number - 1].value, round.eventId)
         }
       }
     }
@@ -340,7 +340,7 @@ const AddResults = {
                    if (res.value != 0) {
                      return {
                        personId: person.registrantId,
-                       attempts: [...Array(attempts)].map((x) => { return { result: res.value } }),
+                       attempts: [...Array(attempts)].map((x) => { return { value: res.value } }),
                        best: res.value,
                        average: res.value,
                        ranking: null,
