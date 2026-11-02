@@ -1,7 +1,7 @@
 const extension = require('./../extension')
 
 const All = function(argCount) {
-  const genericParams = [...Array(argCount).keys()].map((x) => 'T' + x)
+  const genericParams = [...Array(argCount).keys()].map((x) => 'T' + String.fromCharCode(x + 65))
   return {
     name: 'All',
     docs: 'Renders multiple items, possibly of different types',
@@ -17,7 +17,7 @@ const All = function(argCount) {
     implementation: (generics, ...args) => {
       return args.map((arg, idx) => {
         return {
-          type: generics['T' + idx],
+          type: generics['T' + String.fromCharCode(idx + 65)],
           data: arg,
         }
       })
@@ -62,6 +62,6 @@ const NoPageBreak = {
 
 module.exports = {
   functions: [All(0), All(1), All(2), All(3), All(4), All(5), All(6), All(7), All(8), All(9),
-              All(10), All(11), All(12), All(13), All(14),
+              All(10), All(11), All(12), All(13), All(14), All(15), All(16), All(17), All(18), All(19), All(20),
               Header, NoPageBreak],
 }
