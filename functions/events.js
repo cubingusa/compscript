@@ -321,9 +321,14 @@ const AddResults = {
           return 2
         case '3':
           return 3
+        case '5':
+          return 5
         case 'm':
           return 3
         case 'a':
+          return 5
+        case 'h':
+          // Included for completeness, but h2h isn't really supported by compscript currently.
           return 5
       }
     })(rd)
@@ -456,12 +461,12 @@ const NumberInRound = {
       return lib.getWcifRound(ctx.competition, round).results.length
     } else {
       var prev = lib.getWcifRound(ctx.competition, round.round(round.roundNumber - 1))
-      var adv = prev.advancementCondition
-      if (adv.type !== "ranking") {
+      var adv = prev.participationRuleset
+      if (adv.participationSource.type !== "round" || adv.participationSource.resultCondition !== "ranking") {
         // Unsupported.
         return 0;
       }
-      return adv.level
+      return adv.participationSource.resultCondition.value
     }
   }
 }
