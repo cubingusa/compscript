@@ -43,9 +43,9 @@ async function getWcif(competitionId, req, res) {
   }
   if (shouldFetch) {
     console.log('fetching WCIF')
-    var wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif', req, res)
+    var wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif/version/2', req, res)
     if (wcif.error) {
-      wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif/public', req, res)
+      wcif = await getWcaApi('/api/v0/competitions/' + competitionId + '/wcif/version/2', req, res, includeToken=false)
     }
     fs.writeFileSync(cachePath(competitionId), JSON.stringify(wcif))
     console.log('fetched WCIF')
@@ -66,17 +66,24 @@ function wcaUrl(path) {
   return `${host}/${path}`
 }
 
-async function getWcaApi(resourceUrl, req, res) {
-  if (!req.session.refreshToken) {
-    return Promise.resolve(null)
+async function getWcaApi(resourceUrl, req, res, includeToken=true) {
+  if (includeToken) {
+    if (!req.session.refreshToken) {
+      return Promise.resolve(null)
+    }
+    var tokenSet = await client.refresh(req.session.refreshToken)
+    req.session.refreshToken = tokenSet.refresh_token
+    var url = wcaUrl(resourceUrl)
+    console.log(`starting call ${url}`)
+    var out = await client.requestResource(url, tokenSet.access_token)
+    console.log('ending call')
+    return JSON.parse(out.body.toString());
+  } else {
+    console.log(`starting call ${url}`)
+    var out = await client.requestResource(url, tokenSet.access_token)
+    console.log('ending call')
+    return JSON.parse(out.body.toString());
   }
-  var tokenSet = await client.refresh(req.session.refreshToken)
-  req.session.refreshToken = tokenSet.refresh_token
-  var url = wcaUrl(resourceUrl)
-  console.log(`starting call ${url}`)
-  var out = await client.requestResource(url, tokenSet.access_token)
-  console.log('ending call')
-  return JSON.parse(out.body.toString());
 }
 
 async function patchWcif(obj, keys, req, res) {
