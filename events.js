@@ -9,6 +9,7 @@ const idToName = {
   '333fm': '3x3x3 Fewest Moves',
   '333oh': '3x3x3 One-Handed',
   'clock': 'Clock',
+  'fto': 'Face-Turning Octahedron',
   'minx': 'Megaminx',
   'pyram': 'Pyraminx',
   'skewb': 'Skewb',
