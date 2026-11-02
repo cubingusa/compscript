@@ -729,6 +729,9 @@ const AssignmentReport = {
                 rows: out,
               }
             },
+            {
+              type: 'Spacer',
+            }
           ]
         }
       ]
