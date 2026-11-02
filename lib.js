@@ -21,7 +21,7 @@ function personalBest(person, evt, type='default') {
   if (matching.length == 0) {
     return null
   } else {
-    return new attemptResult.AttemptResult(matching[0].best, eventId)
+    return new attemptResult.AttemptResult(matching[0].value, eventId)
   }
 }
 
