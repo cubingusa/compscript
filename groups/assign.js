@@ -263,7 +263,7 @@ function assignStations(stationRules, groups, assignmentsByGroup, assignmentsByP
       assignmentsByGroup[group.wcif.id].forEach((a) => {
         var score = +rule.sortKey({Person: a.person})
         var personKey = a.person.wcaUserId.toString()
-        var exclusions = rule.exclusionRules.filter((rule) => rule.personFilter({ Person: a.person }))
+        var exclusions = (rule.exclusionRules || []).filter((rule) => rule.personFilter({ Person: a.person }))
         for (let i = 1; i <= numStations; i++) {
           if (exclusions.some((rule) => rule.stationFilter({ Number: i }))) {
             continue
